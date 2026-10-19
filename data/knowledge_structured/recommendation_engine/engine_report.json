@@ -1,0 +1,9 @@
+{
+  "generated_at_utc": "2026-08-10T09:42:19+00:00",
+  "engine_version": "recommendation_review_engine_v1.0",
+  "rule_count": 6,
+  "approved_enabled_rule_count": 0,
+  "generated_event_count": 0,
+  "missing_input_files": [],
+  "safety_note": "No draft or disabled rule was executed; outputs are review prompts only."
+}

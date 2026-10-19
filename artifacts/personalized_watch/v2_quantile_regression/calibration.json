@@ -1,0 +1,7 @@
+{
+  "method": "split_conformal_symmetric_interval_expansion",
+  "fit_split": "validation",
+  "target_coverage": 0.8,
+  "margin_mg_dl": 0.8910411172780215,
+  "validation_rows": 16002
+}

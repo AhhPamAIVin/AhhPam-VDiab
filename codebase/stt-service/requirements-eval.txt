@@ -1,0 +1,8 @@
+# Opt-in extra for eval/fetch_testset.py and eval/wer_benchmark.py — not
+# needed to run the service itself, only to fetch a real Vietnamese test set
+# and score WER against it.
+
+-r requirements.txt
+
+requests>=2.31.0
+jiwer>=3.0.0

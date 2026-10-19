@@ -1,0 +1,214 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: 'Inter', 'Inter Fallback', sans-serif;
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-dark: var(--brand-dark);
+  --color-brand-light: var(--brand-light);
+  --color-brand-mint: var(--brand-mint);
+  --color-warning: var(--warning);
+  --color-caution: var(--caution);
+  --color-danger: var(--danger);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.4);
+}
+
+:root {
+  color-scheme: light;
+  /* VDiab Brand Colors */
+  --brand: #43B5AE;
+  --brand-dark: #2D9D97;
+  --brand-light: #6FD2CC;
+  --brand-mint: #DFF7F3;
+  --warning: #F7A928;
+  --caution: #F7C548;
+  --danger: #E05252;
+
+  /* Core Tokens */
+  --background: #F7F8FA;
+  --foreground: #202124;
+  --card: #FFFFFF;
+  --card-foreground: #202124;
+  --popover: #FFFFFF;
+  --popover-foreground: #202124;
+  --primary: #43B5AE;
+  --primary-foreground: #FFFFFF;
+  --secondary: #F2F4F5;
+  --secondary-foreground: #202124;
+  --muted: #F2F4F5;
+  --muted-foreground: #666666;
+  --accent: #DFF7F3;
+  --accent-foreground: #2D9D97;
+  --destructive: #E05252;
+  --border: #E7E9EC;
+  --input: #E7E9EC;
+  --ring: #43B5AE;
+  --radius: 0.875rem;
+}
+
+.dark {
+  color-scheme: dark;
+  --background: #0F1719;
+  --foreground: #F3F7F7;
+  --card: #162124;
+  --card-foreground: #F3F7F7;
+  --popover: #182629;
+  --popover-foreground: #F3F7F7;
+  --primary: #318F89;
+  --primary-foreground: #F4FBFA;
+  --secondary: #202D30;
+  --secondary-foreground: #EDF5F4;
+  --muted: #202D30;
+  --muted-foreground: #A7B7B8;
+  --accent: #163331;
+  --accent-foreground: #8BCBC6;
+  --destructive: #F07171;
+  --border: #2A393C;
+  --input: #324347;
+  --ring: #4AA9A2;
+  --brand: #4AA9A2;
+  --brand-dark: #43B5AE;
+  --brand-light: #7DDED7;
+  --brand-mint: #173C3A;
+}
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #E7E9EC;
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #c5c9ce;
+}
+@keyframes login-orb-float {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(-14px, 18px, 0) scale(1.08); }
+}
+
+@keyframes login-cross-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.12; }
+  50% { transform: translateY(-14px) rotate(8deg); opacity: 0.22; }
+}
+
+.login-orb {
+  animation: login-orb-float 8s ease-in-out infinite;
+  will-change: transform;
+}
+
+.login-orb-two {
+  animation-delay: -4s;
+  animation-duration: 10s;
+}
+
+.login-medical-cross {
+  animation: login-cross-float 6s ease-in-out infinite;
+  will-change: transform, opacity;
+}
+
+.login-medical-cross-delayed {
+  animation-delay: -3s;
+  animation-duration: 8s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .login-orb,
+  .login-medical-cross {
+    animation: none;
+  }
+}
+
+.dark ::-webkit-scrollbar-thumb { background: #34464A; }
+.dark ::-webkit-scrollbar-thumb:hover { background: #486064; }
+
+/* Dark-mode soft colors for patient status surfaces */
+.dark .bg-red-50 { background-color: #2B1D20; }
+.dark .bg-red-100 { background-color: #352125; }
+.dark .bg-orange-50 { background-color: #2B241B; }
+.dark .bg-orange-100 { background-color: #382B1B; }
+.dark .bg-yellow-50 { background-color: #2A271A; }
+.dark .bg-yellow-100 { background-color: #35301B; }
+.dark .bg-blue-50 { background-color: #192735; }
+.dark .bg-blue-100 { background-color: #1D2E40; }
+.dark .bg-green-50 { background-color: #192A23; }
+.dark .bg-green-100 { background-color: #1D3429; }
+
+.dark .border-red-200,
+.dark .border-red-300 { border-color: #5A3037; }
+.dark .border-orange-200 { border-color: #5A4328; }
+.dark .border-yellow-200 { border-color: #554D27; }
+.dark .border-blue-200 { border-color: #2D4862; }
+
+.dark .text-red-500,
+.dark .text-red-600,
+.dark .text-red-700 { color: #E99A9A; }
+.dark .text-orange-500,
+.dark .text-orange-600,
+.dark .text-orange-700 { color: #DDB078; }
+.dark .text-yellow-500,
+.dark .text-yellow-600,
+.dark .text-yellow-700 { color: #D4C77B; }
+.dark .text-blue-500,
+.dark .text-blue-600,
+.dark .text-blue-700 { color: #8CB7DA; }
+.dark .text-green-500,
+.dark .text-green-600,
+.dark .text-green-700 { color: #88C7A5; }
+
+.dark .bg-red-50\/40 { background-color: rgb(43 29 32 / 0.72); }
+.dark .bg-orange-50\/30 { background-color: rgb(43 36 27 / 0.68); }
+.dark .bg-\[\#DFF7F3\] { background-color: #163331; }
+.dark .bg-\[\#D7F2EE\] { background-color: #1A3735; }
+.dark .bg-\[\#EAF8F6\] { background-color: #172F2E; }
+.dark .text-\[\#2D9D97\],
+.dark .text-\[\#238D87\],
+.dark .text-\[\#43B5AE\] { color: #82C7C2; }
+
+.dark .bg-purple-50 { background-color: #272131; }
+.dark .bg-purple-100 { background-color: #30273B; }
+.dark .text-purple-500,
+.dark .text-purple-600,
+.dark .text-purple-700 { color: #B6A3CA; }
+.dark .text-orange-800 { color: #D6B98A; }
+.dark .border-purple-200 { border-color: #4A3A5A; }
+.dark .hover\:bg-\[\#2D9D97\]:hover { background-color: #286F6A; }

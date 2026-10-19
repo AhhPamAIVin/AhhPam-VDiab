@@ -1,0 +1,21 @@
+patient_id,risk_group,measured_at,actual_glucose_mg_dl,actual_status,anchor_glucose_mg_dl,anchor_probability,low_band_mg_dl,high_band_mg_dl,note
+114637,STANDARD_TYPE_2,2026-02-10 14:40:00,247.0,WATCH,207.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+115850,STANDARD_TYPE_2,2026-02-19 14:38:00,245.0,WATCH,245.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+109843,STANDARD_TYPE_2,2026-02-20 20:30:00,184.0,WATCH,188.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+115985,OLDER_OR_HIGH_RISK,2026-02-28 06:44:00,244.0,WATCH,246.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+118815,STANDARD_TYPE_2,2026-02-28 13:53:00,226.0,WATCH,231.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+113026,STANDARD_TYPE_2,2026-02-28 14:06:00,235.0,WATCH,235.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+124697,OLDER_OR_HIGH_RISK,2026-02-28 17:44:00,246.0,WATCH,235.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+119400,STANDARD_TYPE_2,2026-02-28 20:10:00,247.0,WATCH,226.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+110849,OLDER_OR_HIGH_RISK,2026-03-01 06:53:00,225.0,WATCH,239.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+115647,OLDER_OR_HIGH_RISK,2026-03-01 07:10:00,185.0,WATCH,201.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+122436,OLDER_OR_HIGH_RISK,2026-03-01 07:20:00,211.0,WATCH,192.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+111734,STANDARD_TYPE_2,2026-03-01 12:50:00,216.0,WATCH,206.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+113073,OLDER_OR_HIGH_RISK,2026-03-01 14:14:00,224.0,WATCH,222.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+115600,OLDER_OR_HIGH_RISK,2026-03-01 17:28:00,238.0,WATCH,221.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+121454,OLDER_OR_HIGH_RISK,2026-03-01 17:54:00,228.0,WATCH,218.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+112448,OLDER_OR_HIGH_RISK,2026-03-01 17:55:00,234.0,WATCH,234.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"
+119996,STANDARD_TYPE_2,2026-03-01 18:26:00,139.0,NORMAL,160.0,0.0,129.0,181.0,
+111641,OLDER_OR_HIGH_RISK,2026-03-01 18:27:00,232.0,WATCH,152.0,0.0,110.0,181.0,
+120843,STANDARD_TYPE_2,2026-03-01 18:42:00,177.0,NORMAL,160.0,0.0,122.0,181.0,
+122453,STANDARD_TYPE_2,2026-03-01 18:43:00,204.0,WATCH,185.0,1.0,,,"P(WATCH) already >= threshold at the patient's own baseline — band not meaningful, abstain"

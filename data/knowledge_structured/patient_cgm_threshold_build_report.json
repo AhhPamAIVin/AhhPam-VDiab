@@ -1,0 +1,49 @@
+{
+  "generated_at_utc": "2026-08-19T02:48:10+00:00",
+  "pipeline_version": "personalized_type2_cgm_thresholds_v2.1",
+  "source_doi": "10.2337/dc26-S006",
+  "treatment_source_doi": "10.2337/dc26-S009",
+  "scope": "Synthetic personalized normal/danger initialization for TYPE_2 only",
+  "type2_patient_count": 489,
+  "prediabetes_patient_count_in_output": 0,
+  "care_plan_count": 489,
+  "clinical_target_count": 1467,
+  "monitoring_profile_count": 489,
+  "risk_group_counts": {
+    "OLDER_OR_HIGH_RISK": 256,
+    "STANDARD_TYPE_2": 233
+  },
+  "risk_reason_counts": {
+    "AGE_65_PLUS": 202,
+    "ANGINA_REPORTED": 38,
+    "CONGESTIVE_HEART_FAILURE_REPORTED": 40,
+    "CORONARY_HEART_DISEASE_REPORTED": 53,
+    "HEART_ATTACK_REPORTED": 60,
+    "INSULIN_REPORTED": 104,
+    "MEGLITINIDE_REPORTED": 5,
+    "STROKE_REPORTED": 39,
+    "SULFONYLUREA_REPORTED": 172
+  },
+  "risk_classification_inputs": [
+    "age_group_clean == 65+",
+    "reported cardiovascular disease flags",
+    "caregiver_required_flag"
+  ],
+  "medication_review_inputs": [
+    "reported insulin",
+    "reported sulfonylurea",
+    "reported meglitinide"
+  ],
+  "generated_states": [
+    "TARGET_NORMAL",
+    "DANGER_LOW",
+    "DANGER_HIGH"
+  ],
+  "excluded_state": "WATCH_ATTENTION",
+  "personalization_method": "Per-patient care plan and risk-stratified ADA CGM time goals; glucose cut points remain standardized because the guideline does not support unique cut points.",
+  "not_used_as_risk_inputs": [
+    "creatinine without a recorded renal diagnosis or validated eGFR"
+  ],
+  "medication_data_caveat": "NHANES medication records are self-reported baseline prescriptions; dose, schedule, current active status, and hypoglycemia history are unavailable. Medication exposure therefore increases review sensitivity but does not change ADA glucose cut points.",
+  "safety_note": "All approvals and identities are synthetic demo records. Values are ADA-derived reference targets and must not be used for real patient care without clinician review."
+}

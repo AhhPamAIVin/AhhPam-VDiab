@@ -1,0 +1,27 @@
+{
+  "generated_at_utc": "2026-08-19T04:11:50+00:00",
+  "engine_version": "personalized_attention_engine_v1.1",
+  "scope": "Dataset-only synthetic TYPE_2 personalized attention analysis",
+  "care_plan_version_aware": true,
+  "baseline_epoch_aware": true,
+  "baseline_days": 14,
+  "minimum_baseline_points_per_context": 5,
+  "suggestion_cooldown_hours_per_patient_reason": 12,
+  "patient_count": 489,
+  "measurement_count": 100470,
+  "attention_event_count": 18514,
+  "status_counts": {
+    "BASELINE_LEARNING": 18550,
+    "DANGER": 20802,
+    "NORMAL": 35659,
+    "WATCH": 25459
+  },
+  "state_precedence": [
+    "DANGER",
+    "WATCH",
+    "NORMAL"
+  ],
+  "watch_suggestion_requires_doctor_approval": false,
+  "automated_medication_change_allowed": false,
+  "safety_note": "WATCH suggestions are automatic self-monitoring prompts over synthetic data. They are not diagnoses or treatment orders and never override DANGER classification."
+}

@@ -1,0 +1,37 @@
+{
+  "feature_table_version": "personalized_watch_feature_table_v1",
+  "row_count": 81920,
+  "patient_count": 489,
+  "label_counts": {
+    "WATCH": 25459,
+    "NORMAL": 35659,
+    "DANGER_excluded_from_binary": 20802
+  },
+  "row_counts_by_split": {
+    "test": 16908,
+    "train": 44950,
+    "validation": 20062
+  },
+  "source_file_lineage": {
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/knowledge_structured/attention_engine/patient_attention_assessments.csv": {
+      "rows": 100470,
+      "sha256": "ef7b35ad48c9045a0d60c709396790a45e071cf2bbb586b7ee74552ae8c5767c"
+    },
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/knowledge_structured/attention_engine/patient_glucose_baselines.csv": {
+      "rows": 2142,
+      "sha256": "1924440dc8f3bf272090da572689241f0b99e90a4674047b62a05fa6dfbbdd0b"
+    },
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/knowledge_structured/patient_cgm_monitoring_profiles.csv": {
+      "rows": 489,
+      "sha256": "a4c24ae100e03dd2359f1f4b5127722ff91f2e6582497b3af5d357073c9db817"
+    },
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/NHANES/deployment_dataset/patient_profiles.csv": {
+      "rows": 489,
+      "sha256": "89ed84752b902e5ac2a985057f59b255cef76c424ae8b30b39360eda7741fd8b"
+    },
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/NHANES/deployment_dataset/patient_baseline_clinical.csv": {
+      "rows": 489,
+      "sha256": "8db6f68d19bad4a75709453e63528122c44f85e278161c4ec42df63ca93c6800"
+    }
+  }
+}

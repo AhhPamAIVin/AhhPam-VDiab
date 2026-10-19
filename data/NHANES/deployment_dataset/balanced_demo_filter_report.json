@@ -1,0 +1,114 @@
+{
+  "filter_version": "type2_only_after_prediabetes_purge_v1.0",
+  "filtered_at_utc": "2026-08-10T14:56:30.281969+00:00",
+  "selection_is_random": false,
+  "selection_order": "overall_data_quality_score DESC, glycemic_completeness DESC, patient_id ASC",
+  "eligibility": {
+    "quality_tier": "GOLD",
+    "stage_conflict_flag": false,
+    "profile_completeness": 100,
+    "vital_completeness": 100,
+    "lifestyle_completeness": 100,
+    "glycemic_completeness_minimum": 75
+  },
+  "eligible_before_balancing": {
+    "TYPE_2": 489
+  },
+  "retained_patient_counts": {
+    "TYPE_2": 489
+  },
+  "retained_patient_total": 489,
+  "tables": {
+    "deployment/patient_profiles.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/patient_baseline_clinical.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/patient_lifestyle_baseline.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/patient_prescription_status.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/patient_medications.csv": {
+      "before": 11329,
+      "after": 3234,
+      "removed": 8095
+    },
+    "deployment/project_diabetes_cohort.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/caregiver_profiles.csv": {
+      "before": 959,
+      "after": 139,
+      "removed": 820
+    },
+    "deployment/patient_doctor_assignments.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "deployment/doctor_profiles.csv": {
+      "before": 500,
+      "after": 386,
+      "removed": 114
+    },
+    "simulator/simulation_episodes.csv": {
+      "before": 2628,
+      "after": 1100,
+      "removed": 1528
+    },
+    "simulator/simulation_runs.csv": {
+      "before": 4424,
+      "after": 978,
+      "removed": 3446
+    },
+    "simulator/synthetic_glucose_measurements.csv": {
+      "before": 479837,
+      "after": 143274,
+      "removed": 336563
+    },
+    "simulator/synthetic_meal_events.csv": {
+      "before": 894501,
+      "after": 189611,
+      "removed": 704890
+    },
+    "medication/medication_flow_exclusions.csv": {
+      "before": 322,
+      "after": 177,
+      "removed": 145
+    },
+    "medication/synthetic_medication_administrations.csv": {
+      "before": 43020,
+      "after": 28260,
+      "removed": 14760
+    },
+    "medication/synthetic_medication_regimens.csv": {
+      "before": 701,
+      "after": 459,
+      "removed": 242
+    },
+    "medication/synthetic_medication_reminders.csv": {
+      "before": 43020,
+      "after": 28260,
+      "removed": 14760
+    },
+    "medication/synthetic_medication_schedule.csv": {
+      "before": 43020,
+      "after": 28260,
+      "removed": 14760
+    }
+  },
+  "source_or_intermediate_data_modified": false
+}

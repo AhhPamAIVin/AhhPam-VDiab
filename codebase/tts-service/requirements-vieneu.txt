@@ -1,0 +1,9 @@
+# Opt-in extra for the vieneu_tts engine (pnnbao-ump/VieNeu-TTS, Apache-2.0).
+# CPU/ONNX path only — matches VieNeu's own documented recommendation over
+# MPS on Apple Silicon, and needs no CUDA-specific install. A real CUDA
+# variant is a GPU-box-deployment concern, not local dev.
+
+-r requirements.txt
+
+vieneu
+soundfile>=0.12.1

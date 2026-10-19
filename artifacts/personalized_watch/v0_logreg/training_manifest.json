@@ -1,0 +1,7 @@
+{
+  "feature_table": "data/ml/personalized_watch/feature_table.csv",
+  "train_rows": 32688,
+  "validation_rows": 16002,
+  "test_rows_patient_holdout": 12428,
+  "random_state": 20260820
+}

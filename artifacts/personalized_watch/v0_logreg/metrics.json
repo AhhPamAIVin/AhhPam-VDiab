@@ -1,0 +1,121 @@
+{
+  "model_version": "v0_logreg",
+  "validation": {
+    "n": 16002,
+    "n_watch": 6520,
+    "n_normal": 9482,
+    "precision_watch": 0.8301417921356526,
+    "recall_watch": 0.8710122699386503,
+    "f1_watch": 0.8500860714018412,
+    "false_negative_rate_watch": 0.1289877300613497,
+    "pr_auc": 0.9248891690952201,
+    "roc_auc": 0.9168819545719821,
+    "brier_score": 0.10212983099607759,
+    "confusion_matrix": {
+      "tn": 8320,
+      "fp": 1162,
+      "fn": 841,
+      "tp": 5679
+    },
+    "operating_threshold": 0.5
+  },
+  "validation_by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 8931,
+      "n_watch": 3564,
+      "n_normal": 5367,
+      "precision_watch": 0.8115637319316689,
+      "recall_watch": 0.8664421997755332,
+      "f1_watch": 0.8381055774189171,
+      "false_negative_rate_watch": 0.1335578002244669,
+      "pr_auc": 0.9170759719046462,
+      "roc_auc": 0.9114419666093476,
+      "brier_score": 0.10665187991893482,
+      "confusion_matrix": {
+        "tn": 4650,
+        "fp": 717,
+        "fn": 476,
+        "tp": 3088
+      },
+      "operating_threshold": 0.5
+    },
+    "STANDARD_TYPE_2": {
+      "n": 7071,
+      "n_watch": 2956,
+      "n_normal": 4115,
+      "precision_watch": 0.8534255599472991,
+      "recall_watch": 0.8765223274695535,
+      "f1_watch": 0.8648197596795728,
+      "false_negative_rate_watch": 0.12347767253044654,
+      "pr_auc": 0.9338027281860438,
+      "roc_auc": 0.9234717533956925,
+      "brier_score": 0.09641827408333004,
+      "confusion_matrix": {
+        "tn": 3670,
+        "fp": 445,
+        "fn": 365,
+        "tp": 2591
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "validation_by_danger_bucket": {
+    "danger_heavy": {
+      "n": 525,
+      "n_watch": 523,
+      "n_normal": 2,
+      "precision_watch": 0.9961832061068703,
+      "recall_watch": 0.9980879541108987,
+      "f1_watch": 0.997134670487106,
+      "false_negative_rate_watch": 0.0019120458891013384,
+      "pr_auc": 0.9998958621340955,
+      "roc_auc": 0.9732313575525813,
+      "brier_score": 0.0062378575229288255,
+      "confusion_matrix": {
+        "tn": 0,
+        "fp": 2,
+        "fn": 1,
+        "tp": 522
+      },
+      "operating_threshold": 0.5
+    },
+    "danger_light": {
+      "n": 15477,
+      "n_watch": 5997,
+      "n_normal": 9480,
+      "precision_watch": 0.816368529365205,
+      "recall_watch": 0.8599299649824912,
+      "f1_watch": 0.8375832385902225,
+      "false_negative_rate_watch": 0.14007003501750875,
+      "pr_auc": 0.9134609170298529,
+      "roc_auc": 0.9098525000897073,
+      "brier_score": 0.10538261164306365,
+      "confusion_matrix": {
+        "tn": 8320,
+        "fp": 1160,
+        "fn": 840,
+        "tp": 5157
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "test_patient_holdout": {
+    "n": 12428,
+    "n_watch": 5588,
+    "n_normal": 6840,
+    "precision_watch": 0.8469630132337971,
+    "recall_watch": 0.8933428775948461,
+    "f1_watch": 0.8695349242292284,
+    "false_negative_rate_watch": 0.1066571224051539,
+    "pr_auc": 0.9479152810732361,
+    "roc_auc": 0.9348147607446199,
+    "brier_score": 0.09608412014350019,
+    "confusion_matrix": {
+      "tn": 5938,
+      "fp": 902,
+      "fn": 596,
+      "tp": 4992
+    },
+    "operating_threshold": 0.5
+  }
+}

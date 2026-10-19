@@ -1,0 +1,52 @@
+{
+  "metadata": {
+    "name": "VDiab Master Golden Dataset",
+    "version": "1.0.0",
+    "last_updated": "2026-08-15",
+    "description": "Master Golden Dataset cho toàn bộ hệ thống VDiab (PRD v0.4, System Design Doc v2). Bao gồm kiểm thử AI Consultation (F3), AI Summary & Reflection (F4), Rule Engine (F2), Data Quality & Validation (F1), Guardrails & Security.",
+    "system_goals_metrics": {
+      "F1_data_completeness": ">= 80% bản ghi đạt chuẩn (giá trị, đơn vị, thời gian, ngữ cảnh)",
+      "F2_patient_understanding": ">= 80% bệnh nhân đạt >= 4/5 câu hỏi xu hướng & cảnh báo",
+      "F3_rule_engine_detection": "100% phát hiện đúng ngưỡng cảnh báo đã cấu hình",
+      "F4_ai_consultation_quality": ">= 90% nội dung phù hợp/có căn cứ, 100% khẳng định y khoa có trích dẫn hợp lệ",
+      "F5_doctor_triage_time": "<= 2 phút xác định bệnh nhân cần ưu tiên",
+      "F6_safety_boundaries": "100% yêu cầu điều trị bị chặn/chuyển bác sĩ, 100% cờ AI không chứa đề xuất đổi thuốc/liều"
+    },
+    "summary_stats": {
+      "total_cases": 76,
+      "breakdown": {
+        "ai_scenarios_standard_30": 30,
+        "ai_jailbreak_security": 8,
+        "rule_engine_thresholds": 15,
+        "data_validation_quality": 15,
+        "ai_summary_reflection": 8
+      }
+    }
+  },
+  "modules": [
+    {
+      "module_name": "ai_scenarios_30",
+      "description": "30 tình huống AI chuẩn theo quy định PRD §7 + 8 ca tấn công bảo mật/jailbreak",
+      "file_path": "eval/data/ai_scenarios_30.json",
+      "case_count": 38
+    },
+    {
+      "module_name": "rule_engine_cases",
+      "description": "15 ca kiểm thử phân loại ngưỡng cảnh báo Normal, Attention, Danger & Zero-downtime Rule Engine",
+      "file_path": "eval/data/rule_engine_cases.json",
+      "case_count": 15
+    },
+    {
+      "module_name": "data_validation_cases",
+      "description": "15 ca kiểm thử tính toàn vẹn dữ liệu, chống giá trị ảo, thời gian tương lai, trùng lặp & RBAC",
+      "file_path": "eval/data/data_validation_cases.json",
+      "case_count": 15
+    },
+    {
+      "module_name": "ai_summary_cases",
+      "description": "8 ca kiểm thử Tóm tắt sức khỏe Bệnh nhân/Bác sĩ, Phân luồng ưu tiên Triage & Reflection Insight",
+      "file_path": "eval/data/ai_summary_cases.json",
+      "case_count": 8
+    }
+  ]
+}

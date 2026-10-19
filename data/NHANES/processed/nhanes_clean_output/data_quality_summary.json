@@ -1,0 +1,27 @@
+{
+  "input_rows": 15560,
+  "input_columns": 120,
+  "duplicate_rows_detected": 0,
+  "rows_after_deduplication": 15560,
+  "original_diabetes_stage_distribution": {
+    "Unclassified": 5752,
+    "Healthy": 4409,
+    "Prediabetes": 3547,
+    "Diabetes": 1852
+  },
+  "clinical_stage_distribution": {
+    "UNCLASSIFIED": 9945,
+    "PREDIABETES": 3763,
+    "DIABETES": 1852
+  },
+  "quality_tier_distribution": {
+    "REJECTED": 10200,
+    "GOLD": 4844,
+    "SILVER": 516
+  },
+  "accepted_rows": 5360,
+  "rejected_rows": 10200,
+  "mean_quality_score": 71.87,
+  "median_quality_score": 80.2,
+  "stage_conflict_rows": 665
+}

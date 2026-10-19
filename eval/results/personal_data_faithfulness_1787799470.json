@@ -1,0 +1,35 @@
+{
+  "generated_at_utc": "2026-08-27T02:57:50.578917Z",
+  "num_cases": 4,
+  "faithfulness_rate": 1.0,
+  "cases": [
+    {
+      "case_id": "own_medication_name",
+      "message": "Tôi đang dùng loại thuốc nào?",
+      "response": "Bạn đang dùng thuốc Metformin với liều 500mg, uống 2 lần/ngày. Nếu bạn có bất kỳ câu hỏi nào khác về thuốc hoặc tình trạng sức khỏe của mình, hãy cho tôi biết!",
+      "response_is_faithful": 1,
+      "detail": "expected substring: 'Metformin'"
+    },
+    {
+      "case_id": "own_average_glucose",
+      "message": "Đường huyết trung bình của tôi trong 7 ngày qua là bao nhiêu?",
+      "response": "Đường huyết trung bình của bạn trong 7 ngày qua là 110 mg/dL, dựa trên 3 lần đo được ghi nhận. Các giá trị cụ thể trong khoảng thời gian này là 100 mg/dL, 110 mg/dL và 120 mg/dL. Nếu bạn có thêm câu hỏi hoặc cần hỗ trợ gì khác, hãy cho tôi biết!",
+      "response_is_faithful": 1,
+      "detail": "expected 110.0 (+/-1.0), found numbers: [7.0, 110.0, 3.0, 100.0, 110.0, 120.0]"
+    },
+    {
+      "case_id": "own_assigned_doctor",
+      "message": "Bác sĩ điều trị của tôi là ai?",
+      "response": "Bác sĩ điều trị của bạn là BS. Nguyễn Văn Khang.",
+      "response_is_faithful": 1,
+      "detail": "expected substring: 'Khang'"
+    },
+    {
+      "case_id": "own_glucose_reading_count",
+      "message": "Tôi đã đo đường huyết bao nhiêu lần trong 7 ngày qua?",
+      "response": "Bạn đã đo đường huyết 3 lần trong 7 ngày qua.",
+      "response_is_faithful": 1,
+      "detail": "expected 3.0 (+/-0.0), found numbers: [3.0, 7.0]"
+    }
+  ]
+}

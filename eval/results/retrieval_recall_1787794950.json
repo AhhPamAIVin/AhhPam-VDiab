@@ -1,0 +1,804 @@
+{
+  "generated_at_utc": "2026-08-27T01:43:07.543058Z",
+  "k": 6,
+  "num_rows": 53,
+  "aggregate_exact_hit_rate": 0.6792452830188679,
+  "aggregate_ragas_context_recall": 0.6792452830188679,
+  "rows": [
+    {
+      "chunk_id": "t1-e79581d7bc076300",
+      "question": "Các tiêu chí nào được sử dụng để chẩn đoán bệnh tiểu đường?",
+      "document_title": "Quyết định 5481/QĐ-BYT (30/12/2020) - Hướng dẫn chẩn đoán và điều trị đái tháo đường típ 2 - Tiêu chí chẩn đoán",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-33214208fccb83a9",
+        "t2b-6a9074856c9d9354",
+        "t2b-3e6e44bf66ccb473",
+        "t2b-395aad95fff73bf3",
+        "t2b-e859df5d1c440123",
+        "t2a-8f05e340a0b30442"
+      ]
+    },
+    {
+      "chunk_id": "t1-93bca531032ffcd5",
+      "question": "Các chỉ số nào là bình thường cho HbA1c và glucose mao mạch trước ăn?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Bảng 4: Mục tiêu điều trị BN ĐTĐ trưởng thành, không có thai",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-93bca531032ffcd5",
+        "t2b-b0584988e70ede60",
+        "t2b-df145edefc143a03",
+        "t2b-f99b821c0307d197",
+        "t2b-1f6460bfabcc5fe9",
+        "t2b-76ef3865aab6c298"
+      ]
+    },
+    {
+      "chunk_id": "t1-0e6efe87bb78f32b",
+      "question": "Mức sức khoẻ nào được xác định khi HbA1c của bệnh nhân dưới 7,5% và glucose đói từ 90 đến 130 mg/dL?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Bảng 5: Mục tiêu điều trị ĐTĐ ở người cao tuổi",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-0e6efe87bb78f32b",
+        "t1-93bca531032ffcd5",
+        "t1-56ebd016f6c1a2b1",
+        "t2a-1f249051169d91b6",
+        "t2a-e7ee7a123530665b",
+        "t1-80a5e21368f60b79"
+      ]
+    },
+    {
+      "chunk_id": "t1-ef46b53e48908e4b",
+      "question": "Tần suất kiểm tra HbA1c nên được thực hiện như thế nào đối với bệnh nhân đái tháo đường đã đạt mục tiêu và ổn định?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Tần suất xét nghiệm & phân tầng nguy cơ tim mạch",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-1a1bce770e6fdbec",
+        "t2b-de2415600c342c96",
+        "t2b-b830d1446b10f65c",
+        "t2b-72ac41be20841887",
+        "t2b-a3f0dd2ce99f2dcd",
+        "t2b-b134da6502f7fa3e"
+      ]
+    },
+    {
+      "chunk_id": "t1-f8c4bbd6fe9cd352",
+      "question": "Tôi có thể truy cập được thông tin chi tiết về khuyến nghị chăm sóc bệnh đái tháo đường từ tạp chí nào?",
+      "document_title": "Standards of Care in Diabetes-2026: Glycemic Goals, Hypoglycemia and Hyperglycemic Crises",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-f8c4bbd6fe9cd352",
+        "t2b-a04986dd1bc7700f",
+        "t2a-399b26b6540a2754",
+        "t2b-8c71fc8cd65c73c4",
+        "t2b-a4db23ac3e65af1e",
+        "t2b-36853f5a235c3ed1"
+      ]
+    },
+    {
+      "chunk_id": "t1-56ebd016f6c1a2b1",
+      "question": "Tiêu chuẩn A1C cho bệnh nhân đái tháo đường được phân loại như thế nào?",
+      "document_title": "Standards of Care in Diabetes-2026: Older Adults - Khuyến nghị 13.7a/b/c và Bảng 13.2",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-56ebd016f6c1a2b1",
+        "t2a-1f249051169d91b6",
+        "t2a-e7ee7a123530665b",
+        "t2a-61d83558d7de34e2",
+        "t2b-bbce436d597a2642",
+        "t2a-80772f866c1388d3"
+      ]
+    },
+    {
+      "chunk_id": "t1-c0659153741073b2",
+      "question": "Những loại thuốc nào thường được sử dụng trong điều trị đái tháo đường?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Nhóm thuốc điều trị & nguyên tắc điều trị",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-7ab60543c211687f",
+        "t2a-e817f761aff95e4a",
+        "t2a-9d83a3aab9913b8e",
+        "t2b-20ac8280fb5ec631",
+        "t2b-ec97e37ffa0c816b",
+        "t2b-38a3adf72ecbc3c0"
+      ]
+    },
+    {
+      "chunk_id": "t1-606bc1404f9da952",
+      "question": "Metformin có được duy trì sau khi khởi trị không và trong trường hợp nào thì cần ưu tiên GLP-1 RA hoặc SGLT2i?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Lược đồ lựa chọn thuốc ĐTĐ típ 2",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-606bc1404f9da952",
+        "t2b-4e5bd815d7400326",
+        "t2b-a2a7514f65bb3971",
+        "t2b-3d1a13d3c271e8d1",
+        "t2b-ce6335ff632a3641",
+        "t1-f8f0392e6013fe54"
+      ]
+    },
+    {
+      "chunk_id": "t1-1ca047ef06ba3563",
+      "question": "Metformin có những chống chỉ định nào?",
+      "document_title": "Dược thư Quốc gia Việt Nam (xuất bản lần 3, 2022) - Chuyên luận Metformin",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-1ca047ef06ba3563",
+        "t1-606bc1404f9da952",
+        "t2b-e1cb65af3f4d5982",
+        "t2b-714eeaa2640c9426",
+        "t1-5489d7199db79163",
+        "t2a-0664cb5cc323aa07"
+      ]
+    },
+    {
+      "chunk_id": "t1-6682728f2c9c2b86",
+      "question": "Những nhóm thuốc nào được sử dụng trong điều trị đái tháo đường và mỗi nhóm có những thuốc nào đi kèm?",
+      "document_title": "Các nhóm thuốc điều trị tiểu đường type 2 - 8 nhóm thuốc chi tiết",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-e817f761aff95e4a",
+        "t2b-7ab60543c211687f",
+        "t2b-4153380e1cf737db",
+        "t2b-8712888575d16356",
+        "t2a-eae8113bfaca2d97",
+        "t2b-9b2b4e8d7bf521df"
+      ]
+    },
+    {
+      "chunk_id": "t1-d941e45fad964e3d",
+      "question": "Liều khởi đầu của thuốc IR là bao nhiêu và có những tác dụng phụ nào cần lưu ý?",
+      "document_title": "Hướng dẫn cách dùng và lưu ý sử dụng Metformin (Biguanide)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-c5498186bc155587",
+        "t2b-618b0cea10337b07",
+        "t1-d941e45fad964e3d",
+        "t2a-364128639f7b0534",
+        "t2a-ba76c27db34a9fb1",
+        "t2a-44e1f785524f2112"
+      ]
+    },
+    {
+      "chunk_id": "t1-de880ee0a437d8fa",
+      "question": "GLP-1 có thể được chỉ định cho bệnh nhân đái tháo đường type 1 có chỉ số BMI như thế nào?",
+      "document_title": "Standards of Care in Diabetes 2026 - thông cáo báo chí đầy đủ",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-717c62b3c36012d6",
+        "t2a-5734dd97fc0f14ac",
+        "t2a-cf39360928f4a437",
+        "t2a-4a78f8f6c6829031",
+        "t1-de880ee0a437d8fa",
+        "t1-1cd740c857595d05"
+      ]
+    },
+    {
+      "chunk_id": "t1-5489d7199db79163",
+      "question": "Nên ăn như thế nào để kiểm soát đường huyết hiệu quả?",
+      "document_title": "Chế độ dinh dưỡng cân bằng cho người đái tháo đường",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-6d4ad3912bba2e0c",
+        "t2a-63b68a94ce0b65ea",
+        "t2a-a282f38208fb7548",
+        "t2a-f18de566ee216b79",
+        "t2a-651f8b8ac5090041",
+        "t2a-b57ce6606919d538"
+      ]
+    },
+    {
+      "chunk_id": "t1-4398ad600c4c1a89",
+      "question": "Nên chia bữa ăn trong ngày như thế nào cho bệnh nhân đái tháo đường?",
+      "document_title": "Dinh dưỡng hợp lý đối với người bị bệnh đái tháo đường",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-6d4ad3912bba2e0c",
+        "t2a-651f8b8ac5090041",
+        "t2a-eb4c3be7c6fba56f",
+        "t2a-92c8821f4200cdc1",
+        "t2b-36853f5a235c3ed1",
+        "t2b-7ab60543c211687f"
+      ]
+    },
+    {
+      "chunk_id": "t1-67e8d2cfb9343ffa",
+      "question": "Làm thế nào để kiểm soát cân nặng cho người bị đái tháo đường?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Nguyên tắc dinh dưỡng & kiểm soát cân nặng",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-c854b38e7dd893a5",
+        "t2b-f6127a1c281b1e51",
+        "t2b-36853f5a235c3ed1",
+        "t2a-4bddc932f7bd3b4c",
+        "t2b-d925c67026a14d39",
+        "t2a-6d4ad3912bba2e0c"
+      ]
+    },
+    {
+      "chunk_id": "t1-f7ac042e93b39a61",
+      "question": "Chế độ ăn cho người bệnh đái tháo đường nên có tỷ lệ glucid, lipid và protein như thế nào?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Tỷ lệ năng lượng theo nhóm chất & chỉ số đường huyết thực phẩm",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-f6127a1c281b1e51",
+        "t1-f7ac042e93b39a61",
+        "t2b-d623d0e0d528e155",
+        "t2a-8cb908e10dda9969",
+        "t2a-6d4ad3912bba2e0c",
+        "t2a-92c8821f4200cdc1"
+      ]
+    },
+    {
+      "chunk_id": "t1-9c35d3d8485f2d5c",
+      "question": "Làm thế nào tôi có thể tìm kiếm thông tin về thực phẩm trong công cụ tra cứu tương tác?",
+      "document_title": "Bảng thành phần dinh dưỡng thực phẩm Việt Nam + công cụ tra cứu",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-76d67889031d99b6",
+        "t2b-d9a6b58f49e963f8",
+        "t2b-e5743e975a697d92",
+        "t2b-43168d473febb9e2",
+        "t2b-76031fbb8892ca28",
+        "t2b-46213d1eddccd993"
+      ]
+    },
+    {
+      "chunk_id": "t1-8164941be5e05c87",
+      "question": "Tiêu chí chẩn đoán đái tháo đường là gì?",
+      "document_title": "Trung tâm Dinh dưỡng lâm sàng - hướng dẫn chế độ ăn cho người bệnh đái tháo đường",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-ce11622cae246a6e",
+        "t2a-e178e47494b29c50",
+        "t2b-0901ffbcc41cd3a5",
+        "t2a-2163518879484d56",
+        "t2b-3e6e44bf66ccb473",
+        "t2a-f49ce303b8564b1f"
+      ]
+    },
+    {
+      "chunk_id": "t1-5ae43de7c70f0e58",
+      "question": "Chế độ ăn nào được công nhận có bằng chứng phòng ngừa đái tháo đường type 2 mạnh nhất?",
+      "document_title": "Standards of Care 2026 - Nutrition changes unpacked",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-5ae43de7c70f0e58",
+        "t2a-4a78f8f6c6829031",
+        "t2a-e817f761aff95e4a",
+        "t2a-5734dd97fc0f14ac",
+        "t2a-2d161e025586a3a1",
+        "t2a-6d4ad3912bba2e0c"
+      ]
+    },
+    {
+      "chunk_id": "t1-458381fb7120efe2",
+      "question": "Trước khi tập thể dục, tôi cần kiểm tra những gì để đảm bảo an toàn cho bệnh nhân đái tháo đường?",
+      "document_title": "Quyết định 5481/QĐ-BYT - Mục 5.1: Hoạt động thể lực",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-9313e7e39674240e",
+        "t2a-0363e6b98158983c",
+        "t2a-651f8b8ac5090041",
+        "t2a-4a78f8f6c6829031",
+        "t2b-36853f5a235c3ed1",
+        "t2b-a21f23e9de80232d"
+      ]
+    },
+    {
+      "chunk_id": "t1-d6e87fa946d8fcd3",
+      "question": "Những nguyên tắc nào nên tuân thủ khi tập thể dục cho người bị đái tháo đường?",
+      "document_title": "Giáo dục sức khỏe chuyên đề: Chế độ luyện tập đối với người bệnh đái tháo đường",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-3fe6e69ae440fe93",
+        "t2a-0363e6b98158983c",
+        "t2a-9313e7e39674240e",
+        "t2b-f6127a1c281b1e51",
+        "t2b-a21f23e9de80232d",
+        "t2b-79edc421e47a82f9"
+      ]
+    },
+    {
+      "chunk_id": "t1-e36f16856f77c12f",
+      "question": "Tôi nên tập thể dục bao nhiêu phút mỗi tuần và có những lưu ý gì về thời gian tập khi sử dụng insulin hoặc sulfonylurea?",
+      "document_title": "Weekly Exercise Targets",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-a21f23e9de80232d",
+        "t2a-a3bb9e601a17b57b",
+        "t2b-79edc421e47a82f9",
+        "t1-e36f16856f77c12f",
+        "t2a-628352e1a9c1e488",
+        "t2b-087c8100f78affd5"
+      ]
+    },
+    {
+      "chunk_id": "t1-3638e8f3f4ad2331",
+      "question": "Đái tháo đường được phân loại như thế nào theo ADA?",
+      "document_title": "Tổng quan về bệnh đái tháo đường (GS.TS Trần Hữu Dàng)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-af9f5694dc17099a",
+        "t2a-9d83a3aab9913b8e",
+        "t1-3638e8f3f4ad2331",
+        "t2a-b902f577275f2096",
+        "t2a-92c8821f4200cdc1",
+        "t2a-e178e47494b29c50"
+      ]
+    },
+    {
+      "chunk_id": "t1-32a44e4bca4e97b3",
+      "question": "Đái tháo đường được định nghĩa và phân loại như thế nào?",
+      "document_title": "10 điểm để hiểu đúng về bệnh đái tháo đường (GS.TS Thái Hồng Quang)",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-af9f5694dc17099a",
+        "t2a-9d83a3aab9913b8e",
+        "t2a-e178e47494b29c50",
+        "t2a-2163518879484d56",
+        "t2a-f49ce303b8564b1f",
+        "t2b-ce11622cae246a6e"
+      ]
+    },
+    {
+      "chunk_id": "t1-0039beade635adc2",
+      "question": "Bảng chỉ số Glycemic Index (GI) cho các món ăn Việt Nam gồm những mức nào và ví dụ cụ thể cho từng loại thực phẩm là gì?",
+      "document_title": "Chỉ số GI (PGS.TS.BS Trần Thị Thanh Hóa)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-55ee1a1a2f56133c",
+        "t2a-5259b6483a037514",
+        "t1-0039beade635adc2",
+        "t2a-76d67889031d99b6",
+        "t2a-1a4edd0ae6cb803e",
+        "t2a-32b6b30fd935216c"
+      ]
+    },
+    {
+      "chunk_id": "t1-b291eeb57a78cd13",
+      "question": "Những nguyên tắc an toàn nào cần tuân thủ khi bệnh nhân đái tháo đường nhịn ăn theo tôn giáo như Ramadan?",
+      "document_title": "Ăn kiêng và tôn giáo ở bệnh nhân đái tháo đường (PGS.TS Nguyễn Khoa Diệu Vân)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-b291eeb57a78cd13",
+        "t2a-b57ce6606919d538",
+        "t2a-a3bb9e601a17b57b",
+        "t2a-6db7d219a60089ae",
+        "t2a-865e54a6eb297093",
+        "t2a-ab5368f4bcaa74c8"
+      ]
+    },
+    {
+      "chunk_id": "t1-64841693f594a921",
+      "question": "Thời điểm nào là tốt nhất để tập luyện sau bữa ăn cho người bệnh đái tháo đường?",
+      "document_title": "Lựa chọn thời điểm tập thể dục an toàn và hiệu quả (PGS.TS Trần Thừa Nguyên)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-64841693f594a921",
+        "t2a-9313e7e39674240e",
+        "t2a-6d4ad3912bba2e0c",
+        "t2a-651f8b8ac5090041",
+        "t2b-f6127a1c281b1e51",
+        "t2a-0363e6b98158983c"
+      ]
+    },
+    {
+      "chunk_id": "t1-a6148ca877696746",
+      "question": "Thuốc nào có thể gây tăng glucose trong cơ thể?",
+      "document_title": "Một số thuốc không dùng để điều trị đái tháo đường nhưng có thể gây tăng hoặc hạ glucose máu (PGS.TS Hoàng Trung Vinh)",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-66c3176b95c810ae",
+        "t2a-f0d4b5b545915a7c",
+        "t2a-1b705f3034dcd85a",
+        "t2b-eb080033b077308b",
+        "t2a-9aae476b4499fe57",
+        "t2a-b1908b44f1ef0568"
+      ]
+    },
+    {
+      "chunk_id": "t1-6a2adb07401efdba",
+      "question": "Những bước nào trong nguyên tắc \"3 Dễ\" chăm sóc bàn chân mà tôi cần thực hiện hàng ngày?",
+      "document_title": "Hướng dẫn chăm sóc bàn chân ở người bệnh đái tháo đường (phòng loét – tránh cắt cụt chi) (TS.BS Nguyễn Thế Thành)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-6a2adb07401efdba",
+        "t2a-aac26725a97e187f",
+        "t1-3a2040fbebe7143c",
+        "t2a-ded215c0342d1053",
+        "t2b-f0d26c6052ff4501",
+        "t2b-278848af0f3bfb54"
+      ]
+    },
+    {
+      "chunk_id": "t1-3c4a9fdd26030ce2",
+      "question": "Khi nào bệnh nhân đái tháo đường típ 1 nên đi khám mắt lần đầu?",
+      "document_title": "Khám mắt định kỳ ở người bệnh đái tháo đường (BSCKII Bùi Phương Thảo)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-b49e4f321fa55f4c",
+        "t1-3c4a9fdd26030ce2",
+        "t2b-b7aec5357f183db5",
+        "t2a-b0192653427a4898",
+        "t2b-6d4b1beffde50a14",
+        "t2b-881716b36d7a0182"
+      ]
+    },
+    {
+      "chunk_id": "t1-99d938860c348700",
+      "question": "Ngưỡng đường huyết nguy hiểm là bao nhiêu và các dấu hiệu nhận biết sớm ra sao?",
+      "document_title": "Nhận biết và xử trí tăng đường huyết nguy hiểm (TS.BS Châu Mỹ Chi)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-99d938860c348700",
+        "t2a-7780bc343390ee38",
+        "t1-64841693f594a921",
+        "t2b-678e05e241bf5b02",
+        "t2a-b57ce6606919d538",
+        "t2a-a3390fc9010ddfe1"
+      ]
+    },
+    {
+      "chunk_id": "t1-a53894a416f7ea51",
+      "question": "Làm thế nào để phân biệt giữa stress và trầm cảm ở bệnh nhân đái tháo đường?",
+      "document_title": "Tâm lý – stress – trầm cảm ở bệnh nhân đái tháo đường (ThS.BS.CKII Nguyễn Hoàng Vũ)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-f4b63a0f358910ca",
+        "t2a-4bd5c7dc75a9df00",
+        "t1-a53894a416f7ea51",
+        "t2a-02e09ef9ff1fb1ca",
+        "t2b-1b937e71df26c865",
+        "t2b-a17b459ea08e6319"
+      ]
+    },
+    {
+      "chunk_id": "t1-f8f0392e6013fe54",
+      "question": "Khi tôi bị ốm, tôi nên làm gì để kiểm soát bệnh đái tháo đường của mình?",
+      "document_title": "\"Sick day rules\" – Ngày bị bệnh vẫn phải kiểm soát đái tháo đường (TS.BS Nguyễn Thị Thúy Hằng)",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-b57ce6606919d538",
+        "t2a-6db7d219a60089ae",
+        "t2b-c730ecbacd0cf874",
+        "t2b-07c1004a5c903e58",
+        "t2b-6794f92dd498d458",
+        "t2a-735ea14507934b00"
+      ]
+    },
+    {
+      "chunk_id": "t1-f100314db2b5338a",
+      "question": "Hướng dẫn nào được ban hành kèm theo QĐ 1530/QĐ-BYT để chẩn đoán và điều trị loét bàn chân do đái tháo đường?",
+      "document_title": "Quyết định 1530/QĐ-BYT (24/03/2023) - Hướng dẫn chẩn đoán và điều trị loét bàn chân do đái tháo đường",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-f100314db2b5338a",
+        "t2a-c58d868ac33ab370",
+        "t2b-4a0165d26bf0279b",
+        "t2b-1c8e882b71e094a1",
+        "t2b-23a7de21fa04bda5",
+        "t2b-891d285b77ed7bd4"
+      ]
+    },
+    {
+      "chunk_id": "t1-0523a196175c9a14",
+      "question": "Bộ hướng dẫn quốc tế về chăm sóc bàn chân cho bệnh nhân đái tháo đường bao gồm những chương nào?",
+      "document_title": "IWGDF 2019 - Hướng dẫn phòng ngừa và quản lý bàn chân đái tháo đường (bản dịch tiếng Việt)",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-0523a196175c9a14",
+        "t2b-227ab60e6241b0e7",
+        "t2b-7212a880fbf32c80",
+        "t1-6a2adb07401efdba",
+        "t2b-df41439f9b2e4fcd",
+        "t2b-3766f449302bea8e"
+      ]
+    },
+    {
+      "chunk_id": "t1-80a5e21368f60b79",
+      "question": "Tiêu chuẩn chẩn đoán đái tháo đường theo văn bản 5481/QĐ-BYT là gì?",
+      "document_title": "Quyết định 3280/QĐ-BYT (09/09/2011) - Hướng dẫn chẩn đoán và điều trị đái tháo đường týp 2 [ĐÃ HẾT HIỆU LỰC - xem 5481/QĐ-BYT]",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-0901ffbcc41cd3a5",
+        "t2a-33b23c06af44e720",
+        "t1-80a5e21368f60b79",
+        "t2b-129974ffb7486d93",
+        "t2b-7e6f1ef3f10e9b83",
+        "t1-0fc6871b77020e28"
+      ]
+    },
+    {
+      "chunk_id": "t1-0fc6871b77020e28",
+      "question": "Tiêu chuẩn tiền đái tháo đường theo ADA được xác định như thế nào trong các văn bản 3280/QĐ-BYT và 5481/QĐ-BYT?",
+      "document_title": "Quyết định 3319/QĐ-BYT (19/07/2017) - Hướng dẫn chẩn đoán và điều trị đái tháo đường típ 2 [ĐÃ HẾT HIỆU LỰC - xem 5481/QĐ-BYT]",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-0fc6871b77020e28",
+        "t2b-0901ffbcc41cd3a5",
+        "t2b-7e6f1ef3f10e9b83",
+        "t2a-33b23c06af44e720",
+        "t2b-48992804701a66f2",
+        "t2b-129974ffb7486d93"
+      ]
+    },
+    {
+      "chunk_id": "t1-9bf423e732206235",
+      "question": "Sulfonylurea có liều khởi đầu và tối đa là bao nhiêu?",
+      "document_title": "Gliclazide - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-18e6edaf64f87b1a",
+        "t1-9bf423e732206235",
+        "t2a-516d8f989ab81583",
+        "t2b-a89de0e2b8849ba4",
+        "t2b-ae79eb91675999b8",
+        "t2b-f6d71795eef228ef"
+      ]
+    },
+    {
+      "chunk_id": "t1-b66799694eb85f6a",
+      "question": "Liều dùng của ức chế DPP-4 là bao nhiêu và có cần điều chỉnh khi bệnh nhân có suy thận không?",
+      "document_title": "Sitagliptin - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-618b0cea10337b07",
+        "t2b-c5498186bc155587",
+        "t1-b66799694eb85f6a",
+        "t2a-9ae1fd0947c2d57a",
+        "t1-58371926826e93e1",
+        "t2a-5c7d2387158ef0fd"
+      ]
+    },
+    {
+      "chunk_id": "t1-01f67a4ddc10ebc6",
+      "question": "Liều lượng ức chế SGLT2 cho bệnh nhân đái tháo đường típ 2 là bao nhiêu?",
+      "document_title": "Dapagliflozin - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-01f67a4ddc10ebc6",
+        "t1-141d79640092fa4e",
+        "t2a-c329dcb9b867fedf",
+        "t2a-c0d57b6a73d64721",
+        "t2b-cc1fa2555c7bb1ee",
+        "t2b-88c83eaa98e1dd75"
+      ]
+    },
+    {
+      "chunk_id": "t1-7709e36928119eae",
+      "question": "Insulin nào thuộc loại nhanh và có thời gian tác dụng ngắn nhất?",
+      "document_title": "Insulin - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-7709e36928119eae",
+        "t2a-141cced7ed7071f3",
+        "t2b-f2a53e5ab1dccebc",
+        "t2b-68c11986345e48e8",
+        "t2b-e2ee60437da5c007",
+        "t2b-832b43b05fcaf62e"
+      ]
+    },
+    {
+      "chunk_id": "t1-1cd740c857595d05",
+      "question": "Liều khởi đầu và tối đa của đồng vận GLP-1 là bao nhiêu?",
+      "document_title": "Liraglutide - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2b-618b0cea10337b07",
+        "t1-1cd740c857595d05",
+        "t1-3afc616878e6dc3e",
+        "t2a-aeb01c9cef7597f7",
+        "t2a-677f6f4d2081eb65",
+        "t2a-bf8af323be2f182a"
+      ]
+    },
+    {
+      "chunk_id": "t1-2b331a8671ce970e",
+      "question": "TZD là gì và nó có chỉ định liều lượng như thế nào?",
+      "document_title": "Pioglitazone - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-2b331a8671ce970e",
+        "t2a-9d28fff399567497",
+        "t2a-82173d2280962e4f",
+        "t2b-13fd34fd81dc0bc0",
+        "t1-3638e8f3f4ad2331",
+        "t1-8164941be5e05c87"
+      ]
+    },
+    {
+      "chunk_id": "t1-991b9f0f0d395e83",
+      "question": "Acarbose có liều khởi đầu và cách sử dụng như thế nào?",
+      "document_title": "Acarbose - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-991b9f0f0d395e83",
+        "t2a-75e307b74580677b",
+        "t2a-1a196c7cae03f2ae",
+        "t2b-e5231a63da70fa96",
+        "t2b-86f89af8538785a3",
+        "t2b-f708375a7250b2dd"
+      ]
+    },
+    {
+      "chunk_id": "t1-18e6edaf64f87b1a",
+      "question": "Liều khởi đầu và liều tối đa của Sulfonylurea là bao nhiêu?",
+      "document_title": "Glimepiride - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-18e6edaf64f87b1a",
+        "t1-9bf423e732206235",
+        "t2b-a89de0e2b8849ba4",
+        "t2a-516d8f989ab81583",
+        "t2b-ae79eb91675999b8",
+        "t2b-f6d71795eef228ef"
+      ]
+    },
+    {
+      "chunk_id": "t1-b045411d23b2a33a",
+      "question": "Bệnh nhân dùng insulin có thể gặp biến chứng gì nếu thực hiện sai kỹ thuật tiêm?",
+      "document_title": "Insulin và kỹ thuật tiêm - Khoá đào tạo cập nhật kiến thức",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-7c608f5785056579",
+        "t1-b045411d23b2a33a",
+        "t2a-d98c5a7d9e5ca2ae",
+        "t2b-df145edefc143a03",
+        "t2b-3809b6288b5e8ddb",
+        "t2b-e648244332d729f7"
+      ]
+    },
+    {
+      "chunk_id": "t1-d5749e88fa739910",
+      "question": "Gliclazide có những chống chỉ định và tương tác thuốc nào?",
+      "document_title": "Diamicron (Gliclazide) và những lưu ý khi sử dụng thuốc",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-d5749e88fa739910",
+        "t1-6682728f2c9c2b86",
+        "t2b-8e8654b470624714",
+        "t2b-cc1fa2555c7bb1ee",
+        "t2b-c59d558285ba30de",
+        "t2b-5d421a65f3fdcd5b"
+      ]
+    },
+    {
+      "chunk_id": "t1-dd3400f284702743",
+      "question": "Liều dùng tối đa của nhóm Meglitinide là bao nhiêu và có những chống chỉ định nào không?",
+      "document_title": "Repaglinide - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-dd3400f284702743",
+        "t2a-70e8d98418f35152",
+        "t2a-75b3e16d9c59f2cd",
+        "t1-6682728f2c9c2b86",
+        "t2a-a791bbdbe74fd25b",
+        "t2b-2870db99e3bcb436"
+      ]
+    },
+    {
+      "chunk_id": "t1-141d79640092fa4e",
+      "question": "Liều lượng khuyến cáo của ức chế SGLT2 là bao nhiêu và có những điều kiện nào cần lưu ý khi sử dụng?",
+      "document_title": "Empagliflozin - Chuyên luận Dược thư QG",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-0194f2ee4aabc6be",
+        "t2b-7ca075ddfd142480",
+        "t2b-5c1cf7366ab17ce4",
+        "t2b-3c173417adca0a34",
+        "t2b-395aad95fff73bf3",
+        "t2b-3950a118e2b14dd1"
+      ]
+    },
+    {
+      "chunk_id": "t1-3afc616878e6dc3e",
+      "question": "Có những dạng nào của đồng vận GLP-1 và cách sử dụng của chúng ra sao?",
+      "document_title": "Semaglutide - Chuyên luận Dược thư QG",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2b-8d0f15aec683d5df",
+        "t2b-fdc6801569e7dbad",
+        "t2b-df145edefc143a03",
+        "t2b-7e6f1ef3f10e9b83",
+        "t2a-bf8af323be2f182a",
+        "t2b-a4e2ed1d09874715"
+      ]
+    },
+    {
+      "chunk_id": "t1-58371926826e93e1",
+      "question": "Liều lượng khuyến cáo của ức chế DPP-4 là bao nhiêu và có cảnh báo gì liên quan đến thuốc này không?",
+      "document_title": "Vildagliptin - Chuyên luận Dược thư QG",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t2a-5c7d2387158ef0fd",
+        "t1-58371926826e93e1",
+        "t1-b66799694eb85f6a",
+        "t2a-9ae1fd0947c2d57a",
+        "t2a-39fea8674e15803f",
+        "t2a-ca89f5f5e5e655ba"
+      ]
+    },
+    {
+      "chunk_id": "t1-8bf80dd09957395b",
+      "question": "Lượng vận động an toàn cho người bị đái tháo đường type 2 là bao nhiêu phút mỗi tuần?",
+      "document_title": "WHO 2020 Guidelines on Physical Activity and Sedentary Behaviour",
+      "exact_hit": true,
+      "ragas_context_recall": 1.0,
+      "retrieved_chunk_ids": [
+        "t1-8bf80dd09957395b",
+        "t2a-5734dd97fc0f14ac",
+        "t2a-4a78f8f6c6829031",
+        "t2a-e817f761aff95e4a",
+        "t2b-618b0cea10337b07",
+        "t2a-2d161e025586a3a1"
+      ]
+    },
+    {
+      "chunk_id": "t1-3a2040fbebe7143c",
+      "question": "Làm thế nào để chăm sóc bàn chân đúng cách để giảm nguy cơ cắt cụt chi ở người bệnh đái tháo đường?",
+      "document_title": "Lưu ý khi chăm sóc bàn chân ở người bệnh đái tháo đường - phần vận động",
+      "exact_hit": false,
+      "ragas_context_recall": 0.0,
+      "retrieved_chunk_ids": [
+        "t2a-6b370497dc99870a",
+        "t2b-b5643f75c62294d8",
+        "t2b-82d59db1cf2f52bf",
+        "t2b-fb1069d8cdd96e28",
+        "t1-6a2adb07401efdba",
+        "t2b-f179c873f188ad20"
+      ]
+    }
+  ]
+}

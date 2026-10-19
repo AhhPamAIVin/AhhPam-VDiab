@@ -1,0 +1,254 @@
+[
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 40,
+    "activity_time": "2026-06-10T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 42,
+    "activity_time": "2026-06-11T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 45,
+    "activity_time": "2026-06-17T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 45,
+    "activity_time": "2026-06-18T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 25,
+    "activity_time": "2026-06-19T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 28,
+    "activity_time": "2026-06-22T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 30,
+    "activity_time": "2026-06-23T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 45,
+    "activity_time": "2026-06-24T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 25,
+    "activity_time": "2026-06-25T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 37,
+    "activity_time": "2026-06-29T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 39,
+    "activity_time": "2026-06-30T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 36,
+    "activity_time": "2026-07-02T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 37,
+    "activity_time": "2026-07-03T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 44,
+    "activity_time": "2026-07-06T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 36,
+    "activity_time": "2026-07-07T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 39,
+    "activity_time": "2026-07-08T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 43,
+    "activity_time": "2026-07-10T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ công viên cùng vợ/chồng",
+    "duration_minutes": 34,
+    "activity_time": "2026-07-12T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 28,
+    "activity_time": "2026-07-13T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 38,
+    "activity_time": "2026-07-14T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 45,
+    "activity_time": "2026-07-15T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 28,
+    "activity_time": "2026-07-16T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 37,
+    "activity_time": "2026-07-21T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 32,
+    "activity_time": "2026-07-22T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 35,
+    "activity_time": "2026-07-23T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 25,
+    "activity_time": "2026-07-24T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đạp xe công viên",
+    "duration_minutes": 38,
+    "activity_time": "2026-07-25T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ công viên cùng vợ/chồng",
+    "duration_minutes": 32,
+    "activity_time": "2026-07-26T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 38,
+    "activity_time": "2026-07-27T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 39,
+    "activity_time": "2026-07-28T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 29,
+    "activity_time": "2026-07-29T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 45,
+    "activity_time": "2026-07-30T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 38,
+    "activity_time": "2026-07-31T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 28,
+    "activity_time": "2026-08-05T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ trên máy ở nhà",
+    "duration_minutes": 33,
+    "activity_time": "2026-08-06T20:15:00",
+    "note": null
+  },
+  {
+    "patient_id": "DEMO-P-0001",
+    "activity_type": "Đi bộ buổi tối quanh khu phố",
+    "duration_minutes": 32,
+    "activity_time": "2026-08-07T20:15:00",
+    "note": null
+  }
+]

@@ -1,0 +1,16 @@
+# Default install for the STT streaming service — deliberately light.
+# Covers the "erax" and "whisper" engines (both faster-whisper/CTranslate2).
+# Qwen2.5-Omni-3B needs requirements-qwen.txt on top of this.
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+websockets>=13.0
+pydantic-settings>=2.7.0
+python-dotenv>=1.0.0
+
+faster-whisper>=1.0.0
+ctranslate2>=4.0.0
+numpy>=1.26.0
+soundfile>=0.12.1
+
+openai>=1.50.0

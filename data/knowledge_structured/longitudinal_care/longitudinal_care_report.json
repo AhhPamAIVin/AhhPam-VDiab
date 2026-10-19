@@ -1,0 +1,20 @@
+{
+  "generated_at_utc": "2026-08-19T04:11:45+00:00",
+  "pipeline_version": "longitudinal_personalized_care_v1.0",
+  "patient_count": 489,
+  "clinical_review_event_count": 489,
+  "care_plan_version_count": 489,
+  "target_version_count": 1467,
+  "baseline_epoch_count": 489,
+  "change_log_count": 0,
+  "processing_result_counts": {
+    "VERSION_CREATED": 489
+  },
+  "invariants": [
+    "One ACTIVE care plan per patient",
+    "Strictly increasing effective dates",
+    "danger_low < target_low < target_high < danger_high",
+    "Clinician confirmation required for target changes",
+    "AI may adapt WATCH but may not author normal/danger target changes"
+  ]
+}

@@ -1,0 +1,223 @@
+{
+  "model_version": "v1_hgb",
+  "operating_threshold": 0.5,
+  "validation": {
+    "n": 16002,
+    "n_watch": 6520,
+    "n_normal": 9482,
+    "precision_watch": 0.9993865971476767,
+    "recall_watch": 0.9995398773006134,
+    "f1_watch": 0.9994632313472893,
+    "false_negative_rate_watch": 0.00046012269938650307,
+    "pr_auc": 0.9999988250271384,
+    "roc_auc": 0.9999991912347967,
+    "brier_score": 0.00037483465089454296,
+    "confusion_matrix": {
+      "tn": 9478,
+      "fp": 4,
+      "fn": 3,
+      "tp": 6517
+    },
+    "operating_threshold": 0.5
+  },
+  "validation_by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 8931,
+      "n_watch": 3564,
+      "n_normal": 5367,
+      "precision_watch": 0.9994391475042064,
+      "recall_watch": 1.0,
+      "f1_watch": 0.9997194950911641,
+      "false_negative_rate_watch": 0.0,
+      "pr_auc": 0.9999996852238178,
+      "roc_auc": 0.9999997908823448,
+      "brier_score": 0.00024210302964392024,
+      "confusion_matrix": {
+        "tn": 5365,
+        "fp": 2,
+        "fn": 0,
+        "tp": 3564
+      },
+      "operating_threshold": 0.5
+    },
+    "STANDARD_TYPE_2": {
+      "n": 7071,
+      "n_watch": 2956,
+      "n_normal": 4115,
+      "precision_watch": 0.9993231810490694,
+      "recall_watch": 0.9989851150202977,
+      "f1_watch": 0.9991541194383353,
+      "false_negative_rate_watch": 0.0010148849797023004,
+      "pr_auc": 0.9999985132395579,
+      "roc_auc": 0.999998931267336,
+      "brier_score": 0.0005424808267380322,
+      "confusion_matrix": {
+        "tn": 4113,
+        "fp": 2,
+        "fn": 3,
+        "tp": 2953
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "validation_by_danger_bucket": {
+    "danger_heavy": {
+      "n": 525,
+      "n_watch": 523,
+      "n_normal": 2,
+      "precision_watch": 1.0,
+      "recall_watch": 1.0,
+      "f1_watch": 1.0,
+      "false_negative_rate_watch": 0.0,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0,
+      "brier_score": 4.376628081286628e-06,
+      "confusion_matrix": {
+        "tn": 2,
+        "fp": 0,
+        "fn": 0,
+        "tp": 523
+      },
+      "operating_threshold": 0.5
+    },
+    "danger_light": {
+      "n": 15477,
+      "n_watch": 5997,
+      "n_normal": 9480,
+      "precision_watch": 0.9993331110370124,
+      "recall_watch": 0.9994997498749375,
+      "f1_watch": 0.9994164235097958,
+      "false_negative_rate_watch": 0.0005002501250625312,
+      "pr_auc": 0.9999986112757817,
+      "roc_auc": 0.999999120516658,
+      "brier_score": 0.00038740106957884616,
+      "confusion_matrix": {
+        "tn": 9476,
+        "fp": 4,
+        "fn": 3,
+        "tp": 5994
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "test_patient_holdout": {
+    "n": 12428,
+    "n_watch": 5588,
+    "n_normal": 6840,
+    "precision_watch": 0.998210771157631,
+    "recall_watch": 0.9983894058697208,
+    "f1_watch": 0.9983000805225015,
+    "false_negative_rate_watch": 0.0016105941302791697,
+    "pr_auc": 0.9999916359215166,
+    "roc_auc": 0.9999931714576348,
+    "brier_score": 0.001154727036875016,
+    "confusion_matrix": {
+      "tn": 6830,
+      "fp": 10,
+      "fn": 9,
+      "tp": 5579
+    },
+    "operating_threshold": 0.5
+  },
+  "test_patient_holdout_by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 7232,
+      "n_watch": 3178,
+      "n_normal": 4054,
+      "precision_watch": 0.9984271783579742,
+      "recall_watch": 0.9987413467589679,
+      "f1_watch": 0.9985842378480415,
+      "false_negative_rate_watch": 0.0012586532410320957,
+      "pr_auc": 0.9999938617937278,
+      "roc_auc": 0.9999951876849443,
+      "brier_score": 0.0010181472720161263,
+      "confusion_matrix": {
+        "tn": 4049,
+        "fp": 5,
+        "fn": 4,
+        "tp": 3174
+      },
+      "operating_threshold": 0.5
+    },
+    "STANDARD_TYPE_2": {
+      "n": 5196,
+      "n_watch": 2410,
+      "n_normal": 2786,
+      "precision_watch": 0.9979253112033195,
+      "recall_watch": 0.9979253112033195,
+      "f1_watch": 0.9979253112033195,
+      "false_negative_rate_watch": 0.002074688796680498,
+      "pr_auc": 0.9999884539608435,
+      "roc_auc": 0.9999900212383792,
+      "brier_score": 0.0013448241999734552,
+      "confusion_matrix": {
+        "tn": 2781,
+        "fp": 5,
+        "fn": 5,
+        "tp": 2405
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "test_patient_holdout_by_danger_bucket": {
+    "danger_heavy": {
+      "n": 714,
+      "n_watch": 709,
+      "n_normal": 5,
+      "precision_watch": 1.0,
+      "recall_watch": 1.0,
+      "f1_watch": 1.0,
+      "false_negative_rate_watch": 0.0,
+      "pr_auc": 1.0,
+      "roc_auc": 1.0,
+      "brier_score": 2.2250710342724094e-05,
+      "confusion_matrix": {
+        "tn": 5,
+        "fp": 0,
+        "fn": 0,
+        "tp": 709
+      },
+      "operating_threshold": 0.5
+    },
+    "danger_light": {
+      "n": 11714,
+      "n_watch": 4879,
+      "n_normal": 6835,
+      "precision_watch": 0.9979508196721312,
+      "recall_watch": 0.9981553597048576,
+      "f1_watch": 0.9980530792089354,
+      "false_negative_rate_watch": 0.0018446402951424472,
+      "pr_auc": 0.9999891526642507,
+      "roc_auc": 0.9999922633959824,
+      "brier_score": 0.0012237545336433323,
+      "confusion_matrix": {
+        "tn": 6825,
+        "fp": 10,
+        "fn": 9,
+        "tp": 4870
+      },
+      "operating_threshold": 0.5
+    }
+  },
+  "calibration_by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 8931,
+      "brier_before": 0.00024210302964392024,
+      "brier_after": 0.00011196954428395476
+    },
+    "STANDARD_TYPE_2": {
+      "n": 7071,
+      "brier_before": 0.0005424808267380322,
+      "brier_after": 0.000306415877056522
+    }
+  },
+  "group_kfold_stability_train_pool": {
+    "pr_auc_mean": 0.9998902411568139,
+    "pr_auc_std": 0.0001845156202939802,
+    "folds": 5
+  },
+  "vs_logreg_baseline": {
+    "logreg_pr_auc_validation": 0.9248891690952201,
+    "hgb_pr_auc_validation": 0.9999988250271384
+  }
+}

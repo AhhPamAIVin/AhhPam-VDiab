@@ -1,0 +1,208 @@
+﻿drug_section_id,drug_reference_id,section_type,section_title,content,source_line_start,source_line_end,pipeline_version
+DRUGSEC-1CDAAB19F85D,DRUG-ACARBOSE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Mã ATC: A10BF01. Ức chế alpha-glucosidase. Ức chế cạnh tranh, có hồi phục enzym alpha-amylase và alpha-glucosidase, làm chậm tiêu hoá carbohydrate, giảm hấp thu glucose sau ăn.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-BA20659698AF,DRUG-ACARBOSE,DƯỢC_LÝ,Dược lý,"Giảm HbA1c 0,4-0,77% khi đơn trị; 0,5-0,65% khi phối hợp. Không gây hạ đường huyết khi dùng đơn độc. Không ức chế lactase.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-EED70D0162BC,DRUG-ACARBOSE,DƯỢC_ĐỘNG_HỌC,Dược động học,"Chủ yếu ở đường tiêu hoá, hấp thu tối thiểu (1-2% ở dạng không đổi). Chuyển hoá bởi enzym ruột và hệ vi khuẩn đường ruột. Thời gian bán huỷ ~2 giờ. Ở suy thận (ClCr<25 mL/phút), nồng độ đỉnh và AUC tăng 5-6 lần.",12,14,knowledge_base_structuring_v1.0
+DRUGSEC-B926CCFC2535,DRUG-ACARBOSE,CHỈ_ĐỊNH,Chỉ định,Đái tháo đường típ 2 kiểm soát chưa đạt bằng chế độ ăn đơn thuần hoặc phối hợp với thuốc uống khác.,15,17,knowledge_base_structuring_v1.0
+DRUGSEC-057A0D753AFE,DRUG-ACARBOSE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Quá mẫn với thuốc.
+- Bệnh viêm ruột, viêm loét đại tràng, nguy cơ tắc ruột.
+- Rối loạn tiêu hoá mạn có kém hấp thu.
+- Suy gan nặng/xơ gan.
+- Nhiễm toan ceton do đái tháo đường.
+- Suy thận (ClCr<25 mL/phút).",18,25,knowledge_base_structuring_v1.0
+DRUGSEC-29C3615445A0,DRUG-ACARBOSE,LIỀU_DÙNG,Liều dùng,"- Khởi đầu: 25mg x1 lần/ngày, tăng dần tới 25mg x3 lần/ngày cùng bữa ăn.
+- Duy trì: 50-100mg x3 lần/ngày (tối đa 200mg/lần). Chỉnh liều mỗi 4-8 tuần theo glucose sau ăn.",26,29,knowledge_base_structuring_v1.0
+DRUGSEC-685C49C3BB84,DRUG-ACARBOSE,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Thường gặp: đầy hơi, đau bụng, tiêu chảy.
+- Ít gặp: buồn nôn, nôn, khó tiêu.
+- Hiếm gặp: phù, vàng da.
+- Triệu chứng tiêu hoá thường cải thiện theo thời gian.",30,35,knowledge_base_structuring_v1.0
+DRUGSEC-2824D50AE2A5,DRUG-ACARBOSE,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Tăng nguy cơ hạ đường huyết khi phối hợp insulin/metformin/sulfonylurea. **Nếu hạ đường huyết xảy ra khi đang dùng Acarbose, phải dùng glucose (không dùng đường sucrose)** vì Acarbose ức chế tiêu hoá sucrose. Than hoạt, pancreatin, neomycin, cholestyramin làm giảm hiệu quả.",36,38,knowledge_base_structuring_v1.0
+DRUGSEC-8D7ACB708C0B,DRUG-ACARBOSE,LƯU_Ý,Lưu ý,Theo dõi men gan ở 6-12 tháng đầu điều trị.,39,40,knowledge_base_structuring_v1.0
+DRUGSEC-6902B71B6DB0,DRUG-DAPAGLIFLOZIN,PHÂN_LOẠI,Phân loại,Tên chung quốc tế: Dapagliflozin. Mã ATC: A10BK01. Nhóm ức chế SGLT2 (kênh đồng vận chuyển Natri-glucose 2).,6,8,knowledge_base_structuring_v1.0
+DRUGSEC-DEB26F5802FC,DRUG-DAPAGLIFLOZIN,CƠ_CHẾ_TÁC_DỤNG,Cơ chế tác dụng,"Ức chế chọn lọc, có hồi phục kênh SGLT2 (Ki: 0,55 nM) — giảm tái hấp thu glucose ở thận, tăng thải glucose qua nước tiểu, không phụ thuộc insulin.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-5A49C8AA3CB0,DRUG-DAPAGLIFLOZIN,DẠNG_BÀO_CHẾ,Dạng bào chế,"Viên 5mg, 10mg (dạng dapagliflozin propanediol monohydrat).",12,14,knowledge_base_structuring_v1.0
+DRUGSEC-559293C65156,DRUG-DAPAGLIFLOZIN,CHỈ_ĐỊNH,Chỉ định,"- Đái tháo đường típ 2 (đơn trị hoặc phối hợp).
+- Suy tim phân suất tống máu giảm.
+- Bệnh thận mạn.",15,19,knowledge_base_structuring_v1.0
+DRUGSEC-95E03ADFC882,DRUG-DAPAGLIFLOZIN,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với dapagliflozin; bệnh nhân đang lọc máu.,20,22,knowledge_base_structuring_v1.0
+DRUGSEC-9DB29C30E17C,DRUG-DAPAGLIFLOZIN,LIỀU_DÙNG,Liều dùng,"- Đái tháo đường típ 2: 5mg/ngày, có thể tăng lên 10mg.
+- Suy tim/bệnh thận mạn: 10mg/ngày.
+- Không khởi trị nếu eGFR < 15 mL/phút/1,73m².",23,27,knowledge_base_structuring_v1.0
+DRUGSEC-1D3B0C33CE87,DRUG-DAPAGLIFLOZIN,CẢNH_BÁO_QUAN_TRỌNG,Cảnh báo quan trọng,"Nguy cơ nhiễm toan ceton, nhiễm nấm sinh dục, giảm thể tích/hạ huyết áp, hoại tử Fournier (hiếm nhưng nghiêm trọng), nhiễm trùng tiết niệu.",28,30,knowledge_base_structuring_v1.0
+DRUGSEC-DBF97BF939C5,DRUG-DAPAGLIFLOZIN,TÁC_DỤNG_PHỤ,Tác dụng phụ,"Thường gặp: nhiễm trùng sinh dục, tiểu nhiều, tăng hematocrit. Hiếm: nhiễm toan ceton, hoại tử Fournier.",31,33,knowledge_base_structuring_v1.0
+DRUGSEC-49632383CD3F,DRUG-DAPAGLIFLOZIN,GHI_CHÚ_ĐỐI_CHIẾU,Ghi chú đối chiếu,"Khớp với thông tin Vinmec đã có: liều khởi đầu 5mg, tối đa 10mg; ngưng nếu eGFR<45 (Vinmec) — Dược thư ghi chi tiết hơn: không khởi trị nếu eGFR<15.",34,35,knowledge_base_structuring_v1.0
+DRUGSEC-AD57D32DE85C,DRUG-EMPAGLIFLOZIN,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Mã ATC: A10BK03. Ức chế SGLT2 — chặn tái hấp thu glucose ở ống thận, tăng thải glucose qua nước tiểu.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-52F51F5FA959,DRUG-EMPAGLIFLOZIN,DẠNG_BÀO_CHẾ,Dạng bào chế,"Viên bao phim 10mg, 25mg.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-7AC9E0D4F198,DRUG-EMPAGLIFLOZIN,CHỈ_ĐỊNH,Chỉ định,"- Kiểm soát đường huyết ở người lớn ĐTĐ típ 2 chưa kiểm soát đủ bằng ăn uống/vận động.
+- Đơn trị khi không dung nạp metformin.
+- Phối hợp với thuốc hạ đường huyết khác kể cả insulin.
+- Giảm nguy cơ tim mạch ở BN ĐTĐ típ 2 đã có bệnh tim mạch.
+- Giảm tử vong tim mạch và nhập viện do suy tim (suy tim phân suất tống máu giảm).
+- FDA phê duyệt 06/2023 cho trẻ em ≥10 tuổi.",12,19,knowledge_base_structuring_v1.0
+DRUGSEC-9E85161DB703,DRUG-EMPAGLIFLOZIN,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với empagliflozin; bệnh thận giai đoạn cuối hoặc đang lọc máu.,20,22,knowledge_base_structuring_v1.0
+DRUGSEC-40731EA1DC20,DRUG-EMPAGLIFLOZIN,CẢNH_BÁO_QUAN_TRỌNG,Cảnh báo quan trọng,"- **Nhiễm toan ceton do ĐTĐ**: có thể xảy ra ngay cả khi đường huyết không quá cao (<250 mg/dL) — cần đánh giá ceton ngay khi nghi ngờ.
+- Không khuyến cáo nếu eGFR<30 (kiểm soát đường huyết) hoặc <20 (suy tim).
+- Không khuyến cáo khởi trị ở người ≥85 tuổi.",23,27,knowledge_base_structuring_v1.0
+DRUGSEC-5FB64B0CBC43,DRUG-EMPAGLIFLOZIN,LIỀU_DÙNG,Liều dùng,"- ĐTĐ típ 2: khởi đầu 10mg/ngày, tối đa 25mg/ngày (nếu eGFR≥60). Suy thận (eGFR<60): giới hạn 10mg/ngày.
+- Suy tim: 10mg/ngày (dùng được tới eGFR 20).",28,31,knowledge_base_structuring_v1.0
+DRUGSEC-8C5F7C9ADD7B,DRUG-EMPAGLIFLOZIN,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Rất thường gặp: hạ đường huyết (khi phối hợp SU/insulin), giảm thể tích tuần hoàn.
+- Thường gặp: nhiễm nấm sinh dục, nhiễm trùng tiết niệu, khát nước, táo bón, tăng mỡ máu.
+- Hiếm: nhiễm toan ceton, hoại tử Fournier.",32,36,knowledge_base_structuring_v1.0
+DRUGSEC-FDA549A2BD6A,DRUG-EMPAGLIFLOZIN,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Probenecid tăng AUC 53%, gemfibrozil tăng AUC 59%. Không tương tác đáng kể với metformin, glimepiride, sitagliptin, warfarin, digoxin, thuốc tránh thai.",37,39,knowledge_base_structuring_v1.0
+DRUGSEC-B759622D2730,DRUG-EMPAGLIFLOZIN,GHI_CHÚ_ĐỐI_CHIẾU,Ghi chú đối chiếu,Cùng nhóm SGLT2i với Dapagliflozin đã có — Empagliflozin là thuốc SGLT2i được nghiên cứu nhiều nhất về lợi ích tim mạch (EMPA-REG OUTCOME). Cả hai thuốc hiện đều lưu hành tại Việt Nam.,40,41,knowledge_base_structuring_v1.0
+DRUGSEC-43D342742E48,DRUG-GLICLAZIDE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Thuốc hạ đường huyết uống, nhóm Sulfonylurea. Kích thích tế bào beta tuỵ tiết insulin — chỉ hiệu quả khi tuỵ còn khả năng sản xuất insulin.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-3EB05440AC83,DRUG-GLICLAZIDE,CHỈ_ĐỊNH,Chỉ định,"Đái tháo đường típ 2 ở người lớn khi chế độ ăn, vận động và giảm cân đơn thuần không kiểm soát được đường huyết.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-21D943E6AE6E,DRUG-GLICLAZIDE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Quá mẫn với thuốc
+- Đái tháo đường típ 1
+- Nhiễm toan ceton hoặc hôn mê do đái tháo đường
+- Nhiễm trùng nặng, chấn thương lớn, hoặc phẫu thuật
+- Suy gan hoặc suy thận nặng
+- Đang dùng miconazol",12,19,knowledge_base_structuring_v1.0
+DRUGSEC-E409070A392F,DRUG-GLICLAZIDE,LIỀU_DÙNG,Liều dùng,"- Dạng thường: khởi đầu 40-80mg uống cùng bữa sáng, tăng dần tối đa 320mg/ngày.
+- Dạng phóng thích kéo dài (MR): khởi đầu 30mg/ngày, tăng dần tới 120mg/ngày, mỗi lần chỉnh cách nhau tối thiểu 1 tháng.",20,23,knowledge_base_structuring_v1.0
+DRUGSEC-D1D071C2D2C6,DRUG-GLICLAZIDE,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Thường gặp: hạ đường huyết.
+- Ít gặp: rối loạn tiêu hoá (buồn nôn, nôn, tiêu chảy).
+- Hiếm gặp: phát ban, hội chứng Stevens-Johnson, độc tính gan, thay đổi huyết học.",24,28,knowledge_base_structuring_v1.0
+DRUGSEC-A2B42A066F29,DRUG-GLICLAZIDE,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Tăng tác dụng hạ đường huyết: miconazol, rượu, NSAID, ức chế men chuyển, chẹn beta, thuốc hạ đường huyết khác.
+Giảm tác dụng: corticosteroid, danazol, chlorpromazin.",29,32,knowledge_base_structuring_v1.0
+DRUGSEC-451C41D8DCEC,DRUG-GLICLAZIDE,LƯU_Ý,Lưu ý,"Cần giáo dục đầy đủ về quản lý đái tháo đường. Nguy cơ hạ đường huyết cao hơn ở người cao tuổi, suy thận/gan. Chống chỉ định thai kỳ — chuyển sang insulin nếu có thai.",33,34,knowledge_base_structuring_v1.0
+DRUGSEC-06BF10704E50,DRUG-GLIMEPIRIDE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Mã ATC: A10BB12. Nhóm Sulfonylurea. Kích thích tế bào beta tuỵ tiết insulin qua đóng kênh Kali phụ thuộc ATP, tăng calci nội bào, kích hoạt tiết insulin.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-260860CA7E05,DRUG-GLIMEPIRIDE,CHỈ_ĐỊNH,Chỉ định,"Đái tháo đường típ 2 ở người lớn khi chế độ ăn, vận động và giảm cân không kiểm soát được đường huyết.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-E367A5746451,DRUG-GLIMEPIRIDE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Quá mẫn với thuốc.
+- Đái tháo đường típ 1.
+- Nhiễm toan ceton do đái tháo đường.
+- Hôn mê do đái tháo đường.
+- Suy thận hoặc suy gan nặng.",12,18,knowledge_base_structuring_v1.0
+DRUGSEC-1A4BBDEF7284,DRUG-GLIMEPIRIDE,LIỀU_DÙNG,Liều dùng,"- Khởi đầu: 1-2mg/lần/ngày, uống trước bữa sáng.
+- Duy trì: 1-4mg/ngày.
+- Tối đa: 8mg/ngày.
+- Chỉnh liều: tăng 2mg mỗi 1-2 tuần theo đáp ứng đường huyết.",19,24,knowledge_base_structuring_v1.0
+DRUGSEC-6C507D724CC8,DRUG-GLIMEPIRIDE,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Thường gặp: hạ đường huyết, chóng mặt, đau đầu, buồn nôn, suy nhược.
+- Ít gặp: phản ứng dị ứng, phát ban, mề đay.
+- Hiếm gặp: tăng men gan, giảm tiểu cầu, thiếu máu tán huyết, mẫn cảm ánh sáng.",25,29,knowledge_base_structuring_v1.0
+DRUGSEC-CE56A1DEAB24,DRUG-GLIMEPIRIDE,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Tăng tác dụng hạ đường huyết: rượu, chẹn beta, chloramphenicol, fluconazole, sulfonamid.
+Giảm tác dụng: corticosteroid, rifampicin, lợi tiểu thiazide.",30,33,knowledge_base_structuring_v1.0
+DRUGSEC-B841B666DABC,DRUG-GLIMEPIRIDE,LƯU_Ý,Lưu ý,"Theo dõi nguy cơ hạ đường huyết, đặc biệt ở người cao tuổi, suy dinh dưỡng, suy thận. Cần chỉnh liều thận trọng. Chống chỉ định thai kỳ/cho con bú.",34,35,knowledge_base_structuring_v1.0
+DRUGSEC-5787830C9579,DRUG-INSULIN,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Hormone hạ đường huyết (mã ATC A10AB-A10AF). Tạo thuận lợi cho vận chuyển glucose vào tế bào, kích thích chuyển hoá carbohydrate ở cơ/xương/tim/mỡ; ở gan giúp phosphoryl hoá glucose thành glucose-6-phosphat để dự trữ dạng glycogen; tác dụng trực tiếp lên chuyển hoá mỡ và đạm, kích thích tổng hợp protein.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-BD9E8E0392B0,DRUG-INSULIN,DẠNG_BÀO_CHẾ_THEO_THỜI_GIAN_TÁC_DỤNG,Dạng bào chế theo thời gian tác dụng,"- **Tác dụng nhanh**: Aspart, Glulisine, Lispro (khởi phát 0,17-0,5 giờ)
+- **Tác dụng ngắn**: Insulin người thường/Regular (khởi phát 0,5-1 giờ)
+- **Tác dụng trung bình**: NPH (khởi phát 1-2 giờ)
+- **Tác dụng kéo dài**: Glargine, Detemir, Degludec (khởi phát 1-2 giờ, kéo dài tới 42 giờ)
+- **Trộn sẵn**: nhiều dạng phối hợp",9,15,knowledge_base_structuring_v1.0
+DRUGSEC-3BE3866759D4,DRUG-INSULIN,CHỈ_ĐỊNH,Chỉ định,Đái tháo đường típ 1; đái tháo đường típ 2 khi thuốc uống thất bại; đái tháo đường thai kỳ; nhiễm toan ceton; tăng đường huyết quanh phẫu thuật.,16,18,knowledge_base_structuring_v1.0
+DRUGSEC-1515A61CFE4C,DRUG-INSULIN,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với thuốc; hạ đường huyết.,19,21,knowledge_base_structuring_v1.0
+DRUGSEC-AD7AF538C70D,DRUG-INSULIN,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Thường gặp nhất: hạ đường huyết.
+- Ít gặp: phản ứng dị ứng tại chỗ, phì đại mô mỡ, bệnh thần kinh ngoại biên.
+- Hiếm gặp: sốc phản vệ, bệnh võng mạc, đề kháng insulin.",22,26,knowledge_base_structuring_v1.0
+DRUGSEC-5E3E8662908F,DRUG-INSULIN,CÁCH_DÙNG,Cách dùng,"Tiêm dưới da vào bụng, cánh tay, đùi, hoặc mông — xoay vòng vị trí tiêm để tránh loạn dưỡng mỡ. Tiêm bụng hấp thu nhanh nhất.",27,29,knowledge_base_structuring_v1.0
+DRUGSEC-40D46030F542,DRUG-INSULIN,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Chẹn beta, corticosteroid, lợi tiểu thiazide có thể làm thay đổi kiểm soát đường huyết — cần theo dõi và chỉnh liều.",30,31,knowledge_base_structuring_v1.0
+DRUGSEC-E31AE74FEC43,DRUG-LIRAGLUTIDE,PHÂN_LOẠI,Phân loại,Chất tương tự glucagon-like peptide-1 (GLP-1) — đồng vận thụ thể GLP-1.,6,8,knowledge_base_structuring_v1.0
+DRUGSEC-5583125EDDA3,DRUG-LIRAGLUTIDE,CƠ_CHẾ,Cơ chế,"Hoạt hoá thụ thể GLP-1, kích thích tiết insulin phụ thuộc glucose, ức chế tiết glucagon không phù hợp, làm chậm rỗng dạ dày.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-192FA46F43BB,DRUG-LIRAGLUTIDE,CHỈ_ĐỊNH,Chỉ định,"- Kiểm soát đái tháo đường típ 2 (đơn trị hoặc phối hợp).
+- Giảm biến cố tim mạch ở bệnh nhân đã có bệnh tim mạch.
+- Kiểm soát cân nặng ở người lớn (BMI>30) và trẻ em ≥12 tuổi có bệnh đi kèm liên quan cân nặng.",12,16,knowledge_base_structuring_v1.0
+DRUGSEC-E3795EE8CC1D,DRUG-LIRAGLUTIDE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Quá mẫn với liraglutide.
+- Tiền sử bản thân hoặc gia đình bị ung thư biểu mô tuyến giáp thể tủy hoặc đa u tuyến nội tiết loại 2.
+- Thai kỳ (khi dùng cho mục đích kiểm soát cân nặng).",17,21,knowledge_base_structuring_v1.0
+DRUGSEC-B352A6CDC8E4,DRUG-LIRAGLUTIDE,LIỀU_DÙNG,Liều dùng,"- Kiểm soát đường huyết: 0,6mg → 1,2mg → 1,8mg, tăng dần mỗi tuần, tiêm dưới da 1 lần/ngày.
+- Kiểm soát cân nặng: 0,6mg → 3,0mg, tăng dần 0,6mg mỗi tuần.",22,25,knowledge_base_structuring_v1.0
+DRUGSEC-CD5CC0E79162,DRUG-LIRAGLUTIDE,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Rất thường gặp: buồn nôn, tiêu chảy.
+- Thường gặp: nôn, đau đầu, nhịp tim nhanh, hạ đường huyết.
+- Hiếm gặp: viêm tuỵ, sốc phản vệ.",26,30,knowledge_base_structuring_v1.0
+DRUGSEC-1577DE6FE78F,DRUG-LIRAGLUTIDE,LƯU_Ý,Lưu ý,Theo dõi triệu chứng viêm tuỵ. Nguy cơ hạ đường huyết khi phối hợp insulin/sulfonylurea. Nên theo dõi tuyến giáp. Tránh dùng khi suy thận/gan nặng.,31,32,knowledge_base_structuring_v1.0
+DRUGSEC-592D4637E4D4,DRUG-METFORMIN,PHÂN_LOẠI,Phân loại,"Thuốc hạ đường huyết, nhóm Biguanide (mã ATC: A10BA02)",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-707D09C26CE8,DRUG-METFORMIN,DẠNG_BÀO_CHẾ,Dạng bào chế,"Viên nén: 500mg, 625mg, 750mg, 850mg, 1g; Viên phóng thích kéo dài: 500mg, 750mg, 1g; Dung dịch uống: 500mg/5ml; Bột: 1g",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-03C4B086A706,DRUG-METFORMIN,CƠ_CHẾ_TÁC_DỤNG,Cơ chế tác dụng,"""Metformin làm giảm glucose huyết lúc đói và sau ăn ở bệnh nhân đái tháo đường típ 2 qua 3 cơ chế: ức chế sản xuất glucose tại gan, tăng nhạy cảm insulin ở mô ngoại vi, và giảm hấp thu glucose ở ruột.""",12,14,knowledge_base_structuring_v1.0
+DRUGSEC-FF5FFAB0F175,DRUG-METFORMIN,CHỐNG_CHỈ_ĐỊNH_CHÍNH,Chống chỉ định chính,"- Suy thận nặng (eGFR <30 ml/phút/1,73m²)
+- Đái tháo đường típ 1
+- Rối loạn chuyển hoá cấp (nhiễm toan ceton, tiền sử nhiễm toan lactic)
+- Suy gan nặng
+- Mất bù tim mạch cấp
+- Đang cho con bú",15,22,knowledge_base_structuring_v1.0
+DRUGSEC-F8AB859E03FC,DRUG-METFORMIN,CẢNH_BÁO_QUAN_TRỌNG,Cảnh báo quan trọng,"**Nguy cơ nhiễm toan lactic:** hiếm gặp nhưng có thể tử vong. Yếu tố nguy cơ: suy thận, tuổi >65, dùng thuốc cản quang, bệnh cấp tính, lạm dụng rượu.",23,25,knowledge_base_structuring_v1.0
+DRUGSEC-25F3B65F55E0,DRUG-METFORMIN,LIỀU_DÙNG_(ĐÁI_THÁO_ĐƯỜNG_TÍP_2),Liều dùng (đái tháo đường típ 2),"- Khởi đầu: 500mg x 1-2 lần/ngày hoặc 850mg/ngày, uống cùng bữa ăn.
+- Duy trì: tăng dần 500mg mỗi tuần, tối đa 2g/ngày.
+- Dạng phóng thích kéo dài: tối đa 2g/ngày (liều đơn).",26,30,knowledge_base_structuring_v1.0
+DRUGSEC-24D96A93AAB9,DRUG-METFORMIN,TÁC_DỤNG_PHỤ_THƯỜNG_GẶP,Tác dụng phụ thường gặp,"- Tiêu hoá: tiêu chảy, buồn nôn, đầy bụng.
+- Thiếu vitamin B12 (tới 1/10 bệnh nhân dùng lâu dài).",31,34,knowledge_base_structuring_v1.0
+DRUGSEC-233481412C58,DRUG-METFORMIN,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Tăng nồng độ metformin: cephalexin, cimetidin, kháng sinh quinolone, topiramate, trimethoprim.
+Giảm hiệu quả: corticosteroid, thuốc lợi tiểu thiazide, verapamil.
+**Rượu:** tránh dùng — tăng nguy cơ nhiễm toan lactic.",35,39,knowledge_base_structuring_v1.0
+DRUGSEC-B2DB637EC6F4,DRUG-METFORMIN,THEO_DÕI,Theo dõi,"- Chức năng thận (eGFR): lúc bắt đầu và hằng năm.
+- Nồng độ vitamin B12 ở nhóm nguy cơ cao.
+- HbA1c mỗi 2-3 tháng sau khởi trị.",40,44,knowledge_base_structuring_v1.0
+DRUGSEC-AC703A52C87E,DRUG-METFORMIN,GHI_CHÚ_ĐỐI_CHIẾU,Ghi chú đối chiếu,"- Liều khởi đầu khớp với thông tin Vinmec đã có (500mg x2/ngày hoặc 850mg/ngày) — CHÍNH XÁC hơn bản Vinmec trước đó (Vinmec ghi nhầm ""50mg"" — nghi ngờ lỗi từ bước tóm tắt tự động trước đây, nay đã được nguồn chính thống hơn xác nhận lại: 500mg).
+- Thiếu B12 do Metformin dài hạn khớp với cảnh báo đã tìm thấy ở trang medinet (bữa ăn) — ba nguồn độc lập cùng xác nhận, độ tin cậy cao.
+- Đây là nguồn thay thế cho trang trungtamkiemnghiembacgiang.com/duoc-thu-quoc-gia (crawl thất bại) — cùng nội dung Dược thư QG nhưng qua kênh tra cứu khác (trungtamthuoc.com), có trích dẫn rõ số quyết định và trang.",45,48,knowledge_base_structuring_v1.0
+DRUGSEC-05BDA02A018C,DRUG-PIOGLITAZONE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Nhóm Thiazolidinedione (TZD). Chủ vận PPAR-gamma và PPAR-alpha, tăng nhạy cảm insulin ở cơ/gan/mô mỡ, giảm sản xuất glucose ở gan.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-4859D2C23163,DRUG-PIOGLITAZONE,CHỈ_ĐỊNH,Chỉ định,Đái tháo đường típ 2 khi chế độ ăn và vận động không đủ.,9,11,knowledge_base_structuring_v1.0
+DRUGSEC-22A0813310C9,DRUG-PIOGLITAZONE,LIỀU_DÙNG,Liều dùng,"- Thường: 15-30mg/lần/ngày.
+- Tối đa: 45mg/ngày.
+- Khi phối hợp thuốc ức chế CYP2C8 (vd. gemfibrozil): giới hạn 15mg/ngày.",12,16,knowledge_base_structuring_v1.0
+DRUGSEC-DBDB6C12E71C,DRUG-PIOGLITAZONE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Đái tháo đường típ 1.
+- Tiền sử gãy xương hoặc nguy cơ gãy xương.
+- Suy gan.
+- Suy tim độ I-IV (NYHA).
+- Nhiễm toan ceton do đái tháo đường.
+- Tiền sử hoặc đang bị ung thư bàng quang.
+- Tiểu máu đại thể chưa rõ nguyên nhân.",17,25,knowledge_base_structuring_v1.0
+DRUGSEC-222394561351,DRUG-PIOGLITAZONE,LƯU_Ý_QUAN_TRỌNG,Lưu ý quan trọng,"Theo dõi chức năng gan định kỳ và HbA1c (6 tháng/lần hoặc mỗi quý). Thận trọng ở người cao tuổi, có phù, bệnh mạch vành, hoặc suy tim.",26,28,knowledge_base_structuring_v1.0
+DRUGSEC-C9863AE3F290,DRUG-PIOGLITAZONE,TÁC_DỤNG_PHỤ_THƯỜNG_GẶP,Tác dụng phụ thường gặp,"Phù, tăng cân, mất xương, suy tim sung huyết, hạ đường huyết khi phối hợp thuốc hạ đường huyết khác.",29,31,knowledge_base_structuring_v1.0
+DRUGSEC-4E6696AFEA4A,DRUG-PIOGLITAZONE,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,Giảm hiệu quả thuốc tránh thai đường uống; tăng nguy cơ hạ đường huyết khi dùng cùng insulin.,32,34,knowledge_base_structuring_v1.0
+DRUGSEC-659C110B4ED6,DRUG-PIOGLITAZONE,THAI_KỲ/CHO_CON_BÚ,Thai kỳ/cho con bú,Chống chỉ định cả hai giai đoạn.,35,37,knowledge_base_structuring_v1.0
+DRUGSEC-FA968DCBD434,DRUG-PIOGLITAZONE,GHI_CHÚ,Ghi chú,Việt Nam hiện chỉ lưu hành Pioglitazone trong nhóm TZD (Rosiglitazone đã bị rút khỏi nhiều thị trường).,38,39,knowledge_base_structuring_v1.0
+DRUGSEC-D3CDA10345CE,DRUG-REPAGLINIDE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Mã ATC: A10BX02. Nhóm Meglitinide (dẫn xuất acid carbamoyl-methyl-benzoic). Đóng kênh Kali phụ thuộc ATP trên màng tế bào beta tuỵ, gây khử cực, mở kênh calci, kích thích tiết insulin.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-122F33561839,DRUG-REPAGLINIDE,CHỈ_ĐỊNH,Chỉ định,Đái tháo đường típ 2 khi chế độ ăn và vận động không đủ kiểm soát đường huyết; có thể phối hợp với Metformin hoặc Thiazolidinedione nếu đơn trị không hiệu quả.,9,11,knowledge_base_structuring_v1.0
+DRUGSEC-8C9230087E68,DRUG-REPAGLINIDE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,"- Đái tháo đường típ 1 hoặc C-peptide âm tính.
+- Nhiễm toan ceton do đái tháo đường.
+- Suy gan nặng.
+- Đang dùng đồng thời gemfibrozil.
+- Trẻ em dưới 12 tuổi.
+- Thai kỳ/cho con bú.",12,19,knowledge_base_structuring_v1.0
+DRUGSEC-4C492885115E,DRUG-REPAGLINIDE,LIỀU_DÙNG_(NGƯỜI_LỚN),Liều dùng (người lớn),"- Chưa từng điều trị: 0,5mg x3 lần/ngày trước bữa ăn.
+- Đã điều trị trước đó (HbA1c ≥8%): 1-2mg x3 lần/ngày.
+- Tối đa: 4mg/lần, 16mg/ngày.
+- Uống 15-30 phút trước bữa ăn.",20,25,knowledge_base_structuring_v1.0
+DRUGSEC-A475D903F858,DRUG-REPAGLINIDE,TÁC_DỤNG_PHỤ,Tác dụng phụ,"- Thường gặp: hạ đường huyết (16-31%), đau đầu, nhiễm trùng hô hấp trên.
+- Ít gặp hơn: đau ngực, tiêu chảy, đau lưng, viêm xoang.
+- Hiếm gặp: rối loạn chức năng gan, viêm tuỵ cấp, hội chứng Stevens-Johnson.",26,30,knowledge_base_structuring_v1.0
+DRUGSEC-E2B45587C87C,DRUG-REPAGLINIDE,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Tránh dùng cùng gemfibrozil (chống chỉ định). Tăng tác dụng: thuốc kháng nấm nhóm azole, cyclosporine. Giảm tác dụng: corticosteroid, rifamycin.",31,33,knowledge_base_structuring_v1.0
+DRUGSEC-28A1EC62638D,DRUG-REPAGLINIDE,GHI_CHÚ,Ghi chú,Đây là nhóm thuốc (Meglitinide) trước đây CHƯA có nguồn riêng trong knowledge base — chỉ được nhắc tên trong 5481/QĐ-BYT và bài tổng quan Vinmec mà không có chuyên luận chi tiết.,34,35,knowledge_base_structuring_v1.0
+DRUGSEC-ECD8310B448E,DRUG-SEMAGLUTIDE,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Đồng vận thụ thể GLP-1 (mã ATC A10BJ06), tương đồng 94% cấu trúc với GLP-1 người. Hoạt hoá thụ thể GLP-1 ở đường tiêu hoá/tuỵ/não — tăng tiết insulin, làm chậm rỗng dạ dày, ức chế thèm ăn.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-91388DFF9C7D,DRUG-SEMAGLUTIDE,DẠNG_BÀO_CHẾ,Dạng bào chế,"- **Tiêm dưới da**: 0,25mg; 0,5mg; 1mg; 2mg (Ozempic).
+- **Đường uống**: viên 3mg; 7mg; 14mg (Rybelsus).",9,12,knowledge_base_structuring_v1.0
+DRUGSEC-D9D1240386E8,DRUG-SEMAGLUTIDE,CHỈ_ĐỊNH,Chỉ định,"- Kiểm soát đái tháo đường típ 2.
+- Giảm nguy cơ tim mạch.
+- Kiểm soát cân nặng/béo phì.
+- Gan nhiễm mỡ liên quan chuyển hoá.",13,18,knowledge_base_structuring_v1.0
+DRUGSEC-6726BA38E628,DRUG-SEMAGLUTIDE,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với thuốc; đái tháo đường típ 1.,19,21,knowledge_base_structuring_v1.0
+DRUGSEC-118F45E65414,DRUG-SEMAGLUTIDE,LIỀU_DÙNG,Liều dùng,"- **ĐTĐ típ 2 (tiêm)**: khởi đầu 0,25mg/tuần x4 tuần, tăng lên 0,5mg/tuần, có thể tăng tới 1mg/tuần. Duy trì 0,5-1mg/tuần.
+- **Đường uống**: khởi đầu 3mg/ngày x30 ngày, tăng lên 7mg/ngày, có thể tới 14mg. Duy trì 7-14mg/ngày.
+- **Kiểm soát cân nặng**: tăng dần từ 0,25mg/tuần tới 2,4mg/tuần trong 17 tuần.",22,26,knowledge_base_structuring_v1.0
+DRUGSEC-9A92886FC655,DRUG-SEMAGLUTIDE,TÁC_DỤNG_PHỤ_THƯỜNG_GẶP,Tác dụng phụ thường gặp,"Buồn nôn, tiêu chảy, nôn, táo bón, đau bụng, đau đầu, mệt mỏi, khó tiêu, phản ứng tại chỗ tiêm.",27,29,knowledge_base_structuring_v1.0
+DRUGSEC-7172FD718F4B,DRUG-SEMAGLUTIDE,TƯƠNG_TÁC_THUỐC_QUAN_TRỌNG,Tương tác thuốc quan trọng,Tăng nguy cơ hạ đường huyết khi phối hợp thuốc hạ đường huyết khác. Chống chỉ định phối hợp với đồng vận GLP-1 khác. Có thể giảm hấp thu thuốc uống khác (do làm chậm rỗng dạ dày).,30,32,knowledge_base_structuring_v1.0
+DRUGSEC-485A7D3882D0,DRUG-SEMAGLUTIDE,GHI_CHÚ_ĐỐI_CHIẾU,Ghi chú đối chiếu,Cùng nhóm GLP-1 RA với Liraglutide đã có — Semaglutide có ưu điểm dùng 1 lần/tuần (Liraglutide phải tiêm hằng ngày) và có cả dạng uống (Rybelsus) — điểm khác biệt quan trọng khi giải thích lựa chọn thuốc cho bệnh nhân ngại tiêm nhiều lần.,33,34,knowledge_base_structuring_v1.0
+DRUGSEC-FF83CCD9DA79,DRUG-SITAGLIPTIN,PHÂN_LOẠI,Phân loại,Tên chung quốc tế: Sitagliptin. Mã ATC: A10BH01. Nhóm ức chế DPP-4.,6,8,knowledge_base_structuring_v1.0
+DRUGSEC-38063268F1E6,DRUG-SITAGLIPTIN,CƠ_CHẾ_TÁC_DỤNG,Cơ chế tác dụng,"Ức chế enzym dipeptidyl peptidase-4 (DPP-4), tăng nồng độ hormon incretin (GLP-1 và GIP) để kích thích tiết insulin phụ thuộc glucose và giảm sản xuất glucagon.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-986074886D05,DRUG-SITAGLIPTIN,DẠNG_BÀO_CHẾ,Dạng bào chế,"- Sitagliptin phosphat: viên 25mg, 50mg, 100mg.
+- Phối hợp cố định với metformin: 50/500, 50/850, 50/1000mg.",12,15,knowledge_base_structuring_v1.0
+DRUGSEC-35A3AB062BCF,DRUG-SITAGLIPTIN,CHỈ_ĐỊNH,Chỉ định,"- Điều trị đái tháo đường típ 2 kèm chế độ ăn và vận động.
+- Đơn trị khi chống chỉ định metformin.
+- Phối hợp với thuốc uống khác hoặc insulin.",16,20,knowledge_base_structuring_v1.0
+DRUGSEC-69FBE646169E,DRUG-SITAGLIPTIN,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với sitagliptin; nhiễm toan ceton do đái tháo đường.,21,23,knowledge_base_structuring_v1.0
+DRUGSEC-2CE58F071BB5,DRUG-SITAGLIPTIN,LIỀU_DÙNG,Liều dùng,"- Đơn trị: 100mg/lần/ngày.
+- Phối hợp metformin (dạng cố định): 50mg x2 lần/ngày.
+- Suy thận: chỉnh liều còn 50mg hoặc 25mg/ngày theo độ thanh thải creatinin.",24,28,knowledge_base_structuring_v1.0
+DRUGSEC-C84263F14B15,DRUG-SITAGLIPTIN,TÁC_DỤNG_PHỤ_THƯỜNG_GẶP,Tác dụng phụ thường gặp,"Hạ đường huyết, đau đầu, viêm họng, chóng mặt, táo bón, ngứa.",29,31,knowledge_base_structuring_v1.0
+DRUGSEC-124CF743A945,DRUG-SITAGLIPTIN,LƯU_Ý_QUAN_TRỌNG,Lưu ý quan trọng,"Theo dõi viêm tuỵ cấp, suy giảm chức năng thận, đau khớp nặng, phản ứng quá mẫn. Thận trọng khi phối hợp insulin hoặc sulfonylurea do nguy cơ hạ đường huyết.",32,33,knowledge_base_structuring_v1.0
+DRUGSEC-5155396BF4BD,DRUG-VILDAGLIPTIN,PHÂN_LOẠI_&_CƠ_CHẾ,Phân loại & cơ chế,"Ức chế chọn lọc DPP-4 — ngăn thoái giáng hormon incretin GLP-1 và GIP, cải thiện chức năng tế bào alpha và beta tuỵ.",6,8,knowledge_base_structuring_v1.0
+DRUGSEC-E93AD622104D,DRUG-VILDAGLIPTIN,CHỈ_ĐỊNH,Chỉ định,"Đái tháo đường típ 2 ở người lớn — đơn trị hoặc phối hợp metformin, sulfonylurea, hoặc thiazolidinedione.",9,11,knowledge_base_structuring_v1.0
+DRUGSEC-69C308387207,DRUG-VILDAGLIPTIN,CHỐNG_CHỈ_ĐỊNH,Chống chỉ định,Quá mẫn với vildagliptin.,12,14,knowledge_base_structuring_v1.0
+DRUGSEC-CE21BFFE8AFA,DRUG-VILDAGLIPTIN,LIỀU_DÙNG,Liều dùng,"- Thường: 50mg x2 lần/ngày.
+- Tối đa: 100mg/ngày.
+- Suy thận trung bình-nặng/lọc máu: 50mg x1 lần/ngày.
+- Uống không phụ thuộc bữa ăn.",15,20,knowledge_base_structuring_v1.0
+DRUGSEC-75864C96763C,DRUG-VILDAGLIPTIN,DƯỢC_ĐỘNG_HỌC,Dược động học,"Đạt đỉnh huyết tương ~1,7 giờ. Sinh khả dụng ~85%. Gắn protein 9,3%. Thải trừ ~23% qua thận dạng không đổi.",21,23,knowledge_base_structuring_v1.0
+DRUGSEC-F46A016E556A,DRUG-VILDAGLIPTIN,TÁC_DỤNG_PHỤ_CHÍNH,Tác dụng phụ chính,"Đau khớp, tổn thương da, viêm tuỵ cấp, hạ đường huyết (đặc biệt khi phối hợp sulfonylurea), rối loạn tiêu hoá, mệt mỏi, phù ngoại biên, chóng mặt, đau đầu.",24,26,knowledge_base_structuring_v1.0
+DRUGSEC-17B45753B9AD,DRUG-VILDAGLIPTIN,LƯU_Ý_QUAN_TRỌNG,Lưu ý quan trọng,"Thận trọng ở người có tiền sử viêm tuỵ. Không dùng cho ĐTĐ típ 1, nhiễm toan ceton, hoặc thay thế insulin. Theo dõi chức năng thận và HbA1c. Không khuyến cáo cho suy thận nặng hoặc bệnh gan.",27,29,knowledge_base_structuring_v1.0
+DRUGSEC-72F4646027F4,DRUG-VILDAGLIPTIN,TƯƠNG_TÁC_THUỐC,Tương tác thuốc,"Sulfonylurea tăng nguy cơ hạ đường huyết. Ức chế men chuyển tăng nguy cơ phù mạch. Thiazide, corticosteroid làm giảm hiệu quả.",30,32,knowledge_base_structuring_v1.0
+DRUGSEC-398FA3327F85,DRUG-VILDAGLIPTIN,GHI_CHÚ_ĐỐI_CHIẾU,Ghi chú đối chiếu,"Cùng nhóm DPP-4i với Sitagliptin đã có — Vildagliptin dùng 2 lần/ngày (khác Sitagliptin dùng 1 lần/ngày), cần chỉnh liều khi suy thận (Sitagliptin cũng vậy nhưng theo bậc khác).",33,34,knowledge_base_structuring_v1.0

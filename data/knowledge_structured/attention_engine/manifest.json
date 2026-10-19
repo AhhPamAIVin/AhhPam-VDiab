@@ -1,0 +1,36 @@
+{
+  "generated_at_utc": "2026-08-19T04:11:50+00:00",
+  "engine_version": "personalized_attention_engine_v1.1",
+  "files": {
+    "attention_rule_config.csv": {
+      "rows": 9,
+      "bytes": 1272,
+      "sha256": "15ea98487f9dc0a767fb74850adf4e9c1c336436344c774aa6d2b1bd269366f2"
+    },
+    "patient_glucose_baselines.csv": {
+      "rows": 2142,
+      "bytes": 322802,
+      "sha256": "c440f316cf475d050c2d23a976313215782c1ebb6b3edb396bb72b728e9f83a3"
+    },
+    "patient_attention_assessments.csv": {
+      "rows": 100470,
+      "bytes": 48732574,
+      "sha256": "57dba05899a54ebca1adb0e99af00abbf5b939401ebc884bcbc7a3b90417107d"
+    },
+    "patient_attention_events.csv": {
+      "rows": 18514,
+      "bytes": 12022268,
+      "sha256": "7e9180ecef8cc45f0602ec357e36dc64677c1b6d283772f58585b9fec1c82be9"
+    },
+    "patient_attention_summary.csv": {
+      "rows": 489,
+      "bytes": 29347,
+      "sha256": "fe4fdef49c544a9ea044a655b66f34e173c77a69bd6c47e00b780a01267c2818"
+    },
+    "attention_engine_report.json": {
+      "rows": 1,
+      "bytes": 964,
+      "sha256": "6b89004c474dfbb9acf54d3c48376617cafd3f693f7bb538359a1194da7bbaa1"
+    }
+  }
+}

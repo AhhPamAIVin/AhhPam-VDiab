@@ -1,0 +1,42 @@
+{
+  "filter_version": "type2_only_after_prediabetes_purge_v1.0",
+  "patient_counts": {
+    "total": 489,
+    "TYPE_2": 489
+  },
+  "tables": {
+    "patient_profiles": 489,
+    "patient_baseline_clinical": 489,
+    "patient_lifestyle_baseline": 489,
+    "patient_prescription_status": 489,
+    "patient_medications": 2716,
+    "project_diabetes_cohort": 489,
+    "caregiver_profiles": 109,
+    "doctor_profiles": 127,
+    "patient_doctor_assignments": 489
+  },
+  "eligibility_checks": {
+    "all_quality_tier_gold": true,
+    "all_profile_completeness_100": true,
+    "all_vital_completeness_100": true,
+    "all_lifestyle_completeness_100": true,
+    "all_glycemic_completeness_at_least_75": true,
+    "all_stage_conflict_flags_false": true
+  },
+  "integrity_checks": {
+    "duplicate_patient_id": 0,
+    "orphan_baseline_patient_id": 0,
+    "orphan_lifestyle_patient_id": 0,
+    "orphan_prescription_patient_id": 0,
+    "orphan_medication_patient_id": 0,
+    "orphan_cohort_patient_id": 0,
+    "orphan_caregiver_patient_id": 0,
+    "orphan_doctor_assignment_patient_id": 0,
+    "assignment_with_unknown_doctor": 0,
+    "unreferenced_doctor_profiles": 0,
+    "orphan_simulator_patient_id": 0,
+    "orphan_medication_flow_patient_id": 0
+  },
+  "status": "PASS",
+  "failed_checks": []
+}

@@ -1,0 +1,56 @@
+{
+  "dataset_version": "3.4.0-type2-only-after-prediabetes-purge-v1",
+  "generated_at_utc": "2026-08-10T14:56:30.281969+00:00",
+  "source": "NHANES 2017-March 2020 pre-pandemic",
+  "source_cycle": "NHANES_2017_MARCH_2020_PREPANDEMIC",
+  "scope": "Observed/derived NHANES baseline data with explicitly synthetic demo identities",
+  "contains_synthetic_clinical_data": false,
+  "contains_synthetic_identity_data": true,
+  "identity_generation_seed": 20260805,
+  "caregiver_age_rule": "age_years < 16 OR age_years > 70",
+  "synthetic_doctor_count": 386,
+  "doctor_assignment_rule": "one synthetic primary diabetes-treating physician per retained Type 2 patient; under 18 pediatric endocrinology, over 70 geriatric diabetes care, adult Type 2 endocrinology/diabetology",
+  "source_accepted_profiles_before_project_label_filter": 5360,
+  "excluded_non_deployable_classification_profiles": 936,
+  "included_project_labels": [
+    "TYPE_2"
+  ],
+  "documentation_files": [
+    "README.md",
+    "field_lineage.csv",
+    "quality_report.json"
+  ],
+  "tables": {
+    "patient_profiles": 489,
+    "patient_baseline_clinical": 489,
+    "patient_lifestyle_baseline": 489,
+    "patient_prescription_status": 489,
+    "patient_medications": 2716,
+    "project_diabetes_cohort": 489,
+    "caregiver_profiles": 109,
+    "doctor_profiles": 127,
+    "patient_doctor_assignments": 489
+  },
+  "limitations": [
+    "NHANES observations are cross-sectional baseline survey data, not daily logs.",
+    "TYPE_2 is a treatment-algorithm classification, not a clinically confirmed diagnosis; TYPE_1 records are excluded from deployment.",
+    "Medication dose, schedule, prescriber, and current active status are unavailable.",
+    "Names and caregiver profiles are synthetic demo identities, not NHANES observations, verified real-world relationships, or consent records.",
+    "Doctor profiles and assignments are synthetic demo records, not real clinicians, credentials, facilities, or treatment relationships.",
+    "No contact details, license numbers, care plan, health goal, or alert threshold is included.",
+    "Survey weights, PSU, and strata are included, but analyses must select the weight appropriate to the questionnaire, MEC, or fasting subsample."
+  ],
+  "balanced_demo_filter": {
+    "quality_tier": "GOLD",
+    "stage_conflict_flag": false,
+    "profile_completeness": 100,
+    "vital_completeness": 100,
+    "lifestyle_completeness": 100,
+    "glycemic_completeness_minimum": 75,
+    "selection_is_random": false,
+    "patients_per_label": 489,
+    "labels": [
+      "TYPE_2"
+    ]
+  }
+}

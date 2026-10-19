@@ -1,0 +1,148 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.9, pytest-9.1.1, pluggy-1.6.0
+rootdir: /Users/phamminh/Desktop/phamminh/AIThucChien/P-158
+configfile: pytest.ini
+plugins: langsmith-0.11.0, cov-7.1.0, asyncio-1.4.0, anyio-4.14.2
+asyncio: mode=Mode.AUTO, debug=False, asyncio_default_fixture_loop_scope=None, asyncio_default_test_loop_scope=function
+collected 462 items
+
+tests/test_backend/test_agent_chat.py .................................. [  7%]
+.......................................................                  [ 19%]
+tests/test_backend/test_agent_guardrails.py ...........................  [ 25%]
+tests/test_backend/test_agent_summary.py .......................         [ 30%]
+tests/test_backend/test_appointments.py ..........                       [ 32%]
+tests/test_backend/test_auth.py ..............                           [ 35%]
+tests/test_backend/test_care_plan_target_versions.py ..                  [ 35%]
+tests/test_backend/test_clinical_notes.py .......................        [ 40%]
+tests/test_backend/test_glucose_alert.py ......                          [ 41%]
+tests/test_backend/test_health_records.py .......................        [ 46%]
+tests/test_backend/test_insights.py ......                               [ 48%]
+tests/test_backend/test_insights_scheduler.py .............              [ 51%]
+tests/test_backend/test_medications.py ...............                   [ 54%]
+tests/test_backend/test_notifications.py ............................... [ 61%]
+......................                                                   [ 65%]
+tests/test_backend/test_patient_assignments.py ......                    [ 67%]
+tests/test_backend/test_routes.py .                                      [ 67%]
+tests/test_backend/test_summaries.py ..........                          [ 69%]
+tests/test_backend/test_threshold_service.py ........                    [ 71%]
+tests/test_backend/test_tool_data_fetch_correctness.py ................. [ 74%]
+...........                                                              [ 77%]
+tests/test_backend/test_verify_citations.py ...........                  [ 79%]
+tests/test_backend/test_zalo.py ....                                     [ 80%]
+tests/test_eval/test_framework.py .....                                  [ 81%]
+tests/test_eval/test_validation_api.py ...........                       [ 83%]
+tests/test_models/test_checkpoint.py .....                               [ 85%]
+tests/test_models/test_graph.py ......                                   [ 86%]
+tests/test_models/test_rag_chunking.py ..............................    [ 92%]
+tests/test_models/test_rag_ingest.py .....                               [ 93%]
+tests/test_models/test_rag_knowledge_tools.py ..................         [ 97%]
+tests/test_models/test_reflect.py ..........                             [100%]
+
+================================ tests coverage ================================
+_______________ coverage: platform darwin, python 3.11.9-final-0 _______________
+
+Name                                                   Stmts   Miss Branch BrPart  Cover   Missing
+--------------------------------------------------------------------------------------------------
+codebase/__init__.py                                       0      0      0      0   100%
+codebase/backend/__init__.py                               0      0      0      0   100%
+codebase/backend/admin/__init__.py                         0      0      0      0   100%
+codebase/backend/admin/router.py                          32      2      0      0    94%   33, 66
+codebase/backend/agent/__init__.py                         0      0      0      0   100%
+codebase/backend/agent/models.py                          13      0      0      0   100%
+codebase/backend/agent/router.py                         105      7     26      6    90%   98, 105, 131-132, 261, 281, 292
+codebase/backend/agent/schemas.py                         51      0      0      0   100%
+codebase/backend/api/__init__.py                           0      0      0      0   100%
+codebase/backend/appointments/__init__.py                  0      0      0      0   100%
+codebase/backend/appointments/models.py                   21      0      0      0   100%
+codebase/backend/appointments/router.py                   46      2     12      2    93%   63, 76
+codebase/backend/appointments/schemas.py                  28      0      0      0   100%
+codebase/backend/appointments/service.py                  51      3      6      3    89%   43-44, 52->55, 61
+codebase/backend/auth/__init__.py                          0      0      0      0   100%
+codebase/backend/auth/dependencies.py                     28      2      4      0    94%   31-32
+codebase/backend/auth/models.py                           23      0      0      0   100%
+codebase/backend/auth/router.py                           27      5      0      0    81%   45-49
+codebase/backend/auth/schemas.py                          34      0      0      0   100%
+codebase/backend/auth/security.py                         22      0      0      0   100%
+codebase/backend/auth/service.py                          51      3     10      2    92%   33, 38, 45
+codebase/backend/config.py                                47      0      0      0   100%
+codebase/backend/db.py                                    36     23     12      0    27%   38-40, 54-55, 59-68, 73-84, 88-89
+codebase/backend/health/__init__.py                        0      0      0      0   100%
+codebase/backend/health/models.py                         86      0      0      0   100%
+codebase/backend/health/router.py                         96     10     18      1    89%   53, 128-132, 215-218
+codebase/backend/health/schemas.py                       116      0      6      0   100%
+codebase/backend/health/service.py                       113     18     26      3    83%   105-108, 118->131, 128, 157-179, 261->263, 263->265
+codebase/backend/health/threshold_features.py            112      5     30      3    93%   120-122, 276, 294
+codebase/backend/health/threshold_service.py              69      6     18      5    87%   43->52, 50-51, 53, 121, 134, 136
+codebase/backend/insights/__init__.py                      0      0      0      0   100%
+codebase/backend/insights/models.py                       31      0      0      0   100%
+codebase/backend/insights/router.py                       15      0      0      0   100%
+codebase/backend/insights/scheduler.py                    66     14     12      0    77%   209-211, 220-235, 240-242
+codebase/backend/insights/schemas.py                      13      0      0      0   100%
+codebase/backend/main.py                                  48     11      0      0    77%   30-40
+codebase/backend/medications/__init__.py                   0      0      0      0   100%
+codebase/backend/medications/models.py                    38      0      0      0   100%
+codebase/backend/medications/router.py                    62      1      8      1    97%   34
+codebase/backend/medications/schemas.py                   49      0      0      0   100%
+codebase/backend/medications/service.py                   63      2      6      2    94%   40, 64
+codebase/backend/notifications/__init__.py                 0      0      0      0   100%
+codebase/backend/notifications/defaults.py                13      0      0      0   100%
+codebase/backend/notifications/models.py                  57      0      0      0   100%
+codebase/backend/notifications/router.py                  79     16     12      1    73%   41, 164-188
+codebase/backend/notifications/scheduler.py              130     21     38      3    83%   104, 116-119, 184->exit, 252-258, 305-307, 322-337, 342-344
+codebase/backend/notifications/schemas.py                 64      0      0      0   100%
+codebase/backend/notifications/service.py                190     19     50      7    88%   72-77, 126-127, 200, 202, 209, 350-353, 360, 415, 485-489, 492, 515->519
+codebase/backend/notifications/zalo.py                    96     32     26      7    63%   39, 51-52, 55-56, 60-61, 64, 82-95, 119, 131-132, 135-136, 143, 157-172
+codebase/backend/notifications/zalo_link_listener.py      54     39     12      0    23%   31-52, 56-74, 85-89, 94-96
+codebase/backend/patients/__init__.py                      0      0      0      0   100%
+codebase/backend/patients/access.py                       17      1     10      1    93%   27
+codebase/backend/patients/models.py                       75      0      0      0   100%
+codebase/backend/patients/router.py                       46      5      4      1    88%   106, 121-122, 136-137
+codebase/backend/patients/schemas.py                      93      0      0      0   100%
+codebase/backend/patients/service.py                     117     13     40      6    85%   21, 62, 68-71, 228->230, 236-238, 240, 255, 285-290
+codebase/backend/security/__init__.py                      0      0      0      0   100%
+codebase/backend/security/sql_injection_guard.py          27      0      8      0   100%
+codebase/backend/summaries/__init__.py                     0      0      0      0   100%
+codebase/backend/summaries/models.py                      24      0      0      0   100%
+codebase/backend/summaries/service.py                     64      9     14      1    82%   147-148, 217-225
+codebase/backend/time_utils.py                             9      0      2      1    91%   28->30
+codebase/mcp/__init__.py                                   0      0      0      0   100%
+codebase/models/__init__.py                                0      0      0      0   100%
+codebase/models/agents/__init__.py                         0      0      0      0   100%
+codebase/models/agents/checkpoint.py                     164     19     40     12    82%   134-135, 198, 223->231, 227, 230, 232-234, 244, 246-248, 308->316, 387, 410->417, 418-428, 453-454, 475
+codebase/models/agents/graph.py                           78      8     12      1    90%   63, 153-162
+codebase/models/agents/nodes/__init__.py                   0      0      0      0   100%
+codebase/models/agents/nodes/check_data_quality.py        31      6      8      3    72%   60, 67, 76->79, 80-83, 126
+codebase/models/agents/nodes/classify_intent.py          112     15     34      9    81%   292, 294, 299, 303-304, 348-349, 351, 361->364, 389, 398-403, 425-431, 439-440
+codebase/models/agents/nodes/fetch_data.py                33     10     10      3    56%   54-68, 73-75, 85, 94
+codebase/models/agents/nodes/guardrail.py                116     15     50      3    86%   315, 406-429, 435, 446-447, 455-468
+codebase/models/agents/nodes/plan_response.py             75      6     18      1    88%   187-192
+codebase/models/agents/nodes/reflect.py                  118     10     36      9    88%   87-88, 100->102, 116, 124, 126, 131, 178->175, 220, 223->210, 283-292
+codebase/models/agents/nodes/resolve_context.py           21      2      6      3    74%   35, 36->37, 36->39, 45->47, 55
+codebase/models/agents/nodes/respond.py                   13      2      4      0    76%   34-35
+codebase/models/agents/nodes/retrieve_knowledge.py        13      4      4      1    59%   55, 60-62
+codebase/models/agents/nodes/summarize_history.py         31     20     10      0    27%   45-51, 55, 63-79
+codebase/models/agents/nodes/synthesize_qa.py            155      7     46      4    94%   270, 292, 448-451, 502-503, 509->512
+codebase/models/agents/nodes/synthesize_summary.py       185     26     82     17    82%   62, 128, 138, 192->206, 210, 233, 238, 243, 248, 257-258, 303, 317-318, 331-333, 335, 343-345, 347-359, 362->365, 362->374, 393, 395
+codebase/models/agents/nodes/upsert_insight.py            77     13      8      2    80%   55-56, 104-106, 155, 166, 199-210
+codebase/models/agents/nodes/verify_citations.py          56     13     16      5    69%   84->88, 86->88, 100, 103, 115, 117-120, 133, 138-140, 147, 149-152
+codebase/models/agents/prompts/__init__.py                 2      0      0      0   100%
+codebase/models/agents/prompts/qa.py                       1      0      0      0   100%
+codebase/models/agents/prompts/reflect.py                 10      0      0      0   100%
+codebase/models/agents/prompts/safety_patterns.py         23      0      2      0   100%
+codebase/models/agents/prompts/summary.py                  6      0      0      0   100%
+codebase/models/agents/prompts/system.py                   1      0      0      0   100%
+codebase/models/agents/state.py                           66      0      0      0   100%
+codebase/models/agents/tools/__init__.py                   0      0      0      0   100%
+codebase/models/agents/tools/insight_tools.py             38      3      8      3    87%   45-46, 132->134, 135, 136->138
+codebase/models/agents/tools/knowledge_tools.py          119      2     32      3    97%   118, 138, 193->204
+codebase/models/agents/tools/metrics_tools.py             71      6     16      4    89%   31-33, 115, 149, 152
+codebase/models/agents/tools/patient_tools.py             35      0      8      0   100%
+codebase/models/llm.py                                     5      0      0      0   100%
+codebase/models/rag/__init__.py                            0      0      0      0   100%
+codebase/models/rag/chunking.py                          300      6     96      5    97%   140-141, 150-152, 188->204, 282->284, 340->342, 605
+codebase/models/rag/ingest.py                            160     15     46      7    89%   64->exit, 65->exit, 79-82, 86-89, 96-97, 181, 217, 219, 298->304, 322->320, 349-358
+--------------------------------------------------------------------------------------------------
+TOTAL                                                   4862    477   1002    151    87%
+Coverage XML written to file /Users/phamminh/Desktop/phamminh/AIThucChien/P-158/eval/results/coverage.xml
+Required test coverage of 60.0% reached. Total coverage: 87.28%
+======================= 462 passed in 241.23s (0:04:01) ========================

@@ -1,0 +1,52 @@
+# Core
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+pydantic>=2.10.0
+pydantic-settings>=2.7.0
+python-dotenv>=1.0.0
+
+# AI / LangChain
+langchain>=0.3.0
+langchain-openai>=0.3.0
+langgraph>=0.2.0
+
+# Database
+sqlmodel>=0.0.22
+psycopg2-binary>=2.9.9
+
+# Scheduling
+apscheduler>=3.10.0
+
+# Auth
+pyjwt>=2.9.0
+bcrypt>=4.1.0
+python-multipart>=0.0.9
+email-validator>=2.2.0
+
+# Vector Store — RAG corpus, see docs/AI_Summary_Respond_System_Design.md §5
+chromadb>=0.5.0
+
+# ML — personalized WATCH classifier, see docs/ML_PERSONALIZED_WATCH_SYSTEM_PLAN.md
+pandas>=2.2.0
+scikit-learn>=1.5.0
+matplotlib>=3.9.0
+jupyter>=1.1.0
+nbclient>=0.10.0
+
+# Evaluation — LangSmith experiments/tracing + Ragas RAG metrics, see
+# docs/AI_Eval_Metrics_Plan.md and eval/. ragas pinned to 0.2.15 (not the latest 0.4.x):
+# ragas.llms.base unconditionally imports langchain_community.chat_models.vertexai,
+# which langchain-community >=0.4 dropped entirely — every ragas release tested against
+# this project's already-installed (much newer) langchain-community hits the same broken
+# import, worked around at runtime by eval/respond_agent/_ragas_compat.py rather than downgrading the
+# core langchain/langgraph stack the production agent depends on.
+langsmith>=0.11.0
+ragas==0.2.15
+rapidfuzz>=3.0.0
+
+# Dev tools
+ruff>=0.8.0
+pytest>=8.0.0
+pytest-asyncio>=0.24.0
+pytest-cov>=6.0.0
+httpx>=0.28.0

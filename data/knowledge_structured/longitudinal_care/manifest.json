@@ -1,0 +1,46 @@
+{
+  "generated_at_utc": "2026-08-19T04:11:45+00:00",
+  "pipeline_version": "longitudinal_personalized_care_v1.0",
+  "files": {
+    "patient_clinical_review_events.csv": {
+      "rows": 489,
+      "bytes": 104300,
+      "sha256": "9dd48899c66421227a7d3aed08bd1ce8fa298ef959e8336684cbb83ab8b155b4"
+    },
+    "patient_care_plan_versions.csv": {
+      "rows": 489,
+      "bytes": 112206,
+      "sha256": "d061117ef1adbca60f858aae9598a3c42579f6ff1034b77769809c19bbf4321e"
+    },
+    "patient_target_versions.csv": {
+      "rows": 1467,
+      "bytes": 274081,
+      "sha256": "54a0c52d332086faaf0c03ce3cc91df95250ec8c39853ddfadbbaafdd59cf78d"
+    },
+    "patient_cgm_profile_versions.csv": {
+      "rows": 489,
+      "bytes": 95790,
+      "sha256": "5389bb7d6381fa21272638399cca515b6ca9a33dd4109f253dc6633733787881"
+    },
+    "patient_care_plan_change_log.csv": {
+      "rows": 0,
+      "bytes": 173,
+      "sha256": "bf8b86e4f4ef394c3ab113466f4394ad3728a09a75cfc4adfd41b9b40d2b1c3d"
+    },
+    "patient_baseline_epochs.csv": {
+      "rows": 489,
+      "bytes": 55401,
+      "sha256": "d2b6b5145a22afa13b1a24542e1ab7fa79cceb72cfce932a633ca5082334bbd0"
+    },
+    "clinical_review_processing_results.csv": {
+      "rows": 489,
+      "bytes": 80789,
+      "sha256": "de91644cbfecc071dedaec0dfad896c2a8fd3fd823cde9e0a7362ab0f1199c15"
+    },
+    "longitudinal_care_report.json": {
+      "rows": 1,
+      "bytes": 679,
+      "sha256": "20c91d9e850c2af2bfbeb6942752eef1bbbc6aee5bafd5b6af27973f99b80afd"
+    }
+  }
+}

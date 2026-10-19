@@ -1,0 +1,30 @@
+﻿target_table,target_field,source_dataset,source_variable,transformation
+patient_profiles,patient_id,P_DEMO,SEQN,Direct identifier mapping
+patient_profiles,age_years,P_DEMO,RIDAGEYR,Direct mapping
+patient_profiles,sex,P_DEMO,RIAGENDR,"Code 1=Male, 2=Female"
+patient_profiles,weight_kg,P_BMX,BMXWT,Direct mapping; kg
+patient_profiles,height_cm,P_BMX,BMXHT,Direct mapping; cm
+patient_profiles,bmi,P_BMX,BMXBMI,Direct mapping; kg/m2
+patient_profiles,interview_weight,P_DEMO,WTINTPRP,Survey interview weight
+patient_profiles,mec_exam_weight,P_DEMO,WTMECPRP,MEC examination weight
+patient_profiles,fasting_subsample_weight,P_GLU,WTSAFPRP,Fasting subsample weight
+patient_profiles,survey_psu,P_DEMO,SDMVPSU,Masked variance pseudo-PSU
+patient_profiles,survey_stratum,P_DEMO,SDMVSTRA,Masked variance stratum
+patient_profiles,display_name,DEMO_NAME_GENERATOR,,Deterministic synthetic Vietnamese-style demo name
+caregiver_profiles,caregiver_id,DEMO_PROFILE_GENERATOR,,Generated synthetic caregiver identifier
+caregiver_profiles,caregiver_display_name,DEMO_NAME_GENERATOR,,Deterministic synthetic Vietnamese-style demo name
+caregiver_profiles,relationship_to_patient,P_DEMO,RIDAGEYR,Demo relationship category based only on age <16 or >70
+doctor_profiles,doctor_id,DEMO_DOCTOR_GENERATOR,,Generated synthetic doctor identifier
+doctor_profiles,doctor_display_name,DEMO_NAME_GENERATOR,,Deterministic synthetic Vietnamese-style demo name
+doctor_profiles,specialty,DEMO_DOCTOR_GENERATOR,,Synthetic specialty allocation; not a real credential
+patient_doctor_assignments,doctor_id,DEMO_ASSIGNMENT_ALGORITHM,,Balanced deterministic assignment by age and project label
+patient_baseline_clinical,hba1c_pct,P_GHB,LBXGH,Direct mapping; percent
+patient_baseline_clinical,fasting_glucose_mg_dl,P_GLU,LBXGLU,Direct mapping; mg/dL
+patient_baseline_clinical,hdl_mg_dl,P_HDL,LBDHDD,Direct mapping; mg/dL
+patient_baseline_clinical,total_cholesterol_mg_dl,P_TCHOL,LBXTC,Direct mapping; mg/dL
+patient_baseline_clinical,triglycerides_mg_dl,P_TRIGLY,LBXTR,Direct mapping; mg/dL
+patient_baseline_clinical,ldl_mg_dl,P_TRIGLY,LBDLDL,Direct mapping; mg/dL
+project_diabetes_cohort,project_diabetes_label,P_DIQ/P_GHB/P_GLU,"DIQ010,DID040,DIQ050,DID060,DIQ060U,DIQ070,LBXGH,LBXGLU",Derived by nhanes_treatment_algorithm_v1.0
+patient_medications,drug_name,P_RXQ_RX,RXDDRUG,Direct row-level mapping; empty names excluded
+patient_medications,drug_id,P_RXQ_RX,RXDDRGID,Direct row-level mapping
+patient_medications,indication_code,P_RXQ_RX,RXDRSC1,Direct row-level mapping

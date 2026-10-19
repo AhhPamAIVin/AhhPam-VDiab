@@ -1,0 +1,69 @@
+version: "3.8"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8100:8100"
+    env_file:
+      - .env
+    environment:
+      # Override .env's host-based DB_HOST/DB_PORT (used by local `make run`)
+      # with the Docker network service name, so the containerized backend
+      # reaches the `db` service instead of trying to hit itself.
+      DB_HOST: db
+      DB_PORT: "5432"
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8100/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+  frontend:
+    build:
+      context: ./codebase/frontend
+      dockerfile: Dockerfile
+      args:
+        # Baked into the client JS bundle at build time (Next.js NEXT_PUBLIC_*
+        # rule) — must point to a URL the browser can reach, not the
+        # in-network `backend` service name.
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8100/api/v1}
+        NEXT_PUBLIC_STT_WS_URL: ${NEXT_PUBLIC_STT_WS_URL:-}
+        NEXT_PUBLIC_STT_SERVICE_TOKEN: ${NEXT_PUBLIC_STT_SERVICE_TOKEN:-}
+        NEXT_PUBLIC_TTS_API_URL: ${NEXT_PUBLIC_TTS_API_URL:-}
+        NEXT_PUBLIC_TTS_SERVICE_TOKEN: ${NEXT_PUBLIC_TTS_SERVICE_TOKEN:-}
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+    depends_on:
+      - backend
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${DB_USER:-postgres}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
+      # Postgres creates this database on first init; the backend only creates
+      # tables inside it (SQLModel.metadata.create_all), not the database itself.
+      POSTGRES_DB: ${DB_NAME:-diab}
+    ports:
+      # Host port defaults to 5533 to avoid colliding with any Postgres
+      # already running natively on the host.
+      - "${DB_PORT:-5533}:5432"
+    volumes:
+      - diab_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  diab_db:
+    name: diab_db

@@ -1,0 +1,22 @@
+[
+  {
+    "note_id": "NOTE-DEMO-P-0001-01",
+    "patient_id": "DEMO-P-0001",
+    "doctor_id": "DR-0006",
+    "appointment_number": 1,
+    "appointment_date": "2026-07-10",
+    "covers_period": ["2026-06-10", "2026-07-09"],
+    "text": "Tái khám ĐTĐ típ 2, tháng đầu theo dõi qua app. Bệnh nhân tỉnh táo, không triệu chứng cấp. Cân nặng ổn định 78kg. Xem lại nhật ký 30 ngày: đường huyết sau bữa tối vượt ngưỡng khuyến cáo <180 mg/dL (theo QĐ 5481/QĐ-BYT) khá thường xuyên, đặc biệt vào cuối tuần — cả 8/8 ngày cuối tuần trong tháng đều ghi nhận bệnh nhân không tập thể dục buổi tối và bữa tối nhiều tinh bột/ăn ngoài (trung bình 205.9 mg/dL). Các ngày trong tuần khá hơn nhiều: 72.7% có đi bộ buổi tối, đường huyết sau bữa tối trung bình 165.8 mg/dL, chỉ 18.2% số lần đo vượt 180. HbA1c làm lúc bắt đầu theo dõi: 7.4% (>7%, chưa đạt mục tiêu theo BYT 5481). Đường huyết lúc đói đang giảm dần (khoảng 138 -> 126 mg/dL trong tháng), hướng đúng nhưng chưa vào khoảng mục tiêu 80-130 mg/dL ổn định. Không ghi nhận dấu hiệu hạ đường huyết trong tháng này. Tư vấn: duy trì Metformin 850mg x2/ngày, không đổi thuốc. Đề nghị bệnh nhân cố gắng duy trì thói quen đi bộ buổi tối ngay cả cuối tuần, giảm bớt bữa tối nhiều tinh bột/ăn ngoài vào thứ 7-chủ nhật. Hẹn tái khám sau 30 ngày, mang theo nhật ký đầy đủ.",
+    "clinician_signature": "BS. Võ Ngọc Long — Nội tiết - Đái tháo đường"
+  },
+  {
+    "note_id": "NOTE-DEMO-P-0001-02",
+    "patient_id": "DEMO-P-0001",
+    "doctor_id": "DR-0006",
+    "appointment_number": 2,
+    "appointment_date": "2026-08-09",
+    "covers_period": ["2026-07-10", "2026-08-08"],
+    "text": "Tái khám lần 2. Bệnh nhân báo đã cố gắng đi bộ buổi tối nhiều hơn. Xem nhật ký 30 ngày gần nhất: các ngày trong tuần cải thiện rõ rệt — 100% các ngày trong tuần có tập thể dục buổi tối, đường huyết sau bữa tối trung bình chỉ còn 153.2 mg/dL, KHÔNG còn lần đo nào vượt 180 mg/dL vào ngày thường (0%). Tuy nhiên cuối tuần vẫn chưa cải thiện tương xứng: chỉ 33.3% cuối tuần có tập thể dục, đường huyết sau bữa tối cuối tuần trung bình vẫn cao 192.8 mg/dL, 66.7% số lần đo cuối tuần vượt ngưỡng 180 mg/dL — mô hình 'ăn tối nhiều tinh bột + không vận động' hồi tháng trước giờ hầu như chỉ còn xảy ra vào thứ 7 - chủ nhật, không còn lan sang các ngày trong tuần nữa. Điểm mới đáng chú ý: bệnh nhân báo 2 lần trong tháng (giữa và cuối tháng) bị chóng mặt nhẹ, run tay vào giữa buổi chiều, trùng với 2 ngày bận họp phải bỏ/trễ bữa trưa — đường huyết đo được lúc đó 72 và 78 mg/dL (dưới ngưỡng bình thường), phù hợp hạ đường huyết nhẹ do bỏ bữa trong khi đang dùng Metformin. Đã dặn bệnh nhân không bỏ bữa trưa, luôn mang theo kẹo/nước trái cây phòng hạ đường huyết. Đường huyết lúc đói tiếp tục cải thiện, trung bình khoảng 122 mg/dL cuối tháng, gần đạt mục tiêu 80-130 mg/dL. Không đổi thuốc lần này, tiếp tục Metformin 850mg x2/ngày. Trọng tâm tái khám sau: (1) đưa thói quen tập thể dục/ăn uống điều độ sang cả cuối tuần, (2) không bỏ bữa trưa.",
+    "clinician_signature": "BS. Võ Ngọc Long — Nội tiết - Đái tháo đường"
+  }
+]

@@ -1,0 +1,4 @@
+# Optional, slow evaluation dependencies. Keep these out of the normal app image.
+datasets>=3.0,<5
+ragas>=0.2,<0.4
+pytest-timeout>=2.3,<3

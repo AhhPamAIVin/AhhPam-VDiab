@@ -1,0 +1,39 @@
+version: "3.8"
+
+# Standalone compose file for the STT streaming service — kept separate from
+# docker-compose.yml (backend + frontend + db) on purpose: this service runs
+# on a GPU box that does not host the main backend, and should never be
+# brought up/down as a side effect of `make up`/`make down`.
+#
+# Usage: docker compose -f docker-compose.stt.yml up -d --build
+
+services:
+  stt-service:
+    build:
+      context: ./codebase/stt-service
+      dockerfile: Dockerfile
+      args:
+        INSTALL_QWEN: ${INSTALL_QWEN:-0}
+    ports:
+      - "${STT_PORT:-8300}:8300"
+    env_file:
+      - ./codebase/stt-service/.env
+    volumes:
+      - stt_ct2_cache:/app/.ct2-cache
+    restart: unless-stopped
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+    healthcheck:
+      test: ["CMD", "python3.11", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8300/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+volumes:
+  stt_ct2_cache:
+    name: stt_ct2_cache

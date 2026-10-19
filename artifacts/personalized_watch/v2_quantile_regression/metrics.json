@@ -1,0 +1,136 @@
+{
+  "model_version": "v2_quantile_regression",
+  "low_quantile": 0.1,
+  "high_quantile": 0.9,
+  "target_coverage": 0.8,
+  "calibration": {
+    "method": "split_conformal_symmetric_interval_expansion",
+    "fit_split": "validation",
+    "target_coverage": 0.8,
+    "margin_mg_dl": 0.8910411172780215,
+    "validation_rows": 16002
+  },
+  "validation_raw": {
+    "n": 16002,
+    "pinball_loss_min": 3.617453139799884,
+    "pinball_loss_max": 4.36245406937807,
+    "coverage_rate": 0.7764029496312961,
+    "mean_min_mg_dl": 137.02084377131584,
+    "mean_max_mg_dl": 194.53916144886304,
+    "mean_band_width_mg_dl": 57.51831767754721
+  },
+  "validation": {
+    "n": 16002,
+    "pinball_loss_min": 3.615608250244507,
+    "pinball_loss_max": 4.354369860004467,
+    "coverage_rate": 0.8001499812523435,
+    "mean_min_mg_dl": 136.12980265403783,
+    "mean_max_mg_dl": 195.43020256614108,
+    "mean_band_width_mg_dl": 59.300399912103245
+  },
+  "test_patient_holdout_raw": {
+    "n": 12428,
+    "pinball_loss_min": 3.6948899903492802,
+    "pinball_loss_max": 4.399600864991661,
+    "coverage_rate": 0.7679433537174123,
+    "mean_min_mg_dl": 142.9144925735878,
+    "mean_max_mg_dl": 198.93119031177923,
+    "mean_band_width_mg_dl": 56.01669773819142
+  },
+  "test_patient_holdout": {
+    "n": 12428,
+    "pinball_loss_min": 3.6934250259875774,
+    "pinball_loss_max": 4.381743603161418,
+    "coverage_rate": 0.7890247827486321,
+    "mean_min_mg_dl": 142.02345145630977,
+    "mean_max_mg_dl": 199.82223142905727,
+    "mean_band_width_mg_dl": 57.79877997274747
+  },
+  "validation_by_meal_context": {
+    "AFTER_MEAL": {
+      "n": 3579,
+      "pinball_loss_min": 5.0693368346640275,
+      "pinball_loss_max": 5.454805651548317,
+      "coverage_rate": 0.7904442581726739,
+      "mean_min_mg_dl": 136.9949697221464,
+      "mean_max_mg_dl": 218.46145087147596,
+      "mean_band_width_mg_dl": 81.46648114932952
+    },
+    "BEFORE_MEAL": {
+      "n": 4809,
+      "pinball_loss_min": 3.4236599327129107,
+      "pinball_loss_max": 4.543795350823602,
+      "coverage_rate": 0.7916406737367436,
+      "mean_min_mg_dl": 129.29424975760378,
+      "mean_max_mg_dl": 187.504376199459,
+      "mean_band_width_mg_dl": 58.21012644185518
+    },
+    "BEFORE_SLEEP": {
+      "n": 2891,
+      "pinball_loss_min": 4.232408122690534,
+      "pinball_loss_max": 4.294951515982351,
+      "coverage_rate": 0.7834659287443791,
+      "mean_min_mg_dl": 137.94756496302756,
+      "mean_max_mg_dl": 200.44624195154603,
+      "mean_band_width_mg_dl": 62.49867698851843
+    },
+    "EVENT_RECOVERY": {
+      "n": 168,
+      "pinball_loss_min": 1.763951623536852,
+      "pinball_loss_max": 2.1162459490440546,
+      "coverage_rate": 0.7857142857142857,
+      "mean_min_mg_dl": 144.684641615738,
+      "mean_max_mg_dl": 174.7922819211624,
+      "mean_band_width_mg_dl": 30.10764030542441
+    },
+    "FASTING": {
+      "n": 4538,
+      "pinball_loss_min": 2.355047031027609,
+      "pinball_loss_max": 3.370197505014394,
+      "coverage_rate": 0.8281181137064786,
+      "mean_min_mg_dl": 141.50147901065415,
+      "mean_max_mg_dl": 183.19790365747193,
+      "mean_band_width_mg_dl": 41.69642464681777
+    },
+    "RANDOM": {
+      "n": 17,
+      "pinball_loss_min": 1.7639347339911082,
+      "pinball_loss_max": 14.033811817039046,
+      "coverage_rate": 0.7647058823529411,
+      "mean_min_mg_dl": 60.05391177232658,
+      "mean_max_mg_dl": 204.9851769939199,
+      "mean_band_width_mg_dl": 144.93126522159332
+    }
+  },
+  "validation_by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 8931,
+      "pinball_loss_min": 3.71291638985013,
+      "pinball_loss_max": 4.628138558063444,
+      "coverage_rate": 0.7983428507445974,
+      "mean_min_mg_dl": 134.184355373132,
+      "mean_max_mg_dl": 195.39795835630963,
+      "mean_band_width_mg_dl": 61.21360298317762
+    },
+    "STANDARD_TYPE_2": {
+      "n": 7071,
+      "pinball_loss_min": 3.4927035698856024,
+      "pinball_loss_max": 4.0085873338603975,
+      "coverage_rate": 0.8024324706547872,
+      "mean_min_mg_dl": 138.58699253747298,
+      "mean_max_mg_dl": 195.47092849429902,
+      "mean_band_width_mg_dl": 56.88393595682603
+    }
+  },
+  "clinical_feature_permutation_importance_test": {
+    "hba1c_pct": 0.1321829898582827,
+    "bmi": 0.006005085912246244,
+    "age_years": 0.0036935185122963787,
+    "coronary_heart_disease_flag": 0.0008208658584880624,
+    "congestive_heart_failure_flag": 0.000559652073002681,
+    "risk_group": 0.0002266734141951332,
+    "medication_hypoglycemia_risk": -0.00013294571560962254,
+    "family_history_diabetes_flag": -0.002169046845708067,
+    "stroke_flag": -0.00291445745108021
+  }
+}

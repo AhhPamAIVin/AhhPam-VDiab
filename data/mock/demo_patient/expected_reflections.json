@@ -1,0 +1,101 @@
+{
+  "_purpose": "Worked example of what the reflection node should produce for this mock patient. Not a fixture to assert byte-for-byte in tests (LLM phrasing varies) — use it to check the reflection pipeline finds the right SIGNAL and takes the right action (new vs update), and as the eval reference for EVAL-REFLECT-001/002 below.",
+
+  "after_appointment_1": {
+    "note_id": "NOTE-DEMO-P-0001-01",
+    "action": "CREATE",
+    "insight": {
+      "insight_id": "INS-DEMO-P-0001-01",
+      "patient_id": "DEMO-P-0001",
+      "version": 1,
+      "category": "glucose_pattern",
+      "text": "Đường huyết sau bữa tối thường vượt ngưỡng khuyến cáo <180 mg/dL vào những ngày ăn tối nhiều tinh bột/ăn ngoài và không tập thể dục buổi tối — rõ nhất vào cuối tuần (8/8 ngày cuối tuần trong tháng, trung bình 205.9 mg/dL) so với ngày thường (chỉ 18.2% số lần đo, trung bình 165.8 mg/dL).",
+      "evidence": {
+        "source_note_id": "NOTE-DEMO-P-0001-01",
+        "glucose_record_count": 58,
+        "date_range": ["2026-06-10", "2026-07-09"],
+        "supporting_stats": {
+          "weekend_avg_after_dinner_mgdl": 205.9,
+          "weekend_pct_over_180": 100.0,
+          "weekday_avg_after_dinner_mgdl": 165.8,
+          "weekday_pct_over_180": 18.2
+        }
+      },
+      "confidence": "medium",
+      "status": "active",
+      "first_observed_at": "2026-07-10T00:00:00",
+      "last_confirmed_at": "2026-07-10T00:00:00"
+    }
+  },
+
+  "after_appointment_2": {
+    "note_id": "NOTE-DEMO-P-0001-02",
+    "actions": [
+      {
+        "action": "UPDATE",
+        "target_insight_id": "INS-DEMO-P-0001-01",
+        "reason": "Semantic match to existing insight (same underlying pattern: heavy dinner + no exercise -> post-dinner glucose spike). New data narrows scope: weekday instance of the pattern has resolved (0% over 180, was 18.2%), weekend instance persists essentially unchanged (66.7% over 180 vs 100% prior period, still the dominant remaining problem). Update, don't create a duplicate.",
+        "insight": {
+          "insight_id": "INS-DEMO-P-0001-01",
+          "patient_id": "DEMO-P-0001",
+          "version": 2,
+          "category": "glucose_pattern",
+          "text": "Mô hình đường huyết sau bữa tối cao (>180 mg/dL) do ăn tối nhiều tinh bột + không vận động nay CHỈ còn xảy ra vào cuối tuần (66.7% số lần đo cuối tuần, trung bình 192.8 mg/dL, tập thể dục cuối tuần chỉ 33.3%). Ngày thường đã cải thiện rõ rệt và không còn ghi nhận vượt ngưỡng (0%, trung bình 153.2 mg/dL, tập thể dục 100% các ngày).",
+          "evidence": {
+            "source_note_id": "NOTE-DEMO-P-0001-02",
+            "glucose_record_count": 58,
+            "date_range": ["2026-07-10", "2026-08-08"],
+            "supporting_stats": {
+              "weekend_avg_after_dinner_mgdl": 192.8,
+              "weekend_pct_over_180": 66.7,
+              "weekday_avg_after_dinner_mgdl": 153.2,
+              "weekday_pct_over_180": 0.0
+            }
+          },
+          "confidence": "high",
+          "status": "active",
+          "first_observed_at": "2026-07-10T00:00:00",
+          "last_confirmed_at": "2026-08-09T00:00:00",
+          "supersedes_version": 1
+        }
+      },
+      {
+        "action": "CREATE",
+        "reason": "No existing insight is semantically close (embedding similarity below threshold) to a lunch-skipping / mild-hypoglycemia pattern — period A data contains no lunch-skip days at all, so this is a genuinely new observation, not a restatement.",
+        "insight": {
+          "insight_id": "INS-DEMO-P-0001-02",
+          "patient_id": "DEMO-P-0001",
+          "version": 1,
+          "category": "hypoglycemia_risk",
+          "text": "Ghi nhận 2 đợt chóng mặt nhẹ/run tay giữa buổi chiều, trùng với 2 ngày trong tuần bỏ/trễ bữa trưa vì công việc; đường huyết đo được lúc đó 72 và 78 mg/dL — phù hợp hạ đường huyết nhẹ liên quan bỏ bữa trong khi dùng Metformin.",
+          "evidence": {
+            "source_note_id": "NOTE-DEMO-P-0001-02",
+            "glucose_record_count": 2,
+            "date_range": ["2026-07-10", "2026-08-08"],
+            "supporting_stats": {
+              "low_reading_days": ["day 35 (2026-07-14)", "day 48 (2026-07-27)"],
+              "values_mgdl": [72, 78]
+            }
+          },
+          "confidence": "medium",
+          "status": "active",
+          "first_observed_at": "2026-08-09T00:00:00",
+          "last_confirmed_at": "2026-08-09T00:00:00"
+        }
+      }
+    ]
+  },
+
+  "eval_cases": [
+    {
+      "id": "EVAL-REFLECT-001",
+      "trigger": "ClinicalNote NOTE-DEMO-P-0001-01 created",
+      "expect": "exactly one new PatientInsight row (category=glucose_pattern), status=active, evidence.source_note_id=NOTE-DEMO-P-0001-01, supporting_stats numerically consistent with glucose_records.json for 2026-06-10..2026-07-09"
+    },
+    {
+      "id": "EVAL-REFLECT-002",
+      "trigger": "ClinicalNote NOTE-DEMO-P-0001-02 created",
+      "expect": "INS-DEMO-P-0001-01 is UPDATED (version 2, same insight_id, supersedes_version=1) NOT duplicated; exactly one new PatientInsight row is CREATED (category=hypoglycemia_risk); total active insights for patient = 2, not 3"
+    }
+  ]
+}

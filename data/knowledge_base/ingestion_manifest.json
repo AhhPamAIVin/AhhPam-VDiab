@@ -1,0 +1,37 @@
+{
+  "corpus_version": "1.0.0",
+  "generated_at_utc": "2026-09-01T03:52:29.607108Z",
+  "embedding_model": "text-embedding-3-small",
+  "embedding_dimensions": 1536,
+  "tier1_sources_csv": {
+    "total_rows": 56,
+    "embedded_this_run": 0,
+    "unchanged": 53,
+    "skipped_no_local_file": 1,
+    "skipped_failed_crawl": 2,
+    "embedded": 53
+  },
+  "tier2_track_a": {
+    "files": 40,
+    "chunks": 282,
+    "chunks_embedded_this_run": 0,
+    "unchanged_files": 40
+  },
+  "tier2_track_b": {
+    "files": 5,
+    "chunks": 784,
+    "chunks_embedded_this_run": 0,
+    "unchanged_files": 5,
+    "files_with_page_markers": 4,
+    "files_without_page_markers": [
+      "byt-3319-qd-byt-full-text.md"
+    ]
+  },
+  "total_chunks": 1119,
+  "corpus_content_hash": "ca77237797cd8c2edd0a1c3dd3f5712583449ac0e6f76a2020c96d14b0605384",
+  "warnings": [
+    "byt-3319-qd-byt-full-text.md: no '--- Trang N ---' markers found, chunked on paragraph boundaries only, page_number will be null for all chunks from this file",
+    "1 sources.csv row(s) skipped: no local_file (citation-only, kept as metadata but not embedded); 2 row(s) skipped: notes explicitly flag a failed crawl",
+    "Track B (long-form PDF-to-text) tables were reconstructed heuristically from blank-line and 'Bảng N:' boundaries, not verified against the source PDFs page-by-page — §5.2 flags this as needing a one-time human spot-check before the corpus is treated as fully trusted, especially byt-5481's Bảng 4/5 treatment-target tables that the mock patient scenario depends on."
+  ]
+}

@@ -1,0 +1,7 @@
+﻿screening_protocol_id,screening_code,recommended_interval,summary,document_id,source_locator,requires_clinical_judgment,pipeline_version
+SCREEN-COMPREHENSIVE,COMPREHENSIVE_DIABETES_REVIEW,AT_BASELINE_AND_PERIODIC,Đánh giá toàn diện lần đầu và định kỳ,DOC-73F4062C02BA,lines 620-711,True,knowledge_base_structuring_v1.0
+SCREEN-KIDNEY,KIDNEY_UACR_EGFR,AT_LEAST_ANNUALLY,UACR và eGFR; theo dõi sát hơn khi bất thường,DOC-73F4062C02BA,lines 2044-2071,True,knowledge_base_structuring_v1.0
+SCREEN-EYE,DIABETIC_RETINOPATHY,PER_GUIDELINE_AND_EYE_SPECIALIST,Tầm soát võng mạc và theo dõi theo kết quả,DOC-73F4062C02BA,lines 2019-2033,True,knowledge_base_structuring_v1.0
+SCREEN-NEURO,PERIPHERAL_NEUROPATHY,AT_DIABETES_CARE_ENTRY_AND_PERIODIC,Đánh giá bệnh thần kinh ngoại biên,DOC-73F4062C02BA,lines 2104-2120,True,knowledge_base_structuring_v1.0
+SCREEN-FOOT,COMPREHENSIVE_FOOT_EXAM,RISK_STRATIFIED,Khám bàn chân và phân tầng nguy cơ,DOC-212981604DD3,sections 3-4,True,knowledge_base_structuring_v1.0
+SCREEN-MENTAL,DEPRESSION_ANXIETY_SOCIAL_SUPPORT,PERIODIC,"Tầm soát trầm cảm, lo âu, tài chính và hỗ trợ xã hội",DOC-73F4062C02BA,lines 620-655,True,knowledge_base_structuring_v1.0

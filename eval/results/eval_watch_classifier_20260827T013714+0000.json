@@ -1,0 +1,425 @@
+{
+  "gate": "eval-watch-classifier",
+  "generated_at_utc": "2026-08-27T01:37:14+00:00",
+  "scope": "Offline eval/CI gate for the personalized-WATCH classifier surface (data/NHANES/final/train_watch_model.py, train_threshold_regression.py, artifacts/personalized_watch/*). Does not touch codebase/backend/health/* (live serving) or retrain/modify any artifact.",
+  "pytest": {
+    "test_files": [
+      "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/ml/personalized_watch/test_no_leakage.py",
+      "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/ml/personalized_watch/test_danger_precedence.py",
+      "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/data/ml/personalized_watch/test_regression_no_leakage.py",
+      "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/eval/watch_classifier/test_v2_quantile_thresholds.py",
+      "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/eval/watch_classifier/test_v1_hgb_known_separability.py"
+    ],
+    "summary_line": "============================== 46 passed in 5.55s ==============================",
+    "tests": [
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_no_forbidden_columns_in_feature_table",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_label_columns_are_tagged_as_label_source",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_no_forbidden_column_is_tagged_as_a_feature",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_no_baseline_learning_rows_emitted",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_y_watch_matches_status",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_no_leakage.py::test_row_count_matches_watch_normal_danger_only",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_danger_gate_never_calls_ml[53.9-54-250-DANGER]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_danger_gate_never_calls_ml[0.0-54-250-DANGER]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_danger_gate_never_calls_ml[250.1-54-250-DANGER]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_danger_gate_never_calls_ml[600.0-54-250-DANGER]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_boundary_values_are_not_danger[54.0-54-250]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_boundary_values_are_not_danger[250.0-54-250]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_non_danger_uses_operating_threshold",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_danger_precedence.py::test_every_real_danger_row_is_gated_before_reaching_ml",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_regression_no_leakage.py::test_current_value_derived_columns_are_excluded",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_regression_no_leakage.py::test_exclusion_list_matches_module_constant",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_regression_no_leakage.py::test_history_based_features_still_present",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "data/ml/personalized_watch/test_regression_no_leakage.py::test_target_column_present_and_numeric",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_model_version]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_quantiles]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_target_coverage_config]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_validation]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_test_patient_holdout]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_risk_group_OLDER_OR_HIGH_RISK]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_risk_group_STANDARD_TYPE_2]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_AFTER_MEAL]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_BEFORE_MEAL]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_BEFORE_SLEEP]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_EVENT_RECOVERY]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_FASTING]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_coverage_meal_context_RANDOM]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_validation]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_test_patient_holdout]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_risk_group_OLDER_OR_HIGH_RISK]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_risk_group_STANDARD_TYPE_2]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_AFTER_MEAL]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_BEFORE_MEAL]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_BEFORE_SLEEP]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_EVENT_RECOVERY]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_FASTING]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_pinball_meal_context_RANDOM]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_band_width_validation]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_band_width_test_patient_holdout]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_calibration_margin_sane]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v2_quantile_thresholds.py::test_individual_v2_threshold_check[v2_feature_schema_no_target_leakage]",
+        "outcome": "PASSED"
+      },
+      {
+        "test": "eval/watch_classifier/test_v1_hgb_known_separability.py::test_v1_hgb_metrics_are_explained_by_rule_reconstruction",
+        "outcome": "PASSED"
+      }
+    ],
+    "returncode": 0,
+    "all_passed": true
+  },
+  "threshold_checks": [
+    {
+      "id": "v2_model_version",
+      "description": "metrics.json identifies itself as the expected model version",
+      "actual": "v2_quantile_regression",
+      "threshold": "== 'v2_quantile_regression'",
+      "passed": true
+    },
+    {
+      "id": "v2_quantiles",
+      "description": "low/high quantiles match the documented 0.10/0.90 split",
+      "actual": [
+        0.1,
+        0.9
+      ],
+      "threshold": "== [0.1, 0.9]",
+      "passed": true
+    },
+    {
+      "id": "v2_target_coverage_config",
+      "description": "declared target_coverage matches the calibration block's target_coverage",
+      "actual": [
+        0.8,
+        0.8
+      ],
+      "threshold": "both == 0.8",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_validation",
+      "description": "calibrated coverage on validation (the conformal fit split) stays near the 80% target",
+      "actual": 0.8001499812523435,
+      "threshold": "in [0.73, 0.87]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_test_patient_holdout",
+      "description": "calibrated coverage on the unseen patient-holdout test split stays reasonably near 80%",
+      "actual": 0.7890247827486321,
+      "threshold": "in [0.68, 0.92]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_risk_group_OLDER_OR_HIGH_RISK",
+      "description": "validation coverage for risk_group=OLDER_OR_HIGH_RISK (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.7983428507445974,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_risk_group_STANDARD_TYPE_2",
+      "description": "validation coverage for risk_group=STANDARD_TYPE_2 (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.8024324706547872,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_AFTER_MEAL",
+      "description": "validation coverage for meal_context=AFTER_MEAL (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.7904442581726739,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_BEFORE_MEAL",
+      "description": "validation coverage for meal_context=BEFORE_MEAL (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.7916406737367436,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_BEFORE_SLEEP",
+      "description": "validation coverage for meal_context=BEFORE_SLEEP (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.7834659287443791,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_EVENT_RECOVERY",
+      "description": "validation coverage for meal_context=EVENT_RECOVERY (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.7857142857142857,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_FASTING",
+      "description": "validation coverage for meal_context=FASTING (per ML_HANDOFF section 6.5 subgroup requirement)",
+      "actual": 0.8281181137064786,
+      "threshold": "in [0.65, 0.95]",
+      "passed": true
+    },
+    {
+      "id": "v2_coverage_meal_context_RANDOM",
+      "description": "validation coverage for meal_context=RANDOM (n=17 < 100 \u2014 reported, not gated)",
+      "actual": 0.7647058823529411,
+      "threshold": "not gated (insufficient n)",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_validation",
+      "description": "validation pinball loss (min/max quantile) stays under a regression ceiling",
+      "actual": [
+        3.615608250244507,
+        4.354369860004467
+      ],
+      "threshold": "min <= 6.0 and max <= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_test_patient_holdout",
+      "description": "patient-holdout pinball loss (min/max quantile) stays under a looser regression ceiling",
+      "actual": [
+        3.6934250259875774,
+        4.381743603161418
+      ],
+      "threshold": "min <= 6.5 and max <= 7.5",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_risk_group_OLDER_OR_HIGH_RISK",
+      "description": "validation pinball_loss_max for risk_group=OLDER_OR_HIGH_RISK",
+      "actual": 4.628138558063444,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_risk_group_STANDARD_TYPE_2",
+      "description": "validation pinball_loss_max for risk_group=STANDARD_TYPE_2",
+      "actual": 4.0085873338603975,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_AFTER_MEAL",
+      "description": "validation pinball_loss_max for meal_context=AFTER_MEAL",
+      "actual": 5.454805651548317,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_BEFORE_MEAL",
+      "description": "validation pinball_loss_max for meal_context=BEFORE_MEAL",
+      "actual": 4.543795350823602,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_BEFORE_SLEEP",
+      "description": "validation pinball_loss_max for meal_context=BEFORE_SLEEP",
+      "actual": 4.294951515982351,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_EVENT_RECOVERY",
+      "description": "validation pinball_loss_max for meal_context=EVENT_RECOVERY",
+      "actual": 2.1162459490440546,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_FASTING",
+      "description": "validation pinball_loss_max for meal_context=FASTING",
+      "actual": 3.370197505014394,
+      "threshold": "<= 7.0",
+      "passed": true
+    },
+    {
+      "id": "v2_pinball_meal_context_RANDOM",
+      "description": "validation pinball_loss_max for meal_context=RANDOM (n=17 < 100 \u2014 reported, not gated)",
+      "actual": 14.033811817039046,
+      "threshold": "not gated (insufficient n)",
+      "passed": true
+    },
+    {
+      "id": "v2_band_width_validation",
+      "description": "mean predicted [min, max] band width stays clinically usable (not degenerate) on validation",
+      "actual": 59.300399912103245,
+      "threshold": "<= 100 mg/dL",
+      "passed": true
+    },
+    {
+      "id": "v2_band_width_test_patient_holdout",
+      "description": "mean predicted [min, max] band width stays clinically usable on patient-holdout test",
+      "actual": 57.79877997274747,
+      "threshold": "<= 100 mg/dL",
+      "passed": true
+    },
+    {
+      "id": "v2_calibration_margin_sane",
+      "description": "split-conformal symmetric interval-expansion margin hasn't exploded (would signal validation-split drift)",
+      "actual": 0.8910411172780215,
+      "threshold": "in [0, 15] mg/dL",
+      "passed": true
+    },
+    {
+      "id": "v2_feature_schema_no_target_leakage",
+      "description": "the SHIPPED v2 feature_schema.json excludes columns derived from the current reading (glucose_mg_dl itself, delta/rate/deviation-from-baseline) \u2014 those would leak the regression target; mirrors test_regression_no_leakage.py but checks the actual persisted artifact, not just train_threshold_regression.py's logic",
+      "actual": "none",
+      "threshold": "no overlap with CURRENT_VALUE_DERIVED_COLUMNS",
+      "passed": true
+    },
+    {
+      "id": "v1_hgb_rule_reconstruction_accuracy",
+      "description": "hand-coded reconstruction of y_watch from glucose_mg_dl + rate_mg_dl_per_min + deviation_from_baseline_p90/p10 + baseline_usable alone (no ML) \u2014 the near-perfect value here IS the explanation for v1_hgb's ~0.999 precision/recall, not evidence of model skill; see V1_HGB_LEAKAGE_FINDING.md",
+      "actual": {
+        "n": 61118,
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "tp": 25459,
+        "fp": 0,
+        "fn": 0,
+        "tn": 35659
+      },
+      "threshold": "accuracy >= 0.999 (documents/guards the known-separability explanation; a sizeable drop means the explanation is stale and must be re-derived)",
+      "passed": true
+    }
+  ],
+  "threshold_check_error": null,
+  "overall_passed": true
+}

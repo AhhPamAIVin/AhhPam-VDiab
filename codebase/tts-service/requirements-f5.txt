@@ -1,0 +1,12 @@
+# Opt-in extra for the f5_tts_vietnamese_vivoice engine
+# (hynt/F5-TTS-Vietnamese-ViVoice, CC-BY-NC-SA-4.0 — non-commercial only).
+# Mac-friendly install (no CUDA index URL) for local dev/validation — a real
+# CUDA-pinned variant is a GPU-box-deployment concern, not this file.
+
+-r requirements.txt
+
+torch>=2.4.0
+torchaudio>=2.4.0
+f5-tts
+huggingface_hub>=0.24.0
+soundfile>=0.12.1

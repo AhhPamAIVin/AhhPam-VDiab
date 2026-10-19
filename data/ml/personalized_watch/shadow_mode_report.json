@@ -1,0 +1,390 @@
+{
+  "model_version": "v2_quantile_regression",
+  "calibration": {
+    "method": "split_conformal_symmetric_interval_expansion",
+    "fit_split": "validation",
+    "target_coverage": 0.8,
+    "margin_mg_dl": 0.8910411172780215,
+    "validation_rows": 16002
+  },
+  "confusion_orientation": "outer keys are rule labels; inner keys are ML labels",
+  "overall": {
+    "n": 81920,
+    "agreement_rate": 0.73731689453125,
+    "confusion_rule_rows_vs_ml_columns": {
+      "DANGER": {
+        "DANGER": 20802,
+        "WATCH": 0,
+        "NORMAL": 0,
+        "UNAVAILABLE": 0
+      },
+      "WATCH": {
+        "DANGER": 0,
+        "WATCH": 7537,
+        "NORMAL": 17922,
+        "UNAVAILABLE": 0
+      },
+      "NORMAL": {
+        "DANGER": 0,
+        "WATCH": 3597,
+        "NORMAL": 32062,
+        "UNAVAILABLE": 0
+      }
+    },
+    "false_negative_watch_missed_by_ml": 17922,
+    "false_positive_normal_flagged_watch_by_ml": 3597,
+    "n_nondanger": 61118
+  },
+  "by_split": {
+    "test": {
+      "n": 16908,
+      "agreement_rate": 0.7262834161343743,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 4480,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 1791,
+          "NORMAL": 3797,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 831,
+          "NORMAL": 6009,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 3797,
+      "false_positive_normal_flagged_watch_by_ml": 831,
+      "n_nondanger": 12428
+    },
+    "train": {
+      "n": 44950,
+      "agreement_rate": 0.7445828698553949,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 12262,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 3592,
+          "NORMAL": 9759,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 1722,
+          "NORMAL": 17615,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 9759,
+      "false_positive_normal_flagged_watch_by_ml": 1722,
+      "n_nondanger": 32688
+    },
+    "validation": {
+      "n": 20062,
+      "agreement_rate": 0.7303359585285615,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 4060,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 2154,
+          "NORMAL": 4366,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 1044,
+          "NORMAL": 8438,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 4366,
+      "false_positive_normal_flagged_watch_by_ml": 1044,
+      "n_nondanger": 16002
+    }
+  },
+  "by_risk_group": {
+    "OLDER_OR_HIGH_RISK": {
+      "n": 44153,
+      "agreement_rate": 0.7298031843815822,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 9652,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 4286,
+          "NORMAL": 9899,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 2031,
+          "NORMAL": 18285,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 9899,
+      "false_positive_normal_flagged_watch_by_ml": 2031,
+      "n_nondanger": 34501
+    },
+    "STANDARD_TYPE_2": {
+      "n": 37767,
+      "agreement_rate": 0.7461010935472767,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 11150,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 3251,
+          "NORMAL": 8023,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 1566,
+          "NORMAL": 13777,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 8023,
+      "false_positive_normal_flagged_watch_by_ml": 1566,
+      "n_nondanger": 26617
+    }
+  },
+  "by_danger_bucket": {
+    "danger_heavy": {
+      "n": 15548,
+      "agreement_rate": 0.8783123231283766,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 13244,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 405,
+          "NORMAL": 1887,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 5,
+          "NORMAL": 7,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 1887,
+      "false_positive_normal_flagged_watch_by_ml": 5,
+      "n_nondanger": 2304
+    },
+    "danger_light": {
+      "n": 66372,
+      "agreement_rate": 0.7042879527511601,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 7558,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 7132,
+          "NORMAL": 16035,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 3592,
+          "NORMAL": 32055,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 16035,
+      "false_positive_normal_flagged_watch_by_ml": 3592,
+      "n_nondanger": 58814
+    }
+  },
+  "by_timing_bucket": {
+    "no_prior_measurement": {
+      "n": 73,
+      "agreement_rate": 1.0,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 73,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 0,
+      "false_positive_normal_flagged_watch_by_ml": 0,
+      "n_nondanger": 0
+    },
+    "normal_30min_3h": {
+      "n": 28033,
+      "agreement_rate": 0.7094495772839153,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 8407,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 2577,
+          "NORMAL": 7109,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 1036,
+          "NORMAL": 8904,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 7109,
+      "false_positive_normal_flagged_watch_by_ml": 1036,
+      "n_nondanger": 19626
+    },
+    "sparse_gt_3h": {
+      "n": 51503,
+      "agreement_rate": 0.7560530454536629,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 11809,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 4785,
+          "NORMAL": 10137,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 2427,
+          "NORMAL": 22345,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 10137,
+      "false_positive_normal_flagged_watch_by_ml": 2427,
+      "n_nondanger": 39694
+    },
+    "very_tight_lt_30min": {
+      "n": 2311,
+      "agreement_rate": 0.6495023799221117,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 513,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 175,
+          "NORMAL": 676,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 134,
+          "NORMAL": 813,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 676,
+      "false_positive_normal_flagged_watch_by_ml": 134,
+      "n_nondanger": 1798
+    }
+  },
+  "by_meal_context_group": {
+    "irregular": {
+      "n": 918,
+      "agreement_rate": 0.7015250544662309,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 154,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 68,
+          "NORMAL": 212,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 62,
+          "NORMAL": 422,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 212,
+      "false_positive_normal_flagged_watch_by_ml": 62,
+      "n_nondanger": 764
+    },
+    "structured": {
+      "n": 81002,
+      "agreement_rate": 0.7377225253697439,
+      "confusion_rule_rows_vs_ml_columns": {
+        "DANGER": {
+          "DANGER": 20648,
+          "WATCH": 0,
+          "NORMAL": 0,
+          "UNAVAILABLE": 0
+        },
+        "WATCH": {
+          "DANGER": 0,
+          "WATCH": 7469,
+          "NORMAL": 17710,
+          "UNAVAILABLE": 0
+        },
+        "NORMAL": {
+          "DANGER": 0,
+          "WATCH": 3535,
+          "NORMAL": 31640,
+          "UNAVAILABLE": 0
+        }
+      },
+      "false_negative_watch_missed_by_ml": 17710,
+      "false_positive_normal_flagged_watch_by_ml": 3535,
+      "n_nondanger": 60354
+    }
+  },
+  "invalid_interval_count": 0,
+  "missing_doctor_threshold_count": 0,
+  "danger_rows_ml_called": 0
+}

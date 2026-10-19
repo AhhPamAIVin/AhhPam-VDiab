@@ -1,0 +1,6089 @@
+openapi: 3.0.3
+info:
+  title: VDiab API
+  version: 1.1.0
+  description: "Đặc tả REST API cho hệ thống VDiab (Diabetes Health Management System).\n\nTài liệu này\
+    \ có hai lớp nội dung, phân biệt bằng `x-status` trên từng operation:\n\n- `x-status: implemented`\
+    \ — endpoint có thật trong `codebase/backend` hôm nay, đối chiếu trực\n  tiếp với router/service/model\
+    \ khi viết tài liệu này. Path, verb, schema, mã lỗi mô tả đúng\n  hành vi hiện tại.\n- `x-status:\
+    \ planned` — hợp đồng dự kiến, kế thừa từ bản đặc tả gốc (chuyển thể từ\n  `docs/API_SPEC.docx` và\
+    \ dữ liệu giả lập dự kiến cho frontend, hiện `frontend/` gần như trống).\n  Backend **chưa** triển\
+    \ khai các endpoint này; giữ lại để làm tài liệu tham chiếu/roadmap, không\n  phải hợp đồng đang chạy.\
+    \ Mô tả của từng tag bên dưới ghi rõ phần nào thuộc lớp nào.\n\n**Hai bộ quy ước khác nhau giữa hai\
+    \ lớp — đọc kỹ trước khi tích hợp:**\n\n- Endpoint `implemented`: response trả thẳng object/mảng (KHÔNG\
+    \ bọc trong `{ \"data\": ... }`),\n  danh sách trả toàn bộ (không có `meta` phân trang), lỗi theo\
+    \ định dạng mặc định của FastAPI —\n  `{ \"detail\": \"...\" }` cho lỗi thường (400/401/403/404/409),\
+    \ `{ \"detail\": [{ loc, msg, type }] }`\n  cho lỗi 422. Đăng nhập dùng OAuth2 password flow\n  (`application/x-www-form-urlencoded`,\
+    \ field `username`/`password`), không có refresh\n  token/cookie — access token hết hạn (mặc định\
+    \ 60 phút) thì phải đăng nhập lại. Mọi request\n  (query string, JSON/form body) còn đi qua `SQLInjectionGuardMiddleware`:\
+    \ khớp pattern SQL\n  injection phổ biến (union select, drop table, tautology `' OR '1'='1`, stacked\
+    \ queries...) thì\n  trả `400 { \"detail\": \"Request rejected: invalid input detected\" }` trước\
+    \ khi vào route.\n- Endpoint `planned`: giữ nguyên quy ước từ bản đặc tả gốc — response bọc `{ \"\
+    data\": ... }` (danh\n  sách kèm `meta` phân trang), lỗi trả `{ \"error\": { code, message, fields?,\
+    \ requestId } }`, đăng\n  nhập bằng JSON + access token/refresh token qua cookie HttpOnly. **Quy ước\
+    \ này chưa được backend\n  áp dụng cho bất kỳ endpoint nào** — nếu triển khai tiếp các endpoint `planned`,\
+    \ cần thống nhất\n  lại với backend xem giữ nguyên kiểu flat/detail hiện tại hay đổi backend sang\
+    \ bọc `data`/`error`\n  cho nhất quán toàn API.\n\nNgoài các endpoint dưới `/api/v1`, backend còn\
+    \ expose `GET /health` ở root (ngoài `/api/v1`, xem\ntag Infra) dùng cho healthcheck hạ tầng.\n\n\
+    **Nhóm người dùng**: `patient`, `doctor`, `admin` — như thiết kế gốc.\n\n**Quy ước chung của phần\
+    \ \"planned\"** (giữ nguyên từ bản gốc, xem trên để biết vì sao không áp\ndụng cho phần \"implemented\"\
+    ):\n\n- ID là UUID dạng chuỗi. Thời gian dùng ISO-8601 UTC (vd `2026-08-03T07:15:00Z`); ngày không\
+    \ kèm\n  giờ dùng `YYYY-MM-DD`.\n- Field enum dùng tiếng Anh ổn định; frontend chịu trách nhiệm dịch\
+    \ nhãn tiếng Việt.\n- Field không có dữ liệu trả về `null`; field tùy chọn trong request có thể bỏ\
+    \ qua.\n- Số đo luôn có đơn vị cố định theo schema (mg/dL, mmHg, kg, cm, minute, step).\n- Endpoint\
+    \ danh sách nhận `page` (mặc định 1), `pageSize` (mặc định 20, tối đa 100), `sort`,\n  `order=asc|desc`.\
+    \ Khoảng thời gian nhận `from`, `to`.\n- Các POST để gửi lặp (ghi chỉ số, bữa ăn, medication intake)\
+    \ nên hỗ trợ header\n  `Idempotency-Key`.\n- Schema/response được chú thích \"(suy ra từ mô tả, không\
+    \ có interface tường minh trong tài liệu\n  gốc — xác nhận lại với backend trước khi triển khai)\"\
+    \ là phần được suy diễn hợp lý từ mô tả\n  prose của API_SPEC.docx, không phải transcription trực\
+    \ tiếp.\n"
+servers:
+- url: /api/v1
+  description: Base URL — tat ca path ben duoi la tuong doi so voi day
+tags:
+- name: Auth
+  description: 'Dang nhap, phien lam viec
+
+
+    **Đã triển khai**: POST /auth/login, GET /auth/me, POST /auth/change-password. **Kế hoạch**: POST
+    /auth/refresh, POST /auth/logout, POST /auth/forgot-password (JSON login + cookie refresh token —
+    khác cách auth thật hiện dùng OAuth2 form và không có refresh token).'
+- name: Profile & Settings
+  description: 'Ho so benh nhan va cai dat nguoi dung
+
+
+    **Kế hoạch toàn bộ** — backend chưa có endpoint hồ sơ/cài đặt/avatar nào.'
+- name: Dashboard
+  description: 'Dashboard tong hop cho benh nhan
+
+
+    **Kế hoạch toàn bộ** — backend chưa có endpoint tổng hợp dashboard nào.'
+- name: Glucose
+  description: 'Chi so duong huyet
+
+
+    **Kế hoạch toàn bộ** (đọc/ghi có timing, status tự phân loại, tóm tắt theo ngày, phân trang). Xem
+    tag Health Records cho API glucose thật đang chạy — đơn giản hơn nhiều.'
+- name: Vitals
+  description: 'Huyet ap, can nang, hoat dong the chat
+
+
+    **Kế hoạch toàn bộ** — huyết áp và cân nặng chưa có model nào ở backend. Hoạt động thể chất có một
+    bản đơn giản hơn đang chạy thật ở tag Health Records.'
+- name: Medications
+  description: 'Thuoc va tuan thu dung thuoc
+
+
+    **Kế hoạch toàn bộ** — backend chưa có model thuốc/lịch uống/medication intake nào.'
+- name: Meals
+  description: 'Bua an va phan tich dinh duong bang AI
+
+
+    **Kế hoạch toàn bộ** (phân tích dinh dưỡng bằng AI, upload ảnh, nutrition breakdown). Xem tag Health
+    Records cho API ghi bữa ăn thật đang chạy — chỉ mô tả text tự do, không AI.'
+- name: Tasks
+  description: 'Cong viec hang ngay cua benh nhan
+
+
+    **Kế hoạch toàn bộ** — backend chưa có khái niệm daily task nào.'
+- name: Notifications
+  description: 'Thong bao
+
+
+    **Kế hoạch toàn bộ** — backend chưa có hệ thống notification nào.'
+- name: Doctor
+  description: 'Dashboard bac si, benh nhan duoc phan cong, ghi chu lam sang
+
+
+    **Đã triển khai**: GET /doctor/patients (danh sách bệnh nhân được phân công). **Kế hoạch**: phần còn
+    lại (hồ sơ bác sĩ, dashboard, chi tiết bệnh nhân, overview, ghi chú lâm sàng, ngưỡng glucose).'
+- name: Appointments
+  description: 'Lich hen tai kham
+
+
+    **Đã triển khai**: POST/GET /appointments, PATCH /appointments/{id}/status. **Kế hoạch**: PATCH/DELETE
+    /appointments/{id} dạng tổng quát (đổi giờ/loại/địa điểm, hủy) — backend hiện chỉ đổi được status
+    qua sub-path riêng và không có DELETE.'
+- name: AI Assistant
+  description: 'Hoi thoai AI va tom tat suc khoe
+
+
+    **Kế hoạch toàn bộ** (hội thoại nhiều lượt lưu lại theo từng bệnh nhân, feedback, SSE streaming).
+    Xem tag AI Agent cho endpoint chat thật đang chạy — thiết kế hoàn toàn khác (một lượt, không xác thực,
+    không gắn bệnh nhân).'
+- name: Admin
+  description: 'Quan ly tai khoan he thong
+
+
+    **Đã triển khai**: POST/GET /admin/users, POST /admin/users/{id}/reset-password, POST/GET /admin/patient-assignments,
+    DELETE /admin/patient-assignments/{id}. **Kế hoạch**: /admin/dashboard, GET/PATCH/DELETE /admin/users/{id},
+    PATCH /admin/users/{id}/status.'
+- name: Health Records
+  description: 'Nhật ký sức khoẻ thật đang chạy trên backend hôm nay: glucose, bữa ăn, vận động — ghi
+    nhận + liệt kê đơn giản (không timing/status/pagination/tóm tắt). **Đã triển khai toàn bộ.**'
+- name: AI Agent
+  description: Agent hội thoại chung (LangGraph) đang chạy thật trên backend — một lượt hỏi/đáp, không
+    xác thực, không gắn với bệnh nhân/role nào. **Đã triển khai toàn bộ.**
+- name: Infra
+  description: Endpoint hạ tầng ngoài /api/v1. **Đã triển khai toàn bộ.**
+security:
+- bearerAuth: []
+paths:
+  /auth/login:
+    post:
+      summary: Đăng nhập bằng email/password (OAuth2 password flow)
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: Đăng nhập thành công
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          description: Tài khoản bị vô hiệu hoá (is_active=false)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: authLogin
+      description: 'Form field `username` nhận email (không phải username thật), gửi qua application/x-www-form-urlencoded
+        (OAuth2PasswordRequestForm), không phải JSON. Trả JWT access token chứa sub (user id), role, tv
+        (token_version) và exp theo access_token_expire_minutes (mặc định 60 phút). Không có refresh token
+        hay cookie — token hết hạn thì phải đăng nhập lại.
+
+
+        Public. Đã triển khai — thay thế hoàn toàn contract JSON body + { data: ... } + refresh-cookie
+        mô tả trước đây cho cùng path này (xem banner đầu tài liệu).'
+      x-required-roles: []
+      x-status: implemented
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - username
+              - password
+              properties:
+                username:
+                  type: string
+                  format: email
+                  description: Email tài khoản (field OAuth2 tên là username nhưng nhận email)
+                  example: an.nguyen@email.com
+                password:
+                  type: string
+                  format: password
+                grant_type:
+                  type: string
+                  pattern: ^password$
+                  nullable: true
+                scope:
+                  type: string
+                  default: ''
+                client_id:
+                  type: string
+                  nullable: true
+                client_secret:
+                  type: string
+                  nullable: true
+  /auth/refresh:
+    post:
+      summary: Cap access token moi tu refresh token
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: Token moi
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      accessToken:
+                        type: string
+                      expiresIn:
+                        type: integer
+                        example: 900
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: authRefresh
+      description: 'Refresh token duoc gui qua cookie HttpOnly (khong qua body).
+
+
+        Public'
+      x-required-roles: []
+      security: []
+      x-status: planned
+  /auth/logout:
+    post:
+      summary: Thu hoi phien dang nhap
+      tags:
+      - Auth
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: authLogout
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: planned
+  /auth/me:
+    get:
+      summary: Lấy user hiện tại theo JWT hiện hành
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: User hiện tại
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+      operationId: authMe
+      description: 'Quyền: patient, doctor, admin (bất kỳ ai có access token hợp lệ, chưa hết hạn, và
+        token_version còn khớp — đổi/reset mật khẩu sẽ vô hiệu hoá các token cũ).
+
+
+        Đã triển khai — response trả thẳng UserPublic, không bọc { data: ... } như thiết kế gốc.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+  /auth/forgot-password:
+    post:
+      summary: Gui email dat lai mat khau
+      tags:
+      - Auth
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: authForgotPassword
+      description: Public
+      x-required-roles: []
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - email
+              properties:
+                email:
+                  type: string
+                  format: email
+      x-status: planned
+  /auth/change-password:
+    post:
+      summary: Đổi mật khẩu của chính mình
+      tags:
+      - Auth
+      responses:
+        '200':
+          description: Đổi mật khẩu thành công, token cũ bị vô hiệu hoá
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenResponse'
+        '400':
+          description: Mật khẩu hiện tại không đúng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: authChangePassword
+      description: 'Tăng token_version của user nên mọi access token đã phát hành trước đó (kể cả token
+        đang dùng để gọi API này) đều bị vô hiệu — client phải lưu lại access_token mới trong response.
+
+
+        Quyền: patient, doctor, admin. Đã triển khai — không có trong bản đặc tả gốc.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - current_password
+              - new_password
+              properties:
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+                  minLength: 8
+                  maxLength: 72
+  /patients/me:
+    get:
+      summary: Lay ho so benh nhan cua chinh minh
+      tags:
+      - Profile & Settings
+      responses:
+        '200':
+          description: Ho so benh nhan
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PatientProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyPatientProfile
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      x-status: planned
+    patch:
+      summary: Cap nhat ho so ca nhan
+      tags:
+      - Profile & Settings
+      responses:
+        '200':
+          description: Ho so sau cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PatientProfile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyPatientProfile
+      description: 'Chi cap nhat: name, phone, address, dateOfBirth, gender, heightCm, emergencyContact.
+        Khong cho patient tu sua diagnosis, bac si phu trach hoac nguong duong huyet (glucoseTargets).
+
+
+        Quyền: patient'
+      x-required-roles:
+      - patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                phone:
+                  type: string
+                  nullable: true
+                address:
+                  type: string
+                  nullable: true
+                dateOfBirth:
+                  type: string
+                  format: date
+                  nullable: true
+                gender:
+                  $ref: '#/components/schemas/Gender'
+                heightCm:
+                  type: number
+                  minimum: 0
+                  nullable: true
+                emergencyContact:
+                  allOf:
+                  - $ref: '#/components/schemas/EmergencyContact'
+                  nullable: true
+      x-status: planned
+  /users/me/avatar:
+    post:
+      summary: Tai anh dai dien
+      tags:
+      - Profile & Settings
+      responses:
+        '200':
+          description: Avatar da tai len
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - avatarUrl
+                    properties:
+                      avatarUrl:
+                        type: string
+                        format: uri
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: uploadMyAvatar
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      x-status: planned
+  /users/me/settings:
+    get:
+      summary: Lay cai dat nguoi dung hien tai
+      tags:
+      - Profile & Settings
+      responses:
+        '200':
+          description: Cai dat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMySettings
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: planned
+    patch:
+      summary: Cap nhat mot phan cai dat nguoi dung
+      tags:
+      - Profile & Settings
+      responses:
+        '200':
+          description: Cai dat sau cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/UserSettings'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMySettings
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSettingsUpdateRequest'
+      x-status: planned
+  /patients/me/dashboard:
+    get:
+      summary: Dashboard tong hop cho benh nhan (tranh goi nhieu API khi mo dashboard)
+      tags:
+      - Dashboard
+      responses:
+        '200':
+          description: Du lieu dashboard
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - patient
+                    - latestMetrics
+                    - glucoseSeries
+                    - tasks
+                    properties:
+                      patient:
+                        type: object
+                        required:
+                        - id
+                        - name
+                        properties:
+                          id:
+                            type: string
+                            format: uuid
+                          name:
+                            type: string
+                          avatarUrl:
+                            type: string
+                            format: uri
+                            nullable: true
+                      latestMetrics:
+                        type: object
+                        properties:
+                          glucose:
+                            allOf:
+                            - $ref: '#/components/schemas/GlucoseReading'
+                            nullable: true
+                          bloodPressure:
+                            allOf:
+                            - $ref: '#/components/schemas/BloodPressureReading'
+                            nullable: true
+                          weight:
+                            allOf:
+                            - $ref: '#/components/schemas/WeightReading'
+                            nullable: true
+                          steps:
+                            type: integer
+                            nullable: true
+                      glucoseSeries:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/GlucoseDayBucket'
+                      tasks:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DailyTask'
+                      insight:
+                        type: object
+                        nullable: true
+                        properties:
+                          summary:
+                            type: string
+                          generatedAt:
+                            type: string
+                            format: date-time
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyDashboard
+      description: 'Du lieu chi tiet van lay tu cac endpoint domain rieng (glucose, blood pressure...).
+
+
+        Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Ngay tham chieu, mac dinh hom nay
+      - name: range
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - 7d
+          - 30d
+          - 3m
+        description: Khoang thoi gian bieu do
+      x-status: planned
+  /patients/me/glucose-readings:
+    get:
+      summary: Lich su do duong huyet cua chinh minh
+      tags:
+      - Glucose
+      responses:
+        '200':
+          description: Danh sach lan do
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GlucoseReading'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyGlucoseReadings
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: timing
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/GlucoseTiming'
+      - name: status
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MeasurementStatus'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+    post:
+      summary: Tao lan do duong huyet moi
+      tags:
+      - Glucose
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GlucoseReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyGlucoseReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlucoseReadingCreateRequest'
+      x-status: planned
+  /patients/me/glucose-readings/{id}:
+    patch:
+      summary: Sua lan do duong huyet cua chinh minh
+      tags:
+      - Glucose
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GlucoseReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyGlucoseReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID lan do
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlucoseReadingUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa lan do duong huyet cua chinh minh
+      tags:
+      - Glucose
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteMyGlucoseReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID lan do
+      x-status: planned
+  /patients/me/glucose-summary:
+    get:
+      summary: Thong ke va series bieu do duong huyet
+      tags:
+      - Glucose
+      responses:
+        '200':
+          description: Thong ke duong huyet
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GlucoseSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyGlucoseSummary
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: bucket
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - day
+        description: Don vi gom nhom cho series
+      x-status: planned
+  /doctor/patients/{patientId}/glucose-readings:
+    get:
+      summary: Bac si xem lich su duong huyet cua benh nhan duoc phan cong
+      tags:
+      - Glucose
+      responses:
+        '200':
+          description: Danh sach lan do
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/GlucoseReading'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listPatientGlucoseReadingsAsDoctor
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: timing
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/GlucoseTiming'
+      - name: status
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MeasurementStatus'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+  /patients/me/blood-pressure-readings:
+    get:
+      summary: Danh sach huyet ap cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Danh sach huyet ap
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/BloodPressureReading'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyBloodPressureReadings
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+    post:
+      summary: Ghi nhan huyet ap moi
+      tags:
+      - Vitals
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BloodPressureReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyBloodPressureReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BloodPressureReadingCreateRequest'
+      x-status: planned
+  /patients/me/blood-pressure-readings/{id}:
+    patch:
+      summary: Sua huyet ap cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BloodPressureReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyBloodPressureReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BloodPressureReadingUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa huyet ap cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteMyBloodPressureReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /patients/me/weight-readings:
+    get:
+      summary: Danh sach can nang cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Danh sach can nang
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WeightReading'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyWeightReadings
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+    post:
+      summary: Ghi nhan can nang moi
+      tags:
+      - Vitals
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WeightReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyWeightReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeightReadingCreateRequest'
+      x-status: planned
+  /patients/me/weight-readings/{id}:
+    patch:
+      summary: Sua can nang cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WeightReading'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyWeightReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeightReadingUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa can nang cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteMyWeightReading
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /patients/me/activities:
+    get:
+      summary: Danh sach hoat dong the chat cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Danh sach hoat dong the chat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ActivityRecord'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyActivityRecords
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+    post:
+      summary: Ghi nhan hoat dong the chat moi
+      tags:
+      - Vitals
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ActivityRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyActivityRecord
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityRecordCreateRequest'
+      x-status: planned
+  /patients/me/activities/{id}:
+    patch:
+      summary: Sua hoat dong the chat cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ActivityRecord'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyActivityRecord
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityRecordUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa hoat dong the chat cua chinh minh
+      tags:
+      - Vitals
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteMyActivityRecord
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /patients/me/blood-pressure-summary:
+    get:
+      summary: Thong ke/bieu do huyet ap
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Thong ke huyet ap
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/BloodPressureSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyBloodPressureSummary
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: bucket
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - day
+      x-status: planned
+  /patients/me/weight-summary:
+    get:
+      summary: Thong ke/bieu do can nang
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Thong ke can nang
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/WeightSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyWeightSummary
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: bucket
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - day
+      x-status: planned
+  /patients/me/activity-summary:
+    get:
+      summary: Thong ke/bieu do hoat dong the chat
+      tags:
+      - Vitals
+      responses:
+        '200':
+          description: Thong ke hoat dong
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ActivitySummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyActivitySummary
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: bucket
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - day
+      x-status: planned
+  /patients/me/medications:
+    get:
+      summary: Danh sach thuoc va lich uong cua chinh minh
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Danh sach thuoc
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Medication'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyMedications
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: status
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MedicationStatus'
+      x-status: planned
+  /doctor/patients/{patientId}/medications:
+    get:
+      summary: Bac si xem thuoc cua benh nhan
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Danh sach thuoc
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Medication'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listPatientMedicationsAsDoctor
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+    post:
+      summary: Bac si ke thuoc moi cho benh nhan
+      tags:
+      - Medications
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Medication'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createPatientMedicationAsDoctor
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationCreateRequest'
+      x-status: planned
+  /doctor/patients/{patientId}/medications/{id}:
+    patch:
+      summary: Bac si sua/dung thuoc cua benh nhan
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Medication'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updatePatientMedicationAsDoctor
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationUpdateRequest'
+      x-status: planned
+  /patients/me/medication-intakes:
+    get:
+      summary: Trang thai uong thuoc trong ngay
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Danh sach lan uong
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MedicationIntake'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyMedicationIntakes
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      x-status: planned
+    post:
+      summary: Ghi nhan da uong/bo qua mot lan uong thuoc
+      tags:
+      - Medications
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MedicationIntake'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyMedicationIntake
+      description: 'Nen upsert theo cap (scheduleId, scheduledAt) de thao tac bat/tat tren UI khong tao
+        ban ghi trung.
+
+
+        Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationIntakeCreateRequest'
+      x-status: planned
+  /patients/me/medication-intakes/{id}:
+    patch:
+      summary: Doi trang thai mot lan uong thuoc
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MedicationIntake'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyMedicationIntake
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationIntakeUpdateRequest'
+      x-status: planned
+  /patients/me/medications/{id}/schedules/{scheduleId}:
+    patch:
+      summary: Bat/tat nhac thuoc cho mot khung gio uong
+      tags:
+      - Medications
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/MedicationSchedule'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyMedicationScheduleReminder
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID thuoc
+      - name: scheduleId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+        description: ID khung gio uong
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MedicationScheduleReminderUpdateRequest'
+      x-status: planned
+  /uploads/meal-images:
+    post:
+      summary: Tai anh mon an
+      tags:
+      - Meals
+      responses:
+        '200':
+          description: Da tai len
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/FileUploadResponseData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: uploadMealImage
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+              - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+      x-status: planned
+  /ai/meal-analysis:
+    post:
+      summary: Phan tich ten mon/khau phan/anh bang AI
+      tags:
+      - Meals
+      responses:
+        '200':
+          description: Ket qua phan tich dinh duong
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/NutritionAnalysis'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: analyzeMeal
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealAnalysisRequest'
+      x-status: planned
+  /patients/me/meals:
+    get:
+      summary: Lich su bua an cua chinh minh
+      tags:
+      - Meals
+      responses:
+        '200':
+          description: Danh sach bua an
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Meal'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyMeals
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/FromParam'
+      - $ref: '#/components/parameters/ToParam'
+      - name: type
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/MealType'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+    post:
+      summary: Luu ket qua bua an (sau khi nguoi dung xac nhan phan tich AI)
+      tags:
+      - Meals
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Meal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyMeal
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - $ref: '#/components/parameters/IdempotencyKeyHeader'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealCreateRequest'
+      x-status: planned
+  /patients/me/meals/{id}:
+    patch:
+      summary: Sua bua an cua chinh minh
+      tags:
+      - Meals
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Meal'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyMeal
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa bua an cua chinh minh
+      tags:
+      - Meals
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteMyMeal
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /health/glucose:
+    post:
+      summary: Ghi nhận một lần đo đường huyết
+      tags:
+      - Health Records
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GlucoseRecordPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: createGlucoseRecord
+      description: 'Không có timing (fasting/before_meal/...) hay status (low/normal/high/critical) tự
+        phân loại như thiết kế ở tag Glucose bên dưới — chỉ value/unit/measured_at/note thô.
+
+
+        Quyền: patient (ghi cho chính mình), doctor (ghi cho bệnh nhân được phân công). Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlucoseRecordCreate'
+    get:
+      summary: Liệt kê các lần đo đường huyết
+      tags:
+      - Health Records
+      responses:
+        '200':
+          description: Danh sách (mới nhất trước), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GlucoseRecordPublic'
+        '400':
+          description: patient_id bắt buộc với doctor/admin; hoặc start_date/end_date không hợp lệ (start
+            > end, hoặc ngoài khoảng 10 năm trước tới 1 năm sau)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: listGlucoseRecords
+      description: 'patient tự động dùng patient_id của chính mình nếu bỏ qua; doctor/admin bắt buộc truyền
+        patient_id (kiểm tra quyền qua ensure_patient_access).
+
+
+        Quyền: patient, doctor, admin. Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+      parameters:
+      - name: patient_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: start_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận dưới (bao gồm) theo measured_at
+      - name: end_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận trên (bao gồm) theo measured_at
+  /health/meals:
+    post:
+      summary: Ghi nhận một bữa ăn
+      tags:
+      - Health Records
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MealRecordPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: createMealRecord
+      description: 'description là text tự do do người dùng nhập — không có phân tích dinh dưỡng bằng
+        AI, không có upload ảnh, không có nutrition breakdown như thiết kế ở tag Meals bên dưới.
+
+
+        Quyền: patient, doctor. Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MealRecordCreate'
+    get:
+      summary: Liệt kê các bữa ăn
+      tags:
+      - Health Records
+      responses:
+        '200':
+          description: Danh sách (mới nhất trước), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/MealRecordPublic'
+        '400':
+          description: patient_id bắt buộc với doctor/admin; hoặc start_date/end_date không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: listMealRecords
+      description: 'Quyền: patient, doctor, admin. Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+      parameters:
+      - name: patient_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: start_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận dưới (bao gồm) theo meal_time
+      - name: end_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận trên (bao gồm) theo meal_time
+  /health/activities:
+    post:
+      summary: Ghi nhận một hoạt động thể chất
+      tags:
+      - Health Records
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActivityRecordPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: createActivityRecord
+      description: 'activity_type là text tự do (vd "đi bộ", "chạy bộ") — không phải enum cố định như
+        ActivityType ở tag Vitals. Không có steps/caloriesKcal.
+
+
+        Quyền: patient, doctor. Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActivityRecordCreate'
+    get:
+      summary: Liệt kê hoạt động thể chất
+      tags:
+      - Health Records
+      responses:
+        '200':
+          description: Danh sách (mới nhất trước), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActivityRecordPublic'
+        '400':
+          description: patient_id bắt buộc với doctor/admin; hoặc start_date/end_date không hợp lệ
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: listActivityRecords
+      description: 'Quyền: patient, doctor, admin. Đã triển khai.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+      parameters:
+      - name: patient_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: start_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận dưới (bao gồm) theo activity_time
+      - name: end_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date-time
+        description: Cận trên (bao gồm) theo activity_time
+  /patients/me/tasks:
+    get:
+      summary: Lich cong viec trong ngay
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: Danh sach task
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/DailyTask'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyTasks
+      description: 'Task thuoc/lich hen nen duoc sinh tu lich uong thuoc va appointment, khong tao du
+        lieu nghiep vu trung lap.
+
+
+        Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      x-status: planned
+  /patients/me/tasks/{id}:
+    patch:
+      summary: Danh dau hoan thanh/chua hoan thanh mot task
+      tags:
+      - Tasks
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DailyTask'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyTask
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DailyTaskUpdateRequest'
+      x-status: planned
+  /notifications:
+    get:
+      summary: Danh sach thong bao cua nguoi dung hien tai
+      tags:
+      - Notifications
+      responses:
+        '200':
+          description: Danh sach thong bao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                - meta
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Notification'
+                  meta:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyNotifications
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      parameters:
+      - name: read
+        in: query
+        required: false
+        schema:
+          type: boolean
+      - name: category
+        in: query
+        required: false
+        schema:
+          $ref: '#/components/schemas/NotificationCategory'
+      - $ref: '#/components/parameters/PageParam'
+      - $ref: '#/components/parameters/PageSizeParam'
+      - $ref: '#/components/parameters/SortParam'
+      - $ref: '#/components/parameters/OrderParam'
+      x-status: planned
+  /notifications/unread-count:
+    get:
+      summary: So thong bao chua doc (cho badge header/sidebar)
+      tags:
+      - Notifications
+      responses:
+        '200':
+          description: So luong
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - count
+                    properties:
+                      count:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyUnreadNotificationCount
+      description: 'Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: planned
+  /notifications/{id}/read:
+    patch:
+      summary: Danh dau mot thong bao la da doc
+      tags:
+      - Notifications
+      responses:
+        '200':
+          description: Thong bao sau cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Notification'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: markMyNotificationRead
+      description: 'Chi chu so huu thong bao moi duoc goi. Idempotent — goi lap lai van tra ve 200.
+
+
+        Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /notifications/read-all:
+    patch:
+      summary: Danh dau tat ca thong bao la da doc
+      tags:
+      - Notifications
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: markAllMyNotificationsRead
+      description: 'Idempotent — goi lap lai khong gay loi.
+
+
+        Quyền: patient, doctor, admin'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: planned
+  /doctor/me:
+    get:
+      summary: Ho so bac si dang dang nhap
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Ho so bac si
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DoctorSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getMyDoctorProfile
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      x-status: planned
+  /doctor/dashboard:
+    get:
+      summary: So benh nhan theo muc canh bao va lich hen hom nay
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Du lieu dashboard bac si
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    required:
+                    - doctor
+                    - counts
+                    - appointments
+                    properties:
+                      doctor:
+                        $ref: '#/components/schemas/DoctorSummary'
+                      counts:
+                        type: object
+                        required:
+                        - totalPatients
+                        - critical
+                        - warning
+                        - normal
+                        properties:
+                          totalPatients:
+                            type: integer
+                          critical:
+                            type: integer
+                          warning:
+                            type: integer
+                          normal:
+                            type: integer
+                      appointments:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getDoctorDashboard
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+      x-status: planned
+  /doctor/patients:
+    get:
+      summary: Danh sách bệnh nhân được phân công cho bác sĩ hiện tại
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Danh sách bệnh nhân (UserPublic), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: doctorListMyPatients
+      description: 'Trả UserPublic (id, email, full_name, role, is_active, must_change_password, created_at)
+        của các bệnh nhân đang có PatientAssignment với bác sĩ hiện tại — chưa có PatientProfile mở rộng
+        (chẩn đoán, chỉ số, bác sĩ phụ trách...) như thiết kế "Kế hoạch" trong tag Doctor bên dưới, cũng
+        chưa hỗ trợ search/alertLevel/phân trang.
+
+
+        Quyền: doctor. Đã triển khai — thay thế hoàn toàn contract phân trang + DoctorPatientSummary mô
+        tả trước đây cho cùng path này.'
+      x-required-roles:
+      - doctor
+      x-status: implemented
+  /doctor/patients/{patientId}:
+    get:
+      summary: Ho so chi tiet cua mot benh nhan duoc phan cong
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Ho so va tom tat gan nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/DoctorPatientDetailResponseData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getDoctorPatientDetail
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /doctor/patients/{patientId}/overview:
+    get:
+      summary: Chi so tong hop, glucose series va canh bao cua benh nhan
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Overview benh nhan
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/PatientOverviewResponseData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getDoctorPatientOverview
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: range
+        in: query
+        required: false
+        schema:
+          type: string
+          enum:
+          - 7d
+          - 30d
+          - 3m
+      x-status: planned
+  /doctor/patients/{patientId}/notes:
+    get:
+      summary: Danh sach ghi chu lam sang cho benh nhan
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Danh sach ghi chu
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ClinicalNote'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listDoctorPatientNotes
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+    post:
+      summary: Them ghi chu lam sang cho benh nhan
+      tags:
+      - Doctor
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClinicalNote'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createDoctorPatientNote
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClinicalNoteCreateRequest'
+      x-status: planned
+  /doctor/patients/{patientId}/notes/{noteId}:
+    patch:
+      summary: Sua ghi chu lam sang (chi tac gia)
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ClinicalNote'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateDoctorPatientNote
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: noteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClinicalNoteUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Xoa ghi chu lam sang (chi tac gia)
+      tags:
+      - Doctor
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteDoctorPatientNote
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: noteId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /doctor/patients/{patientId}/glucose-targets:
+    patch:
+      summary: Cap nhat nguong/muc tieu duong huyet cho benh nhan duoc phan cong
+      tags:
+      - Doctor
+      responses:
+        '200':
+          description: Muc tieu sau cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/GlucoseTargets'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateDoctorPatientGlucoseTargets
+      description: 'Quyền: doctor'
+      x-required-roles:
+      - doctor
+      parameters:
+      - name: patientId
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GlucoseTargetsUpdateRequest'
+      x-status: planned
+  /appointments:
+    get:
+      summary: Danh sách lịch hẹn theo vai trò
+      tags:
+      - Appointments
+      responses:
+        '200':
+          description: Danh sách lịch hẹn (AppointmentPublic), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AppointmentPublic'
+        '400':
+          description: patient_id là bắt buộc (admin gọi mà không truyền patient_id)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: listAppointments
+      description: 'Hành vi theo role: patient (bỏ qua patient_id hoặc truyền đúng id của mình) → lịch
+        hẹn của chính mình; doctor không truyền patient_id → toàn bộ lịch hẹn của bác sĩ đó; doctor/admin
+        có truyền patient_id → lịch hẹn của bệnh nhân đó (kiểm tra quyền qua ensure_patient_access); admin
+        không truyền patient_id → 400. on_date lọc thêm theo đúng một ngày lịch (vd "hôm nay khám ai").
+
+
+        Quyền: patient, doctor, admin. Đã triển khai — thay thế contract lọc theo from/to mô tả trước
+        đây cho cùng path này.'
+      x-required-roles:
+      - patient
+      - doctor
+      - admin
+      x-status: implemented
+      parameters:
+      - name: patient_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+      - name: on_date
+        in: query
+        required: false
+        schema:
+          type: string
+          format: date
+        description: Chỉ lấy lịch hẹn trong đúng ngày lịch này
+    post:
+      summary: Bác sĩ tạo lịch hẹn tái khám cho bệnh nhân được phân công
+      tags:
+      - Appointments
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: createAppointment
+      description: 'doctor_id luôn là bác sĩ đang gọi API (không nhận từ client); bệnh nhân phải đang
+        được phân công cho bác sĩ đó, nếu không trả 403.
+
+
+        Quyền: doctor. Đã triển khai — thay thế contract cho phép cả admin tạo lịch hẹn mô tả trước đây
+        cho cùng path này (backend hiện chỉ cho doctor).'
+      x-required-roles:
+      - doctor
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentCreate'
+  /appointments/{id}:
+    patch:
+      summary: Doi thoi gian/loai/dia diem/trang thai lich hen
+      tags:
+      - Appointments
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Appointment'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateAppointment
+      description: 'Quyền: doctor, admin'
+      x-required-roles:
+      - doctor
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentUpdateRequest'
+      x-status: planned
+    delete:
+      summary: Huy lich hen
+      tags:
+      - Appointments
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: cancelAppointment
+      description: 'Nen uu tien chuyen status=cancelled hon la hard delete de giu lich su.
+
+
+        Quyền: doctor, admin'
+      x-required-roles:
+      - doctor
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /appointments/{appointment_id}/status:
+    patch:
+      summary: Đổi trạng thái lịch hẹn (chỉ bác sĩ phụ trách)
+      tags:
+      - Appointments
+      responses:
+        '200':
+          description: Đã cập nhật
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AppointmentPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          description: Không phải bác sĩ phụ trách lịch hẹn này (detail "Not your appointment")
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '404':
+          $ref: '#/components/responses/ImplNotFound'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: updateAppointmentStatus
+      description: 'Chỉ đổi được status (scheduled/completed/cancelled) — không đổi được giờ/lý do/ghi
+        chú qua endpoint này. Chỉ bác sĩ có doctor_id trùng với lịch hẹn mới được gọi.
+
+
+        Quyền: doctor. Đã triển khai. Không có endpoint hủy/xóa lịch hẹn (DELETE) ở backend hiện tại —
+        muốn hủy thì chuyển status=cancelled.'
+      x-required-roles:
+      - doctor
+      x-status: implemented
+      parameters:
+      - name: appointment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AppointmentStatusUpdate'
+  /ai/conversations:
+    get:
+      summary: Danh sach hoi thoai AI cua benh nhan
+      tags:
+      - AI Assistant
+      responses:
+        '200':
+          description: Danh sach hoi thoai
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatConversation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyAiConversations
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      x-status: planned
+    post:
+      summary: Tao hoi thoai AI moi
+      tags:
+      - AI Assistant
+      responses:
+        '201':
+          description: Da tao
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChatConversation'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: createMyAiConversation
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatConversationCreateRequest'
+      x-status: planned
+  /ai/conversations/{id}/messages:
+    get:
+      summary: Lich su chat cua mot hoi thoai (chi chu so huu)
+      tags:
+      - AI Assistant
+      responses:
+        '200':
+          description: Danh sach tin nhan
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ChatMessage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: listMyAiConversationMessages
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+    post:
+      summary: Gui cau hoi va nhan cau tra loi tu AI (chi chu so huu)
+      tags:
+      - AI Assistant
+      responses:
+        '200':
+          description: Cap tin nhan user + assistant
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChatMessagePairResponseData'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: sendMyAiConversationMessage
+      description: 'Backend chi duoc dua du lieu dung benh nhan do vao AI context, phai ghi audit log
+        va luon tra kem disclaimer y te o metadata hoac UI co dinh. Neu client gui header `Accept: text/event-stream`,
+        server co the tra ve Server-Sent Events (tung phan tra loi) thay vi JSON day du — khong mo ta
+        chi tiet format SSE trong tai lieu goc.
+
+
+        Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageCreateRequest'
+      x-status: planned
+  /ai/messages/{id}/feedback:
+    patch:
+      summary: Danh gia phan hoi cua AI (chi chu so huu)
+      tags:
+      - AI Assistant
+      responses:
+        '200':
+          description: Tin nhan sau cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/ChatMessage'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateMyAiMessageFeedback
+      description: 'Quyền: patient'
+      x-required-roles:
+      - patient
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatMessageFeedbackUpdateRequest'
+      x-status: planned
+  /chat:
+    post:
+      summary: Gửi tin nhắn cho AI agent (LangGraph), nhận phản hồi
+      tags:
+      - AI Agent
+      responses:
+        '200':
+          description: Phản hồi từ agent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatResponse'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+        '500':
+          description: Lỗi khi gọi agent (mọi Exception đều bị bắt và trả 500 kèm str(e) trong detail)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+      operationId: chatWithAgent
+      description: 'Không yêu cầu xác thực (không có Depends(get_current_user)) và không gắn với bệnh
+        nhân/role cụ thể nào — đây là agent hội thoại chung một lượt (LangGraph agent.ainvoke), khác hoàn
+        toàn với thiết kế hội thoại nhiều lượt theo bệnh nhân ở tag "AI Assistant" phía trên.
+
+
+        Public. Đã triển khai.'
+      x-required-roles: []
+      x-status: implemented
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChatRequest'
+  /status:
+    get:
+      summary: Kiểm tra trạng thái agent
+      tags:
+      - AI Agent
+      responses:
+        '200':
+          description: Trạng thái agent
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - status
+                - agent
+                properties:
+                  status:
+                    type: string
+                    example: ready
+                  agent:
+                    type: string
+                    example: LangGraph Agent v1.0
+      operationId: agentStatus
+      description: Public. Đã triển khai.
+      x-required-roles: []
+      x-status: implemented
+      security: []
+  /admin/dashboard:
+    get:
+      summary: Thong ke tong user, patient, doctor, active/locked va chi so he thong
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Thong ke he thong
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      totalUsers:
+                        type: integer
+                      totalPatients:
+                        type: integer
+                      totalDoctors:
+                        type: integer
+                      activeCount:
+                        type: integer
+                      lockedCount:
+                        type: integer
+                      newUsersLast30d:
+                        type: integer
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getAdminDashboard
+      description: 'Suy ra tu mo ta "co the dung chinh danh sach hoac endpoint tong hop" trong API_SPEC.docx
+        muc 4.13 (chi mo ta prose "Thong ke tong user, patient, doctor, active/locked va chi so he thong")
+        — khong co interface tuong minh trong tai lieu goc. Xac nhan lai shape voi backend truoc khi trien
+        khai.
+
+
+        Quyền: admin'
+      x-required-roles:
+      - admin
+      x-status: planned
+  /admin/users:
+    get:
+      summary: Danh sách toàn bộ tài khoản
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Danh sách user (UserPublic), không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: adminListUsers
+      description: 'Không hỗ trợ search/role/status/phân trang — trả toàn bộ user, sắp xếp theo created_at.
+
+
+        Quyền: admin. Đã triển khai — thay thế contract phân trang + filter mô tả trước đây cho cùng path
+        này.'
+      x-required-roles:
+      - admin
+      x-status: implemented
+    post:
+      summary: Tạo tài khoản Admin/Doctor/Patient với mật khẩu tạm
+      tags:
+      - Admin
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '409':
+          description: Email đã được đăng ký
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: adminCreateUser
+      description: 'Nhận temporary_password trực tiếp từ client (không tự sinh) và đặt must_change_password=true
+        cho user mới — không nhận phone, không có field status (chỉ có is_active, mặc định true).
+
+
+        Quyền: admin. Đã triển khai — thay thế contract field name/phone/status mô tả trước đây cho cùng
+        path này.'
+      x-required-roles:
+      - admin
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreate'
+  /admin/users/{id}:
+    get:
+      summary: Chi tiet user
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Chi tiet user
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: getAdminUser
+      description: 'Quyền: admin'
+      x-required-roles:
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+    patch:
+      summary: Sua thong tin/role cua user
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Da cap nhat
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateAdminUser
+      description: 'Quyền: admin'
+      x-required-roles:
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                phone:
+                  type: string
+                  nullable: true
+                role:
+                  $ref: '#/components/schemas/UserRole'
+      x-status: planned
+    delete:
+      summary: Xoa user (soft delete de giu lich su y te va audit)
+      tags:
+      - Admin
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: deleteAdminUser
+      description: 'Quyền: admin'
+      x-required-roles:
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      x-status: planned
+  /admin/users/{id}/status:
+    patch:
+      summary: Khoa/mo khoa tai khoan user
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Da cap nhat trang thai
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - data
+                properties:
+                  data:
+                    $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        default:
+          $ref: '#/components/responses/UnexpectedError'
+      operationId: updateAdminUserStatus
+      description: 'Quyền: admin'
+      x-required-roles:
+      - admin
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+              - status
+              properties:
+                status:
+                  $ref: '#/components/schemas/UserStatus'
+      x-status: planned
+  /admin/users/{user_id}/reset-password:
+    post:
+      summary: Đặt lại mật khẩu cho một user
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Mật khẩu tạm mới
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResetPasswordResponse'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '404':
+          $ref: '#/components/responses/ImplNotFound'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: adminResetUserPassword
+      description: 'Tăng token_version của user đó nên mọi access token đã phát hành trước đó bị vô hiệu
+        ngay. Nếu không truyền temporary_password, server tự sinh 16 ký tự ngẫu nhiên — trả về đúng một
+        lần trong response, không lưu lại dạng plaintext.
+
+
+        Quyền: admin. Đã triển khai — không có trong bản đặc tả gốc.'
+      x-required-roles:
+      - admin
+      x-status: implemented
+      parameters:
+      - name: user_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResetPasswordRequest'
+  /admin/patient-assignments:
+    post:
+      summary: Phân công một bệnh nhân cho một bác sĩ
+      tags:
+      - Admin
+      responses:
+        '201':
+          description: Đã tạo
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssignmentPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '404':
+          description: doctor_id hoặc patient_id không tồn tại / không đúng role tương ứng
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '409':
+          description: Bệnh nhân đã được phân công cho bác sĩ này
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HTTPError'
+        '422':
+          $ref: '#/components/responses/ImplValidationError'
+      operationId: adminAssignPatient
+      description: 'Quyền: admin. Đã triển khai — không có trong bản đặc tả gốc (bản gốc không có khái
+        niệm "assignment" tường minh).'
+      x-required-roles:
+      - admin
+      x-status: implemented
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssignmentCreate'
+    get:
+      summary: Danh sách phân công bệnh nhân-bác sĩ
+      tags:
+      - Admin
+      responses:
+        '200':
+          description: Danh sách phân công, không phân trang
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AssignmentPublic'
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+      operationId: adminListPatientAssignments
+      description: 'Quyền: admin. Đã triển khai.'
+      x-required-roles:
+      - admin
+      x-status: implemented
+      parameters:
+      - name: doctor_id
+        in: query
+        required: false
+        schema:
+          type: string
+          format: uuid
+        description: Lọc theo một bác sĩ cụ thể
+  /admin/patient-assignments/{assignment_id}:
+    delete:
+      summary: Gỡ một phân công bệnh nhân-bác sĩ
+      tags:
+      - Admin
+      responses:
+        '204':
+          description: Thành công, không có nội dung trả về
+        '401':
+          $ref: '#/components/responses/ImplUnauthorized'
+        '403':
+          $ref: '#/components/responses/ImplForbidden'
+        '404':
+          $ref: '#/components/responses/ImplNotFound'
+      operationId: adminUnassignPatient
+      description: 'Quyền: admin. Đã triển khai.'
+      x-required-roles:
+      - admin
+      x-status: implemented
+      parameters:
+      - name: assignment_id
+        in: path
+        required: true
+        schema:
+          type: string
+          format: uuid
+  /health:
+    get:
+      summary: Healthcheck hạ tầng (ngoài /api/v1)
+      tags:
+      - Infra
+      servers:
+      - url: /
+        description: Endpoint này nằm ở root, không có prefix /api/v1
+      responses:
+        '200':
+          description: Trạng thái service
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                - status
+                - env
+                properties:
+                  status:
+                    type: string
+                    example: ok
+                  env:
+                    type: string
+                    enum:
+                    - development
+                    - production
+                    - test
+      operationId: infraHealthCheck
+      description: 'Định nghĩa trực tiếp trên app FastAPI (không qua router nào) — dùng cho healthcheck
+        của orchestrator/load balancer, không thuộc versioned API.
+
+
+        Public. Đã triển khai.'
+      x-required-roles: []
+      x-status: implemented
+      security: []
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: 'Header Authorization: Bearer <access_token> lấy từ POST /auth/login. Access token
+        hết hạn sau access_token_expire_minutes (mặc định 60 phút) và backend hiện KHÔNG có refresh token
+        — phải đăng nhập lại. (Phần ''planned'' của tài liệu vẫn còn mô tả refresh token qua cookie HttpOnly
+        kế thừa từ bản gốc — chưa được backend triển khai, xem tag Auth.)'
+  parameters:
+    PageParam:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+      description: Trang hien tai (mac dinh 1)
+    PageSizeParam:
+      name: pageSize
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 20
+      description: So ban ghi moi trang (mac dinh 20, toi da 100)
+    SortParam:
+      name: sort
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Ten field dung de sap xep
+    OrderParam:
+      name: order
+      in: query
+      required: false
+      schema:
+        type: string
+        enum:
+        - asc
+        - desc
+        default: asc
+      description: Thu tu sap xep
+    FromParam:
+      name: from
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Bat dau khoang thoi gian (ISO-8601 datetime hoac YYYY-MM-DD tuy endpoint)
+    ToParam:
+      name: to
+      in: query
+      required: false
+      schema:
+        type: string
+      description: Ket thuc khoang thoi gian (ISO-8601 datetime hoac YYYY-MM-DD tuy endpoint)
+    IdempotencyKeyHeader:
+      name: Idempotency-Key
+      in: header
+      required: false
+      schema:
+        type: string
+      description: Khoa idempotent cho cac POST de gui lap (ghi chi so, bua an, medication intake)
+  responses:
+    Unauthorized:
+      description: Chua xac thuc hoac access token het han / khong hop le
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Da xac thuc nhung khong co quyen truy cap tai nguyen nay (sai role hoac khong duoc
+        phan cong)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Khong tim thay tai nguyen
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ValidationError:
+      description: Du lieu request khong hop le (loi tung field, xem error.fields)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Conflict:
+      description: Xung dot du lieu (vd email da ton tai)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    TooManyRequests:
+      description: Vuot qua gioi han so lan goi (rate limit)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    UnexpectedError:
+      description: Loi khong xac dinh khac (400, 404, 409, 429, 500 ...) — luon co dang ErrorResponse
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    ImplUnauthorized:
+      description: Chưa xác thực hoặc access token không hợp lệ/hết hạn (detail thường là "Could not validate
+        credentials" hoặc "Not authenticated" nếu thiếu header Authorization)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    ImplForbidden:
+      description: Đã xác thực nhưng không đủ quyền cho tài nguyên này (detail thường là "Not enough permissions",
+        hoặc lý do cụ thể hơn tùy route)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    ImplNotFound:
+      description: Không tìm thấy tài nguyên
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+    ImplValidationError:
+      description: Request không hợp lệ theo schema (Pydantic) — 422 mặc định của FastAPI
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPValidationError'
+    ImplConflict:
+      description: Xung đột dữ liệu (vd email đã tồn tại, bệnh nhân đã được phân công)
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/HTTPError'
+  schemas:
+    Error:
+      type: object
+      required:
+      - code
+      - message
+      properties:
+        code:
+          type: string
+          example: VALIDATION_ERROR
+        message:
+          type: string
+          example: Du lieu khong hop le
+        fields:
+          type: object
+          additionalProperties:
+            type: string
+          description: Map ten field -> thong bao loi, chi co khi loi validation
+          nullable: true
+        requestId:
+          type: string
+          example: req_01J...
+    ErrorResponse:
+      type: object
+      required:
+      - error
+      properties:
+        error:
+          $ref: '#/components/schemas/Error'
+    PaginationMeta:
+      type: object
+      required:
+      - page
+      - pageSize
+      - totalItems
+      - totalPages
+      properties:
+        page:
+          type: integer
+          example: 1
+        pageSize:
+          type: integer
+          example: 20
+        totalItems:
+          type: integer
+          example: 42
+        totalPages:
+          type: integer
+          example: 3
+    UserRole:
+      type: string
+      enum:
+      - patient
+      - doctor
+      - admin
+    UserStatus:
+      type: string
+      enum:
+      - active
+      - locked
+    Gender:
+      type: string
+      enum:
+      - male
+      - female
+      - other
+    User:
+      type: object
+      required:
+      - id
+      - name
+      - email
+      - role
+      - status
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+        status:
+          $ref: '#/components/schemas/UserStatus'
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        lastLoginAt:
+          type: string
+          format: date-time
+          nullable: true
+    EmergencyContact:
+      type: object
+      required:
+      - name
+      - phone
+      properties:
+        name:
+          type: string
+        relationship:
+          type: string
+          nullable: true
+        phone:
+          type: string
+    GlucoseTargets:
+      type: object
+      required:
+      - targetMin
+      - targetMax
+      - alertLow
+      - alertHigh
+      - updatedAt
+      description: 'Rang buoc: alertLow < targetMin < targetMax < alertHigh'
+      properties:
+        targetMin:
+          type: number
+          description: mg/dL
+        targetMax:
+          type: number
+          description: mg/dL
+        alertLow:
+          type: number
+          description: mg/dL
+        alertHigh:
+          type: number
+          description: mg/dL
+        updatedByDoctorId:
+          type: string
+          format: uuid
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+    DoctorSummary:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        specialty:
+          type: string
+          nullable: true
+        hospital:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+    PatientProfile:
+      type: object
+      required:
+      - id
+      - userId
+      - name
+      - email
+      - glucoseTargets
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          nullable: true
+        avatarUrl:
+          type: string
+          format: uri
+          nullable: true
+        dateOfBirth:
+          type: string
+          format: date
+          nullable: true
+        age:
+          type: integer
+          description: Server tinh tu dateOfBirth
+        gender:
+          allOf:
+          - $ref: '#/components/schemas/Gender'
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        heightCm:
+          type: number
+          nullable: true
+        latestWeightKg:
+          type: number
+          nullable: true
+        bmi:
+          type: number
+          nullable: true
+          description: Server tinh tu chieu cao/can nang
+        diagnosis:
+          type: string
+          nullable: true
+        doctor:
+          allOf:
+          - $ref: '#/components/schemas/DoctorSummary'
+          nullable: true
+        emergencyContact:
+          allOf:
+          - $ref: '#/components/schemas/EmergencyContact'
+          nullable: true
+        glucoseTargets:
+          $ref: '#/components/schemas/GlucoseTargets'
+    MeasurementStatus:
+      type: string
+      enum:
+      - low
+      - normal
+      - high
+      - critical
+      description: Server tu tinh theo muc tieu benh nhan, khong nhan tu client
+    GlucoseTiming:
+      type: string
+      enum:
+      - fasting
+      - before_meal
+      - after_meal
+      - bedtime
+      - other
+    GlucoseReading:
+      type: object
+      required:
+      - id
+      - patientId
+      - value
+      - timing
+      - measuredAt
+      - status
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        value:
+          type: number
+          minimum: 20
+          maximum: 600
+          description: mg/dL
+        timing:
+          $ref: '#/components/schemas/GlucoseTiming'
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/MeasurementStatus'
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    GlucoseReadingCreateRequest:
+      type: object
+      required:
+      - value
+      - timing
+      - measuredAt
+      properties:
+        value:
+          type: number
+          minimum: 20
+          maximum: 600
+        timing:
+          $ref: '#/components/schemas/GlucoseTiming'
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    GlucoseReadingUpdateRequest:
+      type: object
+      properties:
+        value:
+          type: number
+          minimum: 20
+          maximum: 600
+        timing:
+          $ref: '#/components/schemas/GlucoseTiming'
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    GlucoseDayBucket:
+      type: object
+      required:
+      - date
+      properties:
+        date:
+          type: string
+          format: date
+        morning:
+          type: number
+          nullable: true
+        afternoon:
+          type: number
+          nullable: true
+        evening:
+          type: number
+          nullable: true
+        night:
+          type: number
+          nullable: true
+    GlucoseSummary:
+      type: object
+      required:
+      - average
+      - min
+      - max
+      - inTargetCount
+      - totalCount
+      - inTargetPercent
+      - target
+      - series
+      properties:
+        average:
+          type: number
+          nullable: true
+        min:
+          type: number
+          nullable: true
+        max:
+          type: number
+          nullable: true
+        inTargetCount:
+          type: integer
+        totalCount:
+          type: integer
+        inTargetPercent:
+          type: number
+          nullable: true
+        target:
+          $ref: '#/components/schemas/GlucoseTargets'
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlucoseDayBucket'
+    BloodPressureReading:
+      type: object
+      required:
+      - id
+      - patientId
+      - systolic
+      - diastolic
+      - measuredAt
+      - createdAt
+      - updatedAt
+      description: 'Rang buoc: systolic > diastolic, ca hai la so duong trong mien hop ly'
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        systolic:
+          type: number
+          minimum: 0
+          description: mmHg
+        diastolic:
+          type: number
+          minimum: 0
+          description: mmHg
+        pulse:
+          type: number
+          minimum: 0
+          nullable: true
+          description: bpm
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    BloodPressureReadingCreateRequest:
+      type: object
+      required:
+      - systolic
+      - diastolic
+      - measuredAt
+      properties:
+        systolic:
+          type: number
+          minimum: 0
+        diastolic:
+          type: number
+          minimum: 0
+        pulse:
+          type: number
+          minimum: 0
+          nullable: true
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    BloodPressureReadingUpdateRequest:
+      type: object
+      properties:
+        systolic:
+          type: number
+          minimum: 0
+        diastolic:
+          type: number
+          minimum: 0
+        pulse:
+          type: number
+          minimum: 0
+          nullable: true
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    WeightReading:
+      type: object
+      required:
+      - id
+      - patientId
+      - value
+      - measuredAt
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        value:
+          type: number
+          minimum: 0
+          description: kg
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    WeightReadingCreateRequest:
+      type: object
+      required:
+      - value
+      - measuredAt
+      properties:
+        value:
+          type: number
+          minimum: 0
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    WeightReadingUpdateRequest:
+      type: object
+      properties:
+        value:
+          type: number
+          minimum: 0
+        measuredAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+    ActivityType:
+      type: string
+      enum:
+      - walking
+      - running
+      - cycling
+      - exercise
+      - other
+    ActivityRecord:
+      type: object
+      required:
+      - id
+      - patientId
+      - type
+      - startedAt
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/ActivityType'
+        startedAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: number
+          minimum: 0
+          nullable: true
+        steps:
+          type: integer
+          minimum: 0
+          nullable: true
+        caloriesKcal:
+          type: number
+          minimum: 0
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    ActivityRecordCreateRequest:
+      type: object
+      required:
+      - type
+      - startedAt
+      properties:
+        type:
+          $ref: '#/components/schemas/ActivityType'
+        startedAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: number
+          minimum: 0
+          nullable: true
+        steps:
+          type: integer
+          minimum: 0
+          nullable: true
+        caloriesKcal:
+          type: number
+          minimum: 0
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    ActivityRecordUpdateRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ActivityType'
+        startedAt:
+          type: string
+          format: date-time
+        durationMinutes:
+          type: number
+          minimum: 0
+          nullable: true
+        steps:
+          type: integer
+          minimum: 0
+          nullable: true
+        caloriesKcal:
+          type: number
+          minimum: 0
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    DaySeriesPoint:
+      type: object
+      required:
+      - date
+      properties:
+        date:
+          type: string
+          format: date
+        value:
+          type: number
+          nullable: true
+    BloodPressureSummary:
+      type: object
+      description: Suy ra tu mo ta "co the dung chinh danh sach hoac endpoint tong hop" trong API_SPEC.docx
+        muc 4.5 — khong co interface tuong minh trong tai lieu goc. Xac nhan lai shape voi backend truoc
+        khi trien khai.
+      properties:
+        averageSystolic:
+          type: number
+          nullable: true
+        averageDiastolic:
+          type: number
+          nullable: true
+        minSystolic:
+          type: number
+          nullable: true
+        maxSystolic:
+          type: number
+          nullable: true
+        minDiastolic:
+          type: number
+          nullable: true
+        maxDiastolic:
+          type: number
+          nullable: true
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              systolic:
+                type: number
+                nullable: true
+              diastolic:
+                type: number
+                nullable: true
+    WeightSummary:
+      type: object
+      description: Suy ra tu mo ta "co the dung chinh danh sach hoac endpoint tong hop" trong API_SPEC.docx
+        muc 4.5 — khong co interface tuong minh trong tai lieu goc. Xac nhan lai shape voi backend truoc
+        khi trien khai.
+      properties:
+        average:
+          type: number
+          nullable: true
+        min:
+          type: number
+          nullable: true
+        max:
+          type: number
+          nullable: true
+        series:
+          type: array
+          items:
+            $ref: '#/components/schemas/DaySeriesPoint'
+    ActivitySummary:
+      type: object
+      description: Suy ra tu mo ta "co the dung chinh danh sach hoac endpoint tong hop" trong API_SPEC.docx
+        muc 4.5 — khong co interface tuong minh trong tai lieu goc. Xac nhan lai shape voi backend truoc
+        khi trien khai.
+      properties:
+        totalDurationMinutes:
+          type: number
+          nullable: true
+        totalSteps:
+          type: integer
+          nullable: true
+        totalCaloriesKcal:
+          type: number
+          nullable: true
+        series:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              durationMinutes:
+                type: number
+                nullable: true
+              steps:
+                type: integer
+                nullable: true
+              caloriesKcal:
+                type: number
+                nullable: true
+    MedicationStatus:
+      type: string
+      enum:
+      - active
+      - paused
+      - completed
+    MedicationSlot:
+      type: string
+      enum:
+      - morning
+      - noon
+      - evening
+      - bedtime
+      - other
+    IntakeStatus:
+      type: string
+      enum:
+      - taken
+      - skipped
+      - missed
+    MedicationSchedule:
+      type: object
+      required:
+      - id
+      - slot
+      - time
+      - reminderEnabled
+      properties:
+        id:
+          type: string
+          format: uuid
+        slot:
+          $ref: '#/components/schemas/MedicationSlot'
+        time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          description: HH:mm theo timezone benh nhan
+          example: 07:30
+        reminderEnabled:
+          type: boolean
+    MedicationScheduleInput:
+      type: object
+      required:
+      - slot
+      - time
+      properties:
+        slot:
+          $ref: '#/components/schemas/MedicationSlot'
+        time:
+          type: string
+          pattern: ^([01][0-9]|2[0-3]):[0-5][0-9]$
+          example: 07:30
+        reminderEnabled:
+          type: boolean
+          default: true
+    Medication:
+      type: object
+      required:
+      - id
+      - patientId
+      - name
+      - dose
+      - frequency
+      - schedules
+      - prescribedBy
+      - startDate
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        name:
+          type: string
+        dose:
+          type: string
+          example: 500 mg
+        frequency:
+          type: string
+          example: 2 lan/ngay
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationSchedule'
+        prescribedBy:
+          $ref: '#/components/schemas/DoctorSummary'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/MedicationStatus'
+        instruction:
+          type: string
+          nullable: true
+    MedicationCreateRequest:
+      type: object
+      required:
+      - name
+      - dose
+      - frequency
+      - schedules
+      - startDate
+      properties:
+        name:
+          type: string
+        dose:
+          type: string
+        frequency:
+          type: string
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationScheduleInput'
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        instruction:
+          type: string
+          nullable: true
+    MedicationUpdateRequest:
+      type: object
+      description: Sua/dung thuoc — cac field deu tuy chon
+      properties:
+        name:
+          type: string
+        dose:
+          type: string
+        frequency:
+          type: string
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/MedicationScheduleInput'
+        endDate:
+          type: string
+          format: date
+          nullable: true
+        status:
+          $ref: '#/components/schemas/MedicationStatus'
+        instruction:
+          type: string
+          nullable: true
+    MedicationIntake:
+      type: object
+      required:
+      - id
+      - medicationId
+      - patientId
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        medicationId:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        scheduleId:
+          type: string
+          format: uuid
+          nullable: true
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+        takenAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/IntakeStatus'
+        note:
+          type: string
+          nullable: true
+    MedicationIntakeCreateRequest:
+      type: object
+      required:
+      - medicationId
+      - status
+      description: Nen upsert theo cap (scheduleId, scheduledAt) de thao tac bat/tat tren UI khong tao
+        ban ghi trung
+      properties:
+        medicationId:
+          type: string
+          format: uuid
+        scheduleId:
+          type: string
+          format: uuid
+          nullable: true
+        scheduledAt:
+          type: string
+          format: date-time
+          nullable: true
+        status:
+          $ref: '#/components/schemas/IntakeStatus'
+        takenAt:
+          type: string
+          format: date-time
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    MedicationIntakeUpdateRequest:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/IntakeStatus'
+        takenAt:
+          type: string
+          format: date-time
+          nullable: true
+        note:
+          type: string
+          nullable: true
+    MedicationScheduleReminderUpdateRequest:
+      type: object
+      required:
+      - reminderEnabled
+      properties:
+        reminderEnabled:
+          type: boolean
+    MealType:
+      type: string
+      enum:
+      - breakfast
+      - lunch
+      - dinner
+      - snack
+    MealSuitability:
+      type: string
+      enum:
+      - good
+      - caution
+      - poor
+    NutritionAnalysis:
+      type: object
+      required:
+      - name
+      - carbsG
+      - proteinG
+      - fatG
+      - fiberG
+      - suitability
+      - attention
+      properties:
+        name:
+          type: string
+        carbsG:
+          type: number
+          minimum: 0
+        proteinG:
+          type: number
+          minimum: 0
+        fatG:
+          type: number
+          minimum: 0
+        fiberG:
+          type: number
+          minimum: 0
+        suitability:
+          $ref: '#/components/schemas/MealSuitability'
+        attention:
+          type: array
+          items:
+            type: string
+        suggestion:
+          type: string
+          nullable: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+          nullable: true
+    Meal:
+      type: object
+      required:
+      - id
+      - patientId
+      - type
+      - name
+      - eatenAt
+      - nutrition
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/MealType'
+        name:
+          type: string
+        portion:
+          type: string
+          nullable: true
+        eatenAt:
+          type: string
+          format: date-time
+        imageUrl:
+          type: string
+          format: uri
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        nutrition:
+          $ref: '#/components/schemas/NutritionAnalysis'
+        warning:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+    MealAnalysisRequest:
+      type: object
+      required:
+      - name
+      - type
+      properties:
+        name:
+          type: string
+          example: Com gao lut, ca hoi, rau luoc
+        type:
+          $ref: '#/components/schemas/MealType'
+        portion:
+          type: string
+          nullable: true
+          example: 1 bat, 200g
+        note:
+          type: string
+          nullable: true
+        imageFileId:
+          type: string
+          nullable: true
+          description: fileId tra ve tu POST /uploads/meal-images
+    MealCreateRequest:
+      type: object
+      required:
+      - type
+      - name
+      - eatenAt
+      - nutrition
+      description: Luu ket qua bua an; nhan cung thong tin dau vao voi /ai/meal-analysis cong them eatenAt
+        va nutrition da duoc nguoi dung xac nhan
+      properties:
+        type:
+          $ref: '#/components/schemas/MealType'
+        name:
+          type: string
+        portion:
+          type: string
+          nullable: true
+        eatenAt:
+          type: string
+          format: date-time
+        imageFileId:
+          type: string
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        nutrition:
+          $ref: '#/components/schemas/NutritionAnalysis'
+    MealUpdateRequest:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/MealType'
+        name:
+          type: string
+        portion:
+          type: string
+          nullable: true
+        eatenAt:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        nutrition:
+          $ref: '#/components/schemas/NutritionAnalysis'
+    FileUploadResponseData:
+      type: object
+      required:
+      - fileId
+      - url
+      properties:
+        fileId:
+          type: string
+        url:
+          type: string
+          format: uri
+    TaskType:
+      type: string
+      enum:
+      - glucose
+      - medication
+      - activity
+      - appointment
+      - other
+    RelatedResource:
+      type: object
+      required:
+      - type
+      - id
+      properties:
+        type:
+          type: string
+        id:
+          type: string
+          format: uuid
+    DailyTask:
+      type: object
+      required:
+      - id
+      - patientId
+      - type
+      - title
+      - scheduledAt
+      - completed
+      description: Task thuoc/lich hen duoc sinh tu lich uong thuoc va appointment, khong phai du lieu
+        nghiep vu doc lap
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        type:
+          $ref: '#/components/schemas/TaskType'
+        title:
+          type: string
+        scheduledAt:
+          type: string
+          format: date-time
+        completed:
+          type: boolean
+        completedAt:
+          type: string
+          format: date-time
+          nullable: true
+        relatedResource:
+          allOf:
+          - $ref: '#/components/schemas/RelatedResource'
+          nullable: true
+    DailyTaskUpdateRequest:
+      type: object
+      required:
+      - completed
+      properties:
+        completed:
+          type: boolean
+    NotificationSeverity:
+      type: string
+      enum:
+      - info
+      - warning
+      - critical
+    NotificationCategory:
+      type: string
+      enum:
+      - alert
+      - reminder
+      - doctor
+      - appointment
+    Notification:
+      type: object
+      required:
+      - id
+      - userId
+      - severity
+      - category
+      - title
+      - message
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        userId:
+          type: string
+          format: uuid
+        severity:
+          $ref: '#/components/schemas/NotificationSeverity'
+        category:
+          $ref: '#/components/schemas/NotificationCategory'
+        title:
+          type: string
+        message:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        readAt:
+          type: string
+          format: date-time
+          nullable: true
+        actionUrl:
+          type: string
+          format: uri
+          nullable: true
+    AppointmentStatus:
+      type: string
+      enum:
+      - scheduled
+      - completed
+      - cancelled
+    AppointmentPatientRef:
+      type: object
+      required:
+      - id
+      - name
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+    Appointment:
+      type: object
+      required:
+      - id
+      - patient
+      - doctor
+      - startsAt
+      - type
+      - status
+      properties:
+        id:
+          type: string
+          format: uuid
+        patient:
+          $ref: '#/components/schemas/AppointmentPatientRef'
+        doctor:
+          $ref: '#/components/schemas/DoctorSummary'
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+        location:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+    AppointmentCreateRequest:
+      type: object
+      required:
+      - patientId
+      - startsAt
+      - type
+      properties:
+        patientId:
+          type: string
+          format: uuid
+        doctorId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Mac dinh la bac si dang goi API neu bo qua
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+        location:
+          type: string
+          nullable: true
+    AppointmentUpdateRequest:
+      type: object
+      description: Doi thoi gian, loai, dia diem, trang thai
+      properties:
+        startsAt:
+          type: string
+          format: date-time
+        endsAt:
+          type: string
+          format: date-time
+          nullable: true
+        type:
+          type: string
+        location:
+          type: string
+          nullable: true
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+    AlertLevel:
+      type: string
+      enum:
+      - normal
+      - warning
+      - critical
+    LastGlucoseRef:
+      type: object
+      required:
+      - value
+      - measuredAt
+      - status
+      properties:
+        value:
+          type: number
+        measuredAt:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/MeasurementStatus'
+    DoctorPatientSummary:
+      type: object
+      required:
+      - id
+      - name
+      - alertLevel
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        age:
+          type: integer
+          nullable: true
+        gender:
+          allOf:
+          - $ref: '#/components/schemas/Gender'
+          nullable: true
+        diagnosis:
+          type: string
+          nullable: true
+        lastGlucose:
+          allOf:
+          - $ref: '#/components/schemas/LastGlucoseRef'
+          nullable: true
+        alertLevel:
+          $ref: '#/components/schemas/AlertLevel'
+        alertMessage:
+          type: string
+          nullable: true
+        updatedAt:
+          type: string
+          format: date-time
+    DoctorPatientDetailResponseData:
+      description: PatientProfile day du kem tom tat canh bao/chi so gan nhat (suy ra tu mo ta "PatientProfile
+        va summary gan nhat" trong API_SPEC.docx muc 4.10)
+      allOf:
+      - $ref: '#/components/schemas/PatientProfile'
+      - type: object
+        properties:
+          alertLevel:
+            $ref: '#/components/schemas/AlertLevel'
+          alertMessage:
+            type: string
+            nullable: true
+          lastGlucose:
+            allOf:
+            - $ref: '#/components/schemas/LastGlucoseRef'
+            nullable: true
+    PatientOverviewResponseData:
+      type: object
+      description: Suy ra tu mo ta "co the dung chinh danh sach hoac endpoint tong hop" trong API_SPEC.docx
+        muc 4.10 ("Chi so tong hop, glucose series, canh bao") — khong co interface tuong minh trong tai
+        lieu goc. Xac nhan lai shape voi backend truoc khi trien khai.
+      properties:
+        summary:
+          type: object
+          properties:
+            glucose:
+              allOf:
+              - $ref: '#/components/schemas/GlucoseReading'
+              nullable: true
+            bloodPressure:
+              allOf:
+              - $ref: '#/components/schemas/BloodPressureReading'
+              nullable: true
+            weight:
+              allOf:
+              - $ref: '#/components/schemas/WeightReading'
+              nullable: true
+        glucoseSeries:
+          type: array
+          items:
+            $ref: '#/components/schemas/GlucoseDayBucket'
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              level:
+                $ref: '#/components/schemas/AlertLevel'
+              message:
+                type: string
+              createdAt:
+                type: string
+                format: date-time
+    ClinicalNote:
+      type: object
+      required:
+      - id
+      - patientId
+      - doctor
+      - text
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        doctor:
+          $ref: '#/components/schemas/DoctorSummary'
+        text:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ClinicalNoteCreateRequest:
+      type: object
+      required:
+      - text
+      properties:
+        text:
+          type: string
+    ClinicalNoteUpdateRequest:
+      type: object
+      required:
+      - text
+      properties:
+        text:
+          type: string
+    GlucoseTargetsUpdateRequest:
+      type: object
+      description: 'Rang buoc: alertLow < targetMin < targetMax < alertHigh'
+      properties:
+        targetMin:
+          type: number
+        targetMax:
+          type: number
+        alertLow:
+          type: number
+        alertHigh:
+          type: number
+    ChatConversation:
+      type: object
+      required:
+      - id
+      - patientId
+      - createdAt
+      - updatedAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        patientId:
+          type: string
+          format: uuid
+        title:
+          type: string
+          nullable: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+    ChatConversationCreateRequest:
+      type: object
+      properties:
+        title:
+          type: string
+          nullable: true
+    ChatMessageRole:
+      type: string
+      enum:
+      - user
+      - assistant
+    ChatMessageFeedback:
+      type: string
+      enum:
+      - up
+      - down
+      nullable: true
+    ChatMessage:
+      type: object
+      required:
+      - id
+      - conversationId
+      - role
+      - content
+      - createdAt
+      properties:
+        id:
+          type: string
+          format: uuid
+        conversationId:
+          type: string
+          format: uuid
+        role:
+          $ref: '#/components/schemas/ChatMessageRole'
+        content:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        feedback:
+          $ref: '#/components/schemas/ChatMessageFeedback'
+    ChatMessageCreateRequest:
+      type: object
+      required:
+      - content
+      properties:
+        content:
+          type: string
+        contextRange:
+          type: string
+          nullable: true
+          example: 7d
+          description: Khoang du lieu suc khoe dua vao ngu canh AI, vd 7d/30d/3m
+    ChatMessagePairResponseData:
+      type: object
+      required:
+      - userMessage
+      - assistantMessage
+      description: 'Response khong streaming. Neu can hieu ung tra loi dan, goi cung endpoint voi header
+        Accept: text/event-stream de nhan Server-Sent Events thay vi JSON nay.'
+      properties:
+        userMessage:
+          $ref: '#/components/schemas/ChatMessage'
+        assistantMessage:
+          $ref: '#/components/schemas/ChatMessage'
+    ChatMessageFeedbackUpdateRequest:
+      type: object
+      required:
+      - feedback
+      properties:
+        feedback:
+          $ref: '#/components/schemas/ChatMessageFeedback'
+    UserSettings:
+      type: object
+      required:
+      - medicationReminders
+      - glucoseReminders
+      - activityReminders
+      - doctorNotifications
+      - language
+      - timezone
+      properties:
+        medicationReminders:
+          type: boolean
+        glucoseReminders:
+          type: boolean
+        activityReminders:
+          type: boolean
+        doctorNotifications:
+          type: boolean
+        language:
+          type: string
+          enum:
+          - vi
+          - en
+        timezone:
+          type: string
+          example: Asia/Ho_Chi_Minh
+    UserSettingsUpdateRequest:
+      type: object
+      properties:
+        medicationReminders:
+          type: boolean
+        glucoseReminders:
+          type: boolean
+        activityReminders:
+          type: boolean
+        doctorNotifications:
+          type: boolean
+        language:
+          type: string
+          enum:
+          - vi
+          - en
+        timezone:
+          type: string
+    HTTPError:
+      type: object
+      required:
+      - detail
+      properties:
+        detail:
+          type: string
+          example: Not enough permissions
+      description: Định dạng lỗi mặc định của FastAPI HTTPException (áp dụng cho các endpoint implemented)
+    ValidationErrorItem:
+      type: object
+      required:
+      - loc
+      - msg
+      - type
+      properties:
+        loc:
+          type: array
+          items:
+            anyOf:
+            - type: string
+            - type: integer
+        msg:
+          type: string
+        type:
+          type: string
+    HTTPValidationError:
+      type: object
+      properties:
+        detail:
+          type: array
+          items:
+            $ref: '#/components/schemas/ValidationErrorItem'
+      description: Định dạng lỗi 422 mặc định của FastAPI/Pydantic
+    TokenResponse:
+      type: object
+      required:
+      - access_token
+      - token_type
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        token_type:
+          type: string
+          default: bearer
+          description: Loại token dùng cho header Authorization
+    UserPublic:
+      type: object
+      required:
+      - id
+      - email
+      - full_name
+      - role
+      - is_active
+      - must_change_password
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        role:
+          $ref: '#/components/schemas/UserRole'
+        is_active:
+          type: boolean
+        must_change_password:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+    UserCreate:
+      type: object
+      required:
+      - email
+      - full_name
+      - role
+      - temporary_password
+      properties:
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+          minLength: 1
+          maxLength: 255
+        role:
+          $ref: '#/components/schemas/UserRole'
+        temporary_password:
+          type: string
+          minLength: 8
+          maxLength: 72
+    ResetPasswordRequest:
+      type: object
+      properties:
+        temporary_password:
+          type: string
+          minLength: 8
+          maxLength: 72
+          nullable: true
+          description: Nếu bỏ qua, server tự sinh mật khẩu tạm ngẫu nhiên
+    ResetPasswordResponse:
+      type: object
+      required:
+      - temporary_password
+      properties:
+        temporary_password:
+          type: string
+          description: Chia sẻ cho user qua kênh khác; không được lưu lại dạng plaintext
+    AssignmentCreate:
+      type: object
+      required:
+      - doctor_id
+      - patient_id
+      properties:
+        doctor_id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+    AssignmentPublic:
+      type: object
+      required:
+      - id
+      - doctor_id
+      - patient_id
+      - assigned_by
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        doctor_id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+        assigned_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    AppointmentCreate:
+      type: object
+      required:
+      - patient_id
+      - scheduled_at
+      properties:
+        patient_id:
+          type: string
+          format: uuid
+        scheduled_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          maxLength: 500
+          nullable: true
+        notes:
+          type: string
+          maxLength: 2000
+          nullable: true
+      description: Request thật của POST /appointments — khác AppointmentCreateRequest (planned)
+    AppointmentStatusUpdate:
+      type: object
+      required:
+      - status
+      properties:
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+    AppointmentPublic:
+      type: object
+      required:
+      - id
+      - patient_id
+      - doctor_id
+      - scheduled_at
+      - status
+      - created_by
+      - created_at
+      - updated_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+        doctor_id:
+          type: string
+          format: uuid
+        scheduled_at:
+          type: string
+          format: date-time
+        reason:
+          type: string
+          maxLength: 500
+          nullable: true
+        status:
+          $ref: '#/components/schemas/AppointmentStatus'
+        notes:
+          type: string
+          maxLength: 2000
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      description: Response thật của /appointments — khác Appointment (planned, có patient/doctor lồng
+        nhau)
+    GlucoseRecordCreate:
+      type: object
+      required:
+      - patient_id
+      - measured_at
+      properties:
+        patient_id:
+          type: string
+          format: uuid
+        value:
+          type: number
+          minimum: 0
+          exclusiveMinimum: true
+          maximum: 1000
+          description: mg/dL (mặc định, xem unit)
+        unit:
+          type: string
+          maxLength: 10
+          default: mg/dL
+        measured_at:
+          type: string
+          format: date-time
+        note:
+          type: string
+          maxLength: 500
+          nullable: true
+    GlucoseRecordPublic:
+      type: object
+      required:
+      - id
+      - patient_id
+      - value
+      - unit
+      - measured_at
+      - created_by
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+        value:
+          type: number
+        unit:
+          type: string
+        measured_at:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    MealRecordCreate:
+      type: object
+      required:
+      - patient_id
+      - meal_type
+      - meal_time
+      - description
+      properties:
+        patient_id:
+          type: string
+          format: uuid
+        meal_type:
+          $ref: '#/components/schemas/MealType'
+        meal_time:
+          type: string
+          format: date-time
+        description:
+          type: string
+          minLength: 1
+          maxLength: 1000
+        note:
+          type: string
+          maxLength: 500
+          nullable: true
+    MealRecordPublic:
+      type: object
+      required:
+      - id
+      - patient_id
+      - meal_type
+      - meal_time
+      - description
+      - created_by
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+        meal_type:
+          $ref: '#/components/schemas/MealType'
+        meal_time:
+          type: string
+          format: date-time
+        description:
+          type: string
+        note:
+          type: string
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+    ActivityRecordCreate:
+      type: object
+      required:
+      - patient_id
+      - activity_type
+      - duration_minutes
+      - activity_time
+      properties:
+        patient_id:
+          type: string
+          format: uuid
+        activity_type:
+          type: string
+          minLength: 1
+          maxLength: 100
+          description: Text tự do, vd "đi bộ", "chạy bộ" — không phải enum
+        duration_minutes:
+          type: integer
+          minimum: 0
+          exclusiveMinimum: true
+          maximum: 1440
+        activity_time:
+          type: string
+          format: date-time
+        note:
+          type: string
+          maxLength: 500
+          nullable: true
+      description: Request thật của POST /health/activities — khác ActivityRecordCreateRequest (planned)
+    ActivityRecordPublic:
+      type: object
+      required:
+      - id
+      - patient_id
+      - activity_type
+      - duration_minutes
+      - activity_time
+      - created_by
+      - created_at
+      properties:
+        id:
+          type: string
+          format: uuid
+        patient_id:
+          type: string
+          format: uuid
+        activity_type:
+          type: string
+        duration_minutes:
+          type: integer
+        activity_time:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+        created_by:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+      description: Response thật của /health/activities — khác ActivityRecord (planned)
+    ChatRequest:
+      type: object
+      required:
+      - message
+      properties:
+        message:
+          type: string
+          minLength: 1
+          maxLength: 5000
+          description: Tin nhắn từ user
+    ChatResponse:
+      type: object
+      required:
+      - response
+      properties:
+        response:
+          type: string
+          description: Phản hồi từ agent
+        analysis:
+          type: string
+          default: ''
+          description: Phân tích nội bộ (có thể rỗng)

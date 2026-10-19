@@ -1,0 +1,26 @@
+version: "3.8"
+
+# Standalone compose file for the TTS synthesis service — separate from
+# docker-compose.yml on purpose, same reasoning as docker-compose.stt.yml.
+# Phase 1 ships only the OpenAI-backed engine, so unlike STT's compose file
+# this needs no GPU device reservation and no model-cache volume — both will
+# likely be needed once a phase-2 GPU-hosted engine (F5-TTS-Vietnamese-
+# ViVoice) lands.
+#
+# Usage: docker compose -f docker-compose.tts.yml up -d --build
+
+services:
+  tts-service:
+    build:
+      context: ./codebase/tts-service
+      dockerfile: Dockerfile
+    ports:
+      - "${TTS_PORT:-8400}:8400"
+    env_file:
+      - ./codebase/tts-service/.env
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8400/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

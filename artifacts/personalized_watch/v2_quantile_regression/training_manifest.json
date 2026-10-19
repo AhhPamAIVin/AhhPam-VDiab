@@ -1,0 +1,18 @@
+{
+  "model_version": "v2_quantile_regression",
+  "generated_at_utc": "2026-08-24T04:18:03.070446+00:00",
+  "feature_table": "data\\ml\\personalized_watch\\feature_table.csv",
+  "feature_table_sha256": "5dc58594d029597908a8bfe732c05849598bea18884b49a3e94026f48dea13c8",
+  "train_rows": 32688,
+  "validation_rows": 16002,
+  "test_rows_patient_holdout": 12428,
+  "random_state": 20260820,
+  "low_quantile": 0.1,
+  "high_quantile": 0.9,
+  "target_coverage": 0.8,
+  "calibration_margin_mg_dl": 0.8910411172780215,
+  "artifacts": {
+    "min_model.joblib": "ec895cdd56bb874f64a78e41217c4d951a22730f494be857254ca509c7759ab6",
+    "max_model.joblib": "2f6649453236c2b973e14fd26d79fbca2006cd3817eeaf4dafa185db78889ccc"
+  }
+}

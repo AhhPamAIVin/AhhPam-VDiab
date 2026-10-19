@@ -1,0 +1,166 @@
+{
+  "generated_at_utc": "2026-08-10T14:48:15.883839+00:00",
+  "pipeline_version": "knowledge_base_structuring_v1.0",
+  "ruleset_version": "diabetes_reference_rules_v1.0-draft",
+  "source_markdown_files": 36,
+  "source_image_files": 17,
+  "document_type_counts": {
+    "PATIENT_EDUCATION_GENERAL": 9,
+    "PATIENT_EDUCATION_ACTIVITY": 4,
+    "PATIENT_EDUCATION_NUTRITION": 5,
+    "PATIENT_EDUCATION_FOOT_CARE": 2,
+    "CLINICAL_GUIDELINE_FULLTEXT": 3,
+    "DRUG_MONOGRAPH": 13
+  },
+  "safety_policy": {
+    "patient_facts_inferred_from_knowledge_base": false,
+    "recommendation_rules_enabled": false,
+    "clinical_approval_required": true,
+    "automated_treatment_allowed": false
+  },
+  "files": {
+    "alert_threshold_rules.csv": {
+      "rows": 10,
+      "sha256": "77ff0a32156d15d3de60c7edf61503f04d0b65f9c6c4d8d75b4dfd719293676d",
+      "bytes": 5869
+    },
+    "clinical_target_templates.csv": {
+      "rows": 8,
+      "sha256": "9da3dd8c74f6db3e829bd2dd384043ad8dfd0d6154e3e49ec6d1f7416038b01c",
+      "bytes": 1932
+    },
+    "drug_catalog.csv": {
+      "rows": 13,
+      "sha256": "166d2a45554b988c08754bc018a89265aff087ec93bb21de6d29ade8a4aeb090",
+      "bytes": 1843
+    },
+    "drug_reference_sections.csv": {
+      "rows": 106,
+      "sha256": "765ae420b09ed56c0c7ad2b3871e84a0c4c4f8a559630659d4138dcc99af489f",
+      "bytes": 32608
+    },
+    "education_topic_documents.csv": {
+      "rows": 32,
+      "sha256": "f2646935b875024256e1639e57b3272c08d16668946b032ef9f28887caadcbef",
+      "bytes": 2719
+    },
+    "education_topics.csv": {
+      "rows": 9,
+      "sha256": "eb2b61af225f7f5c07b348bbaea16b299565f20f05470b1946476895d8bf2955",
+      "bytes": 1521
+    },
+    "knowledge_chunks.csv": {
+      "rows": 823,
+      "sha256": "cc6df185813ae91f6f541cbfb6c595b5e878d6b4c46949baa4a97be89c044873",
+      "bytes": 1367631
+    },
+    "knowledge_documents.csv": {
+      "rows": 36,
+      "sha256": "2e3055478e01b2f904e789da1c8d15474e0ab5f86daf505b26f1e4bf489f8ea1",
+      "bytes": 12871
+    },
+    "recommendation_engine/patient_recommendation_events.csv": {
+      "rows": 0,
+      "sha256": "54c9ade591d45d34c53ca1d1382af742b0d2991682f75cd6448cca730335eb8c",
+      "bytes": 194
+    },
+    "recommendation_rules.csv": {
+      "rows": 6,
+      "sha256": "a936b3797a98e9e6bb46e9955c22e927f2a827c59f2b951b3ef21c3879300fce",
+      "bytes": 1737
+    },
+    "screening_protocols.csv": {
+      "rows": 6,
+      "sha256": "72663a1c259e7e2821da64b8300315c8f934c44166493877f1321eeffc7dae54",
+      "bytes": 1256
+    },
+    "templates/patient_care_plans_template.csv": {
+      "rows": 0,
+      "sha256": "230e955a37ba1d122c1f1a78488170a798832b63bb25a28bdb166086b3000f6b",
+      "bytes": 121
+    },
+    "templates/patient_clinical_targets_template.csv": {
+      "rows": 0,
+      "sha256": "5627155fc8e94e3e0e446a2d2367666cd72b37d4973016c492f096d67cee96c8",
+      "bytes": 133
+    },
+    "templates/patient_education_progress_template.csv": {
+      "rows": 0,
+      "sha256": "03687644240671c06defc08b10e185c453a1f8498d4fb82624cc75be7b20bd57",
+      "bytes": 116
+    },
+    "templates/patient_eye_exams_template.csv": {
+      "rows": 0,
+      "sha256": "f6982ce3093c3207d669c5ec8c0fa38b47f31d0493b7dfabd7a84adefd6f56fd",
+      "bytes": 125
+    },
+    "templates/patient_foot_exams_template.csv": {
+      "rows": 0,
+      "sha256": "34011848336d496c70dd5b5d08951682229906327f2887563108e4e954fedcd9",
+      "bytes": 158
+    },
+    "templates/patient_kidney_assessments_template.csv": {
+      "rows": 0,
+      "sha256": "c262149cad47d44af2fefdd94608b6573b59fcfc24533569f7f96b8fee1867ad",
+      "bytes": 133
+    },
+    "templates/patient_mental_health_screenings_template.csv": {
+      "rows": 0,
+      "sha256": "24a2e258292a8c162353c66863ba5f385d93c24e8dc1dd72fd8941bb7b54bdc9",
+      "bytes": 104
+    },
+    "patient_care_plans.csv": {
+      "rows": 489,
+      "sha256": "17d43018042cdd241104e507d596273784a6a9981aa6bca0cc1394ac9d4731f5",
+      "bytes": 188539
+    },
+    "patient_clinical_targets.csv": {
+      "rows": 1467,
+      "sha256": "088c635a7d9d85a8c0e164e14709ea1dce51e908ab4dced61f593cda43903677",
+      "bytes": 482783
+    },
+    "patient_cgm_monitoring_profiles.csv": {
+      "rows": 489,
+      "sha256": "e1a55c7b2d208c95fdaa52e01eaee951f8c161128d29113d8a52a648ead457cb",
+      "bytes": 127846
+    },
+    "patient_cgm_threshold_build_report.json": {
+      "rows": 1,
+      "sha256": "b2f93f860c1182e38f2ed9815d2da347fe98cb394a8e6337904f338d0a845900",
+      "bytes": 2062
+    }
+  },
+  "patient_threshold_extension": {
+    "pipeline_version": "personalized_type2_cgm_thresholds_v2.1",
+    "source_doi": "10.2337/dc26-S006",
+    "treatment_source_doi": "10.2337/dc26-S009",
+    "scope": "TYPE_2 synthetic personalized normal/danger demo patients only",
+    "generated_at_utc": "2026-08-19T02:48:10+00:00"
+  },
+  "personalized_attention_extension": {
+    "engine_version": "personalized_attention_engine_v1.1",
+    "scope": "Dataset-only synthetic TYPE_2 personalized attention analysis",
+    "generated_at_utc": "2026-08-19T04:11:50+00:00",
+    "patient_count": 489,
+    "measurement_count": 100470,
+    "watch_assessment_count": 25459,
+    "attention_event_count": 18514,
+    "manifest": {
+      "rows": 1,
+      "bytes": 1189,
+      "sha256": "7dfb39b9bc4eca83e46148ff784af0714f3a8a3eb8eeb058ffd14abd3b5d7e7b"
+    }
+  },
+  "longitudinal_care_extension": {
+    "pipeline_version": "longitudinal_personalized_care_v1.0",
+    "generated_at_utc": "2026-08-19T04:11:45+00:00",
+    "patient_count": 489,
+    "care_plan_version_count": 489,
+    "clinical_review_event_count": 489,
+    "manifest": {
+      "rows": 1,
+      "bytes": 1551,
+      "sha256": "ab64fb90442742f93ff5e300e2dd3f7a145c0c5c2ec586ae008ca108fa063099"
+    }
+  }
+}

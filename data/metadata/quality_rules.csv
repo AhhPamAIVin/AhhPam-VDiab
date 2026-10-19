@@ -1,0 +1,8 @@
+﻿quality_rule_id,scope,dimension,rule,severity,expected,action_on_failure,metadata_version
+QR-PK-UNIQUE,ALL_TABLES_WITH_PK,UNIQUENESS,Primary key must be unique,ERROR,0 duplicates,BLOCK_RELEASE,diabetes_project_metadata_v1.0
+QR-FK-VALID,DECLARED_FOREIGN_KEYS,INTEGRITY,Foreign key must resolve,ERROR,0 unresolved,BLOCK_RELEASE,diabetes_project_metadata_v1.0
+QR-NULL-70,ALL_FIELDS,COMPLETENESS,Flag fields at least 70% null,WARNING,Reviewed applicability,REVIEW_NOT_AUTO_DROP,diabetes_project_metadata_v1.0
+QR-GLUCOSE-RANGE,SIMULATOR_60D.synthetic_glucose_measurements,VALIDITY,glucose_mg_dl between 40 and 600,ERROR,100%,BLOCK_RELEASE,diabetes_project_metadata_v1.0
+QR-SYNTHETIC-FLAG,SYNTHETIC_DATASETS,GOVERNANCE,All generated rows explicitly synthetic,ERROR,100% true,BLOCK_RELEASE,diabetes_project_metadata_v1.0
+QR-MED-NO-CLINICAL,MEDICATION_FLOW_60D,SAFETY,clinical_use_allowed must be false,ERROR,100% false,BLOCK_RELEASE,diabetes_project_metadata_v1.0
+QR-GITHUB-SIZE,ALL_FILES,OPERABILITY,Files >=50MB require LFS/release/regeneration decision,WARNING,Explicit storage strategy,BLOCK_PUSH_UNTIL_REVIEW,diabetes_project_metadata_v1.0

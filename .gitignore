@@ -1,0 +1,71 @@
+# Python
+__pycache__/
+*.py[cod]
+*.so
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+.venv*/
+env/
+
+# Environment variables
+.env
+.env.local
+.env.production
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+*.db
+*.sqlite3
+
+# Chroma vector index — regenerated from data/knowledge_base/ via the ingestion pipeline
+data/chroma/
+
+# Vietnamese ASR test set — regenerated via `python -m eval.fetch_testset` (FLEURS, CC-BY-4.0)
+codebase/stt-service/eval/testset/
+codebase/stt-service/.ct2-cache/
+
+# Logs
+logs/
+*.log
+
+# Test coverage
+htmlcov/
+.coverage
+coverage.xml
+
+# Docker
+docker-compose.override.yml
+
+# Node (frontend)
+node_modules/
+.next/
+out/
+.nuxt/
+
+supabase/
+.vercel/
+
+# Build
+*.pyc
+*.pyo
+
+
+.playwright-mcp
+# Raw CGMacros meal photos are local source assets and are intentionally not pushed.
+data/CGMacros/**/photos/
+.codex/

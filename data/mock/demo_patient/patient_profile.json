@@ -1,0 +1,32 @@
+{
+  "patient_id": "DEMO-P-0001",
+  "display_name": "Trần Văn Bình",
+  "age_years": 52,
+  "sex": "Male",
+  "height_cm": 168,
+  "weight_kg": 78,
+  "bmi": 27.6,
+  "bmi_category": "Overweight",
+  "diabetes_status": "TYPE_2",
+  "diagnosed_years_ago": 2,
+  "hba1c_pct_baseline": 7.4,
+  "hba1c_baseline_date": "2026-05-27",
+  "fasting_glucose_lab_mg_dl_baseline": 148,
+  "comorbidities": [
+    "Tăng huyết áp nhẹ (kiểm soát bằng Amlodipine 5mg/ngày)"
+  ],
+  "medications": [
+    {
+      "drug_name": "Metformin",
+      "dose": "850mg",
+      "frequency": "2 lần/ngày, uống cùng bữa sáng và bữa tối"
+    },
+    {
+      "drug_name": "Amlodipine",
+      "dose": "5mg",
+      "frequency": "1 lần/ngày, buổi sáng"
+    }
+  ],
+  "doctor_id": "DR-0006",
+  "note": "Hồ sơ demo, lấy cảm hứng từ schema data/NHANES/deployment_dataset/patient_profiles.csv; các chỉ số lâm sàng nền và nhân khẩu học là dàn dựng hợp lý, không phải một bản ghi NHANES thật."
+}

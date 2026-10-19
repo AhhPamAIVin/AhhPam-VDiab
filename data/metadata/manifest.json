@@ -1,0 +1,68 @@
+{
+  "metadata_version": "diabetes_project_metadata_v1.0",
+  "generated_at_utc": "2026-08-10T15:33:02.038707+00:00",
+  "repo_root": "C:\\Users\\ADMIN\\Downloads\\data\\NHANES\\publish_anh_data",
+  "dataset_count": 7,
+  "table_count": 58,
+  "field_count": 1696,
+  "lineage_count": 35,
+  "generation_rule_count": 12,
+  "source_count": 36,
+  "quality_issue_count": 114,
+  "blocking_issue_count": 0,
+  "source_data_modified": false,
+  "git_commit_created": false,
+  "git_push_performed": false,
+  "files": {
+    "data_governance.csv": {
+      "rows": 58,
+      "bytes": 15955,
+      "sha256": "2b3f3bf98da787a722c7485e2212c304e80519f96e7bd168ddbc983b81fc2ad1"
+    },
+    "data_lineage.csv": {
+      "rows": 35,
+      "bytes": 14551,
+      "sha256": "105536c89359522df43a5b254bd7776f864cb047777e64fb151ab40c82f25416"
+    },
+    "dataset_catalog.csv": {
+      "rows": 7,
+      "bytes": 4114,
+      "sha256": "8c7f3fa3f489d01444b66604c795b92632e86cb9927eac60e5ed5aaddb3ebba1"
+    },
+    "field_catalog.csv": {
+      "rows": 1696,
+      "bytes": 498135,
+      "sha256": "4adef1f32a85dd2270518214a9ddbdc9b803af2d530c862521acaf2d0544eb6c"
+    },
+    "generation_rules.csv": {
+      "rows": 12,
+      "bytes": 6609,
+      "sha256": "3d894d41e71df1fe816c20f633fdc538955f4942dca7e5eca555f4b072eb44ea"
+    },
+    "quality_issues.csv": {
+      "rows": 114,
+      "bytes": 38682,
+      "sha256": "62f49687a6de3ddd9d63a427b4872dc1742676e5afbaf02caeee891f5b6b3e83"
+    },
+    "quality_rules.csv": {
+      "rows": 7,
+      "bytes": 1149,
+      "sha256": "c38a94ab910e7777b239487e7f4d76df13dcdcb77d06a00fd1ee480559d25306"
+    },
+    "quality_summary.csv": {
+      "rows": 58,
+      "bytes": 7771,
+      "sha256": "6a78f9e89002edb29450cab82cf11476d5dcc6813567e5e50b3af30715f0547e"
+    },
+    "source_registry.csv": {
+      "rows": 36,
+      "bytes": 15335,
+      "sha256": "334d81bb6d12cc16f0818dcfd799be39330946fe2738b516e072dc12b22ac51a"
+    },
+    "table_catalog.csv": {
+      "rows": 58,
+      "bytes": 27508,
+      "sha256": "4a2e8db7034170d261b9130d56b1a520b55feaaaee6611ee404d8039c82ef983"
+    }
+  }
+}

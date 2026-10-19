@@ -1,0 +1,10 @@
+﻿priority,rule_code,condition,result,base_score,automatic_suggestion,requires_doctor_approval,automated_medication_change_allowed,engine_version
+1,DANGER_LOW,glucose < patient.danger_low,DANGER,100,False,False,False,personalized_attention_engine_v1.1
+2,DANGER_HIGH,glucose > patient.danger_high,DANGER,100,False,False,False,personalized_attention_engine_v1.1
+3,LEVEL_1_LOW,danger_low <= glucose < target_low,WATCH,75,True,False,False,personalized_attention_engine_v1.1
+4,ABOVE_TARGET,target_high < glucose <= danger_high,WATCH,60,True,False,False,personalized_attention_engine_v1.1
+5,NEAR_LOW_FALLING,target_low <= glucose < target_low+10 and trend <= -0.5 mg/dL/min,WATCH,45,True,False,False,personalized_attention_engine_v1.1
+6,NEAR_HIGH_RISING,target_high-20 <= glucose <= target_high and trend >= 0.5 mg/dL/min,WATCH,40,True,False,False,personalized_attention_engine_v1.1
+7,ABOVE_PERSONAL_BASELINE,glucose > context_p90+20 within safety boundaries,WATCH,35,True,False,False,personalized_attention_engine_v1.1
+8,BELOW_PERSONAL_BASELINE,glucose < context_p10-15 within safety boundaries,WATCH,35,True,False,False,personalized_attention_engine_v1.1
+9,WITHIN_TARGET,no higher-priority rule matched,NORMAL,0,False,False,False,personalized_attention_engine_v1.1

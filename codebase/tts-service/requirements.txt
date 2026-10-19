@@ -1,0 +1,12 @@
+# Default install for the TTS synthesis service — deliberately light.
+# Phase 1 ships only the OpenAI-backed engine, no local model weights, so
+# unlike codebase/stt-service this needs no audio-decoding stack
+# (faster-whisper/ctranslate2/numpy/soundfile) — OpenAI does synthesis
+# remotely and returns finished audio bytes.
+
+fastapi>=0.115.0
+uvicorn[standard]>=0.34.0
+pydantic-settings>=2.7.0
+python-dotenv>=1.0.0
+
+openai>=1.50.0

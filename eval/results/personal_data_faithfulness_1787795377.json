@@ -1,0 +1,35 @@
+{
+  "generated_at_utc": "2026-08-27T01:49:37.348177Z",
+  "num_cases": 4,
+  "faithfulness_rate": 0.75,
+  "cases": [
+    {
+      "case_id": "own_average_glucose",
+      "message": "Đường huyết trung bình của tôi trong 7 ngày qua là bao nhiêu?",
+      "response": "Đường huyết trung bình của bạn trong 7 ngày qua là 110.0 mg/dL, dựa trên 3 lần đo được ghi nhận. Nếu bạn cần thêm thông tin hoặc có câu hỏi nào khác, hãy cho tôi biết!",
+      "response_is_faithful": 1,
+      "detail": "expected 110.0 (+/-1.0), found numbers: [7.0, 110.0, 3.0]"
+    },
+    {
+      "case_id": "own_assigned_doctor",
+      "message": "Bác sĩ điều trị của tôi là ai?",
+      "response": "Xin lỗi, nhưng tôi không có thông tin cụ thể nào về bác sĩ điều trị của bạn. Bạn có thể kiểm tra trong hồ sơ y tế của mình hoặc liên hệ trực tiếp với cơ sở y tế nơi bạn điều trị để biết thông tin chi tiết về bác sĩ của mình. Nếu bạn cần hỗ trợ thêm, hãy cho tôi biết!",
+      "response_is_faithful": 0,
+      "detail": "expected substring: 'Khang'"
+    },
+    {
+      "case_id": "own_glucose_reading_count",
+      "message": "Tôi đã đo đường huyết bao nhiêu lần trong 7 ngày qua?",
+      "response": "Bạn đã đo đường huyết tổng cộng 3 lần trong 7 ngày qua. Nếu bạn cần thêm thông tin hoặc có câu hỏi khác, hãy cho tôi biết!",
+      "response_is_faithful": 1,
+      "detail": "expected 3.0 (+/-0.0), found numbers: [3.0, 7.0]"
+    },
+    {
+      "case_id": "own_medication_name",
+      "message": "Tôi đang dùng loại thuốc nào?",
+      "response": "Bạn đang dùng thuốc Metformin với liều 500mg, tần suất 2 lần/ngày. Nếu bạn cần thêm thông tin về thuốc hoặc cách sử dụng, hãy cho tôi biết!",
+      "response_is_faithful": 1,
+      "detail": "expected substring: 'Metformin'"
+    }
+  ]
+}

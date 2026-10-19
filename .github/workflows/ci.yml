@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+jobs:
+  lint-and-test:
+    runs-on: self-hosted
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          set -uo pipefail
+          n=0
+          until [ "$n" -ge 3 ]; do
+            pip install -r requirements.txt && exit 0
+            n=$((n + 1))
+            echo "pip install failed (attempt $n/3), retrying in 10s..."
+            sleep 10
+          done
+          echo "::error::pip install failed after 3 attempts"
+          exit 1
+
+      - name: Lint with ruff
+        run: ruff check codebase/ tests/
+
+      - name: Run tests
+        run: pytest tests/ -v --tb=short
+        env:
+          APP_ENV: test
+          OPENAI_API_KEY: test-key
+          JWT_SECRET_KEY: test-secret-key-for-ci-only-do-not-use-in-production

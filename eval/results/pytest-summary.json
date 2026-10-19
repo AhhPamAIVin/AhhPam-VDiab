@@ -1,0 +1,25 @@
+{
+  "timestamp_utc": "2026-08-27T01:53:37.674096+00:00",
+  "command": [
+    "/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/.venv/bin/python",
+    "-m",
+    "pytest",
+    "tests",
+    "-m",
+    "not eval and not slow",
+    "-p",
+    "no:cacheprovider",
+    "--cov=codebase",
+    "--cov-branch",
+    "--cov-report=term-missing",
+    "--cov-report=xml:/Users/phamminh/Desktop/phamminh/AIThucChien/P-158/eval/results/coverage.xml",
+    "--cov-fail-under=60.0"
+  ],
+  "exit_code": 0,
+  "duration_seconds": 253.45,
+  "passed": 462,
+  "failed": 0,
+  "coverage_gate": 60.0,
+  "console_artifact": "eval/results/pytest-console.txt",
+  "coverage_artifact": "eval/results/coverage.xml"
+}

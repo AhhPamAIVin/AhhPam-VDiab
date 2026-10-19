@@ -1,0 +1,6 @@
+{
+  "doctor_id": "DR-0006",
+  "doctor_display_name": "Võ Ngọc Long",
+  "specialty": "ENDOCRINOLOGIST_DIABETOLOGIST",
+  "note": "Lấy nguyên từ data/NHANES/deployment_dataset/doctor_profiles.csv (danh tính demo tổng hợp)."
+}

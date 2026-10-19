@@ -1,0 +1,42 @@
+{
+  "generated_at_utc": "2026-08-10T14:56:30.281969+00:00",
+  "generator_version": "medication_happy_case_60d_v1.0",
+  "seed": 20260810,
+  "start_date": "2026-01-01",
+  "end_date": "2026-03-01",
+  "days": 60,
+  "happy_case_policy": "100% delivered, acknowledged, and taken within 0-5 minutes",
+  "clinical_use_allowed": false,
+  "eligibility_policy": "TYPE_2 algorithm label; exact single ingredient; local KB regimen; excludes insulin, combinations, and ambiguous semaglutide formulation",
+  "row_counts": {
+    "synthetic_medication_regimens": 459,
+    "synthetic_medication_schedule": 28260,
+    "synthetic_medication_reminders": 28260,
+    "synthetic_medication_administrations": 28260,
+    "medication_flow_exclusions": 177
+  },
+  "regimen_counts": {
+    "GLIMEPIRIDE": 45,
+    "METFORMIN": 327,
+    "LIRAGLUTIDE": 9,
+    "PIOGLITAZONE": 22,
+    "DAPAGLIFLOZIN": 8,
+    "SITAGLIPTIN": 31,
+    "EMPAGLIFLOZIN": 11,
+    "REPAGLINIDE": 3,
+    "ACARBOSE": 3
+  },
+  "exclusion_counts": {
+    "COMBINATION_OR_NON_UNIQUE_ACTIVE_INGREDIENT": 43,
+    "INSULIN_DOSE_REQUIRES_PATIENT_SPECIFIC_TITRATION": 118,
+    "NOT_ALGORITHM_LABELLED_TYPE_2": 14,
+    "SEMAGLUTIDE_ROUTE_FORMULATION_NOT_RECORDED": 2
+  },
+  "safety": {
+    "changes_observed_patient_medications": false,
+    "represents_real_prescription": false,
+    "represents_clinical_recommendation": false,
+    "dose_is_synthetic_demo_default": true
+  },
+  "cohort_filter_version": "balanced_complete_demo_cohort_v1.0"
+}

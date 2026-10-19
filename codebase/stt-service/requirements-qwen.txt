@@ -1,0 +1,16 @@
+# Opt-in extra for the Qwen2.5-Omni-3B engine AND for on-the-fly CT2
+# conversion of a Whisper checkpoint that isn't already CT2-published
+# (see engines/faster_whisper_engine.py::_convert_to_ct2 — this is the path
+# erax-ai/EraX-WoW-Turbo-V1.1 actually takes, since it doesn't ship
+# pre-converted CT2 weights).
+#
+# Confirmed working directly in this repo's default Python 3.14 .venv
+# (torch 2.13.0+cu130, transformers 5.15.1) — no separate venv needed.
+
+-r requirements.txt
+
+torch>=2.4.0
+torchvision  # Qwen2.5-Omni's processor imports Qwen2VLVideoProcessor even for audio-only use
+transformers>=4.52.0
+accelerate>=0.33.0
+qwen-omni-utils

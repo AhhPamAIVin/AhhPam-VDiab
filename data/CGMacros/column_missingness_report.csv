@@ -1,0 +1,2452 @@
+﻿file,column,null_rate,action,rule
+bio.csv,subject,0.0,KEEP,null_rate > 0.70
+bio.csv,Age,0.0,KEEP,null_rate > 0.70
+bio.csv,Gender,0.0,KEEP,null_rate > 0.70
+bio.csv,BMI,0.0,KEEP,null_rate > 0.70
+bio.csv,Body weight ,0.0,KEEP,null_rate > 0.70
+bio.csv,Height ,0.0,KEEP,null_rate > 0.70
+bio.csv,Self-identify ,0.0,KEEP,null_rate > 0.70
+bio.csv,A1c PDL (Lab),0.0,KEEP,null_rate > 0.70
+bio.csv,Fasting GLU - PDL (Lab),0.0,KEEP,null_rate > 0.70
+bio.csv,Insulin ,0.0,KEEP,null_rate > 0.70
+bio.csv,Triglycerides,0.0,KEEP,null_rate > 0.70
+bio.csv,Cholesterol,0.0,KEEP,null_rate > 0.70
+bio.csv,HDL,0.0,KEEP,null_rate > 0.70
+bio.csv,Non HDL ,0.0,KEEP,null_rate > 0.70
+bio.csv,LDL (Cal),0.0,KEEP,null_rate > 0.70
+bio.csv,VLDL (Cal),0.0,KEEP,null_rate > 0.70
+bio.csv,Cho/HDL Ratio,0.0,KEEP,null_rate > 0.70
+bio.csv,Collection time PDL (Lab),0.0,KEEP,null_rate > 0.70
+bio.csv,#1 Contour Fingerstick GLU,0.0,KEEP,null_rate > 0.70
+bio.csv,Time (t),0.0,KEEP,null_rate > 0.70
+bio.csv, #2 Contour Fingerstick GLU,0.0,KEEP,null_rate > 0.70
+bio.csv,Time (t),0.0,KEEP,null_rate > 0.70
+bio.csv,#3 Contour Fingerstick GLU,0.0,KEEP,null_rate > 0.70
+bio.csv,Time (t),0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Unnamed: 0,0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Dexcom GL,0.020940611053896326,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,HR,0.005973223480947477,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-003/CGMacros-003.csv,Meal Type,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Calories,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Carbs,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Protein,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Fat,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Fiber,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Amount Consumed,0.9975969790593889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-003/CGMacros-003.csv,Image path,0.9956059045657398,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Unnamed: 0,0.0,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,Dexcom GL,0.012793914246196404,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,HR,0.012240663900414938,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,Calories (Activity),0.0015214384508990318,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,METs,0.0015214384508990318,KEEP,null_rate > 0.70
+CGMacros-005/CGMacros-005.csv,Meal Type,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Calories,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Carbs,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Protein,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Fat,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Fiber,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Amount Consumed,0.9968188105117566,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-005/CGMacros-005.csv,Image path,0.9936376210235132,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,Dexcom GL,0.002652519893899204,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,HR,0.002652519893899204,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,Steps,0.0,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-007/CGMacros-007.csv,Meal Type,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,RecordIndex,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Calories,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Carbs,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Protein,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Fat,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Fiber,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Amount Consumed,0.9969938107869142,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-007/CGMacros-007.csv,Image path,0.9952254641909815,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,Dexcom GL,0.036585365853658534,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,HR,0.022018970189701895,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,Calories (Activity),0.01788617886178862,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,METs,0.01788617886178862,KEEP,null_rate > 0.70
+CGMacros-008/CGMacros-008.csv,Meal Type,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Calories,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Carbs,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Protein,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Fat,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Fiber,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Amount Consumed,0.9979674796747967,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-008/CGMacros-008.csv,Image path,0.9959349593495935,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,Dexcom GL,0.010020876826722338,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,HR,0.014822546972860125,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-009/CGMacros-009.csv,Meal Type,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Calories,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Carbs,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Protein,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Fat,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Fiber,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Amount Consumed,0.9971468336812804,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-009/CGMacros-009.csv,Image path,0.9945024356297842,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,Dexcom GL,0.11637264004952028,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,HR,0.06289074589910244,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,Calories (Activity),0.05403899721448468,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,METs,0.05403899721448468,KEEP,null_rate > 0.70
+CGMacros-010/CGMacros-010.csv,Meal Type,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Calories,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Carbs,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Protein,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Fat,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Fiber,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Amount Consumed,0.9972144846796658,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-010/CGMacros-010.csv,Image path,0.9951717734447539,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,Dexcom GL,0.03579871664978048,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,HR,0.01006416751097602,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,Intensity,0.0,KEEP,null_rate > 0.70
+CGMacros-011/CGMacros-011.csv,Meal Type,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Calories,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Carbs,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Protein,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Fat,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Fiber,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Amount Consumed,0.9973657548125633,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-011/CGMacros-011.csv,Image path,0.9946639648767308,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,Dexcom GL,0.026270897304674173,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,HR,0.08570453770044353,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-012/CGMacros-012.csv,Meal Type,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Calories,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Carbs,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Protein,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Fat,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Fiber,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Amount Consumed,0.9977482088024565,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-012/CGMacros-012.csv,Image path,0.995769361992494,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,Dexcom GL,0.09880050505050506,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,HR,0.04059343434343434,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,Calories (Activity),0.03295454545454545,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,METs,0.03295454545454545,KEEP,null_rate > 0.70
+CGMacros-013/CGMacros-013.csv,Meal Type,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Calories,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Carbs,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Protein,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Fat,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Fiber,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Sugar,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Amount Consumed,0.9975378787878788,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-013/CGMacros-013.csv,Image path,0.9951388888888889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,Dexcom GL,0.17246376811594202,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,HR,0.1216231884057971,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,Calories (Activity),0.11310144927536232,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,METs,0.11310144927536232,KEEP,null_rate > 0.70
+CGMacros-014/CGMacros-014.csv,Meal Type,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Calories,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Carbs,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Protein,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Fat,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Fiber,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Amount Consumed,0.9976811594202899,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-014/CGMacros-014.csv,Image path,0.9948985507246377,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,Dexcom GL,0.12369551872314304,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,HR,0.06513198281154083,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,Calories (Activity),0.06151012891344383,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,METs,0.06151012891344383,KEEP,null_rate > 0.70
+CGMacros-016/CGMacros-016.csv,Meal Type,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Calories,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Carbs,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Protein,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Fat,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Fiber,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Amount Consumed,0.998281154082259,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-016/CGMacros-016.csv,Image path,0.9956414978514426,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,Dexcom GL,0.12207872078720787,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,HR,0.11722017220172201,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,Calories (Activity),0.05387453874538745,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,METs,0.05387453874538745,KEEP,null_rate > 0.70
+CGMacros-020/CGMacros-020.csv,Meal Type,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Calories,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Carbs,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Protein,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Fat,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Fiber,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Amount Consumed,0.9974784747847478,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-020/CGMacros-020.csv,Image path,0.9943419434194342,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,Dexcom GL,0.1900709219858156,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,HR,0.1766241134751773,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,Calories (Activity),0.1290212765957447,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,METs,0.1290212765957447,KEEP,null_rate > 0.70
+CGMacros-022/CGMacros-022.csv,Meal Type,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Calories,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Carbs,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Protein,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Fat,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Fiber,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Amount Consumed,0.9976170212765958,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-022/CGMacros-022.csv,Image path,0.9944964539007092,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,Dexcom GL,0.11862835959221502,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,HR,0.06506024096385542,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,Calories (Activity),0.0532591906085882,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,METs,0.0532591906085882,KEEP,null_rate > 0.70
+CGMacros-023/CGMacros-023.csv,Meal Type,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Calories,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Carbs,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Protein,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Fat,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Fiber,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Amount Consumed,0.9974050046339203,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-023/CGMacros-023.csv,Image path,0.9949953660797034,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,Dexcom GL,0.15294117647058825,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,HR,0.06795343137254901,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,Calories (Activity),0.059803921568627454,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,Intensity,0.059803921568627454,KEEP,null_rate > 0.70
+CGMacros-026/CGMacros-026.csv,Meal Type,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Calories,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Carbs,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Protein,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Fat,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Fiber,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Amount Consumed,0.9977941176470588,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-026/CGMacros-026.csv,Image path,0.9963848039215686,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,Dexcom GL,0.2404590338937817,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,HR,0.23730984787830264,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,Calories (Activity),0.18035761942887643,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,METs,0.18035761942887643,KEEP,null_rate > 0.70
+CGMacros-028/CGMacros-028.csv,Meal Type,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Calories,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Carbs,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Protein,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Fat,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Fiber,0.9981852148385375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-028/CGMacros-028.csv,Image path,0.9971710701894849,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,Dexcom GL,0.19486745628877608,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,HR,0.14991539763113368,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,Calories (Activity),0.1344049633389735,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,METs,0.1344049633389735,KEEP,null_rate > 0.70
+CGMacros-029/CGMacros-029.csv,Meal Type,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Calories,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Carbs,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Protein,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Fat,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Fiber,0.9983079526226735,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-029/CGMacros-029.csv,Image path,0.9967851099830796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,Dexcom GL,0.08115098609763984,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,HR,0.2,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,Calories (Activity),0.10552861299709021,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,METs,0.10552861299709021,KEEP,null_rate > 0.70
+CGMacros-030/CGMacros-030.csv,Meal Type,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Calories,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Carbs,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Protein,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Fat,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Fiber,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Amount Consumed,0.9981894600711284,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-030/CGMacros-030.csv,Image path,0.9972841901066926,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,Dexcom GL,0.009027777777777777,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,HR,0.1629861111111111,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,Intensity,0.0,KEEP,null_rate > 0.70
+CGMacros-035/CGMacros-035.csv,Meal Type,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Calories,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Carbs,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Protein,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Fat,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Fiber,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Amount Consumed,0.998125,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-035/CGMacros-035.csv,Image path,0.9963888888888889,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Unnamed: 0,0.0,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,Dexcom GL,0.16593631317557697,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,HR,0.15845749342681859,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,Calories (Activity),0.10943616710487876,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,METs,0.10943616710487876,KEEP,null_rate > 0.70
+CGMacros-036/CGMacros-036.csv,Meal Type,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Calories,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Carbs,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Protein,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Fat,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Fiber,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Amount Consumed,0.9982471516213848,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-036/CGMacros-036.csv,Image path,0.9965527315220567,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,Dexcom GL,0.016201309893140295,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,HR,0.010961737331954498,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,Intensity,0.0,KEEP,null_rate > 0.70
+CGMacros-038/CGMacros-038.csv,Meal Type,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Calories,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Carbs,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Protein,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Fat,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Fiber,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Amount Consumed,0.9972423302309549,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-038/CGMacros-038.csv,Image path,0.9960013788348845,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,Dexcom GL,0.17029933158965416,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,HR,0.16663760534728278,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-039/CGMacros-039.csv,Meal Type,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Calories,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Carbs,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Protein,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Fat,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Fiber,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Amount Consumed,0.9980238302818948,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-039/CGMacros-039.csv,Image path,0.9961639058413252,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,Dexcom GL,0.004821802935010482,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,HR,0.31180992313067785,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-041/CGMacros-041.csv,Meal Type,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Calories,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Carbs,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Protein,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Fat,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Fiber,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Amount Consumed,0.9966457023060796,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-041/CGMacros-041.csv,Image path,0.9930118798043326,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,Dexcom GL,0.0168732782369146,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,HR,0.08849862258953169,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,Intensity,0.0,KEEP,null_rate > 0.70
+CGMacros-042/CGMacros-042.csv,Meal Type,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Calories,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Carbs,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Protein,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Fat,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Fiber,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Amount Consumed,0.9984848484848485,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-042/CGMacros-042.csv,Image path,0.9975206611570248,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,Dexcom GL,0.01790633608815427,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,HR,0.035330578512396696,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-043/CGMacros-043.csv,Meal Type,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Calories,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Carbs,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Protein,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Fat,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Fiber,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Amount Consumed,0.9955922865013774,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-043/CGMacros-043.csv,Image path,0.9916666666666667,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,Dexcom GL,0.021327829377364983,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,HR,0.1588579291365669,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-044/CGMacros-044.csv,Meal Type,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Calories,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Carbs,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Protein,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Fat,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Fiber,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Amount Consumed,0.9970416236670107,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-044/CGMacros-044.csv,Image path,0.9940832473340213,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,Dexcom GL,0.12209377007064869,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,HR,0.062491971740526654,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,Calories (Activity),0.0596660244059088,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,METs,0.0596660244059088,KEEP,null_rate > 0.70
+CGMacros-045/CGMacros-045.csv,Meal Type,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Calories,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Carbs,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Protein,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Fat,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Fiber,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Amount Consumed,0.9979447655748234,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-045/CGMacros-045.csv,Image path,0.9969813744380218,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,Dexcom GL,0.027976799727055614,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,HR,0.0704878880928011,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,Intensity,0.0,KEEP,null_rate > 0.70
+CGMacros-046/CGMacros-046.csv,Meal Type,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Calories,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Carbs,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Protein,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Fat,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Fiber,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Amount Consumed,0.9980211531900375,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-046/CGMacros-046.csv,Image path,0.9965881951552371,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,Dexcom GL,0.09337157425111536,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,HR,0.08221797323135756,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,Calories (Activity),0.0,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,METs,0.0,KEEP,null_rate > 0.70
+CGMacros-047/CGMacros-047.csv,Meal Type,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Calories,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Carbs,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Protein,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Fat,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Fiber,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Amount Consumed,0.9981516889738687,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-047/CGMacros-047.csv,Image path,0.9974506054811982,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Unnamed: 0,0.0,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,Timestamp,0.0,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,Libre GL,0.0,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,Dexcom GL,0.06790728044400914,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,HR,0.08756121449559255,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,Calories (Activity),0.0005223636957231473,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,METs,0.0005223636957231473,KEEP,null_rate > 0.70
+CGMacros-049/CGMacros-049.csv,Meal Type,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Calories,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Carbs,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Protein,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Fat,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Fiber,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Amount Consumed,0.998171727064969,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+CGMacros-049/CGMacros-049.csv,Image path,0.9969311132876265,EXTRACT_TO_NORMALIZED_MEAL_TABLES,sparse meal event field; extract before sensor missingness filter
+gut_health_test.csv,subject,0.0,KEEP,null_rate > 0.70
+gut_health_test.csv,Gut Lining Health,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,LPS Biosynthesis Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,"Biofilm, Chemotaxis, and Virulence Pathways",0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,TMA Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Ammonia Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Metabolic Fitness,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Active Microbial Diversity,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Butyrate Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Flagellar Assembly Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Putrescine Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Uric Acid Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Bile Acid Metabolism Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Inflammatory Activity,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Gut Microbiome Health,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Digestive Efficiency,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Protein Fermentation,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Gas Production,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Methane Gas Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Sulfide Gas Production Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Oxalate Metabolism Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Salt Stress Pathways,0.125,KEEP,null_rate > 0.70
+gut_health_test.csv,Microbiome-Induced Stress,0.125,KEEP,null_rate > 0.70
+microbes.csv,subject,0.0,KEEP,null_rate > 0.70
+microbes.csv,Abiotrophia defectiva ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Abiotrophia sp. HMSC24B09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acetivibrio ethanolgignens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acetivibrio ethanolgignens strain ACET-33324 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Achromobacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidaminococcus intestini RyC-MR95 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidaminococcus sp. BV3L6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidaminococcus sp. D21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidaminococcus sp. HPA0509 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidovorax sp. JS42 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidovorax sp. NA3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acidovorax sp. T1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acinetobacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acinetobacter johnsonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Acinetobacter towneri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinobaculum sp. oral taxon 183 str. F0552 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces cardiffensis F0333 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces dentalis DSM 19115 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces georgiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces gerencseriae DSM 6844 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces graevenitzii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces graevenitzii C83 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces graevenitzii F0530 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces howellii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces johnsonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces massiliensis 4401292 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces massiliensis F0489 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces naeslundii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces odontolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces oris strain T14V ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces pacaensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces slackii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. Chiba101 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. HMSC035G02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. HMSC08A09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. HMT 175 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. HMT897 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. HPA0247 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. ICM39 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. ICM47 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. ICM54 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. ICM58 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. Marseille-P2825 sp. Marseille-P2825 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. Marseille-P2985 strain Marseille-P2985T ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. S6-Spd3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 169 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 170 str. F0386 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 171 str. F0337 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 172 str. F0311 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 175 str. F0384 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 178 str. F0338 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 180 str. F0310 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 181 str. F0379 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 414 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 448 str. F0400 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 848 str. F0332 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 849 str. F0330 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 877 str. F0543 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. oral taxon 897 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces sp. ph3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces turicensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Actinomyces viscosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Adlercreutzia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Adlercreutzia equolifaciens DSM 19450 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Adlercreutzia sp. 8CFCBH1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aerococcus christensenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aerococcus sp. HMSC072A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aeromonas caviae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aeromonas sp. WP2-W18-CRE-05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Afipia birgiae 34632 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter aphrophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter aphrophilus ATCC 33389 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter segnis ATCC 33393 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter sp. 2125159857 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aggregatibacter sp. oral taxon 458 str. W10330 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Agrobacterium fabacearum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Akkermansia muciniphila ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Akkermansia muciniphila ATCC BAA-835 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Akkermansia muciniphila strain YL44 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Akkermansia sp. KLE1797 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Akkermansia sp. KLE1798 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alicycliphilus denitrificans K601 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes communis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes dispar ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes finegoldii DSM 17242 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes ihumii AP11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes indistinctus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes indistinctus YIT 12060 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes inops strain 627 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes megaguti ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes obesi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes onderdonkii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes onderdonkii WAL 8169 = DSM 19147 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes putredinis DSM 17216 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes senegalensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes senegalensis JC50 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes shahii WAL 8301 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes sp. AL-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes sp. HGB5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes sp. Marseille-P2431 sp. Marseille-P2431 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes sp. dk3624 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alistipes timonensis JC136 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alloprevotella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alloprevotella sp. E39 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alloprevotella tannerae ATCC 51259 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alphaendornavirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Alternaria alternata strain SRC1lrK2f ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Amedibacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Amedibacterium intestinale ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aminipila sp. JN-18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerobutyricum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerobutyricum hallii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus lactolyticus ATCC 51172 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus mediterraneensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus obesiensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus obesiensis ph10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus prevotii DSM 20548 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus sp. HMSC065G05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus sp. HMSC068A02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus sp. HMSC075B03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,"Anaerococcus sp. Marseille-P2143 strain Marseille-P2143, sp. FC4 ",0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus tetradius ATCC 35098 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus tetradius strain MJR8151 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus vaginalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus vaginalis ATCC 51170 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerococcus vaginalis strain PH9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerofustis stercorihominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaeroglobus geminatus F0357 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerosphaera sp. HMSC064C01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerosporobacter mobilis DSM 15930 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes caccae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes hadrus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes hadrus strain BPB5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes rhamnosivorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes sp. 3_2_56FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes sp. 494a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerostipes sp. 992a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerotruncus colihominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerotruncus rubiinfantis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anaerotruncus sp. G3(2012) ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Angelakisella massiliensis strain Marseille-P3217 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Angomonas deanei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anoxybacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Anoxybacillus flavithermus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Apple luteovirus 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aquabacterium parvum strain B6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aquabacterium sp. NJ1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Arachnia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Arachnia propionica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Arachnia propionica F0230a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aspergillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aspergillus chevalieri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aspergillus flavus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aspergillus niger ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atlantibacter hermannii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium parvulum DSM 20469 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium rimae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium rimae ATCC 49626 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium rimae strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium sp. BS2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Atopobium sp. ICM42b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Aureobasidium melanogenum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Avibacterium paragallinarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacillus siamensis strain SRCM100169 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacillus subtilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroidales bacterium KA00344 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides acidifaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides acidifaciens JCM 10556 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides barnesiae DSM 18169 = JCM 13652 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides caccae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides caecimuris ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides caecimuris strain I48 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides cellulosilyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides cellulosilyticus strain WH2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides clarus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides coprocola ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides coprophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides coprosuis DSM 18011 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides dorei CL03T12C01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides eggerthii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides eggerthii 1_2_48FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides eggerthii DSM 20697 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides faecichinchillae strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides faecis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides finegoldii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fluxus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis 638R ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis NCTC 9343 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis YCH46 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis str. 3-F-2 #6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis strain BOB25 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides fragilis strain S14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides gallinarum DSM 18171 = JCM 13658 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides graminisolvens DSM 19988 = JCM 15093 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides helcogenes P 36-108 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides heparinolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides intestinalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides massiliensis dnLKV3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides mediterraneensis strain Marseille-P2644 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides neonati strain MS4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides nordii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides oleiciplenus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides ovatus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides ovatus V975 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides ovatus strain ATCC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides paurosaccharolyticus JCM 15092 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides phage crAss001 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides plebeius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides pyogenes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides salanitronis DSM 18170 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides salyersiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 14(A) ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 1_1_30 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 1_1_6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 2_1_16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 2_1_22 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 2_1_33B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 2_1_56FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 2_2_4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 3_1_13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 3_1_19 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 3_1_23 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 3_1_33FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 3_1_40A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 4_1_36 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 4_3_47FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. 9_1_42FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. A1C1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. CACC 737 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. CBA7301 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. D2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. D20 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. D22 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HF-162 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HF-5141 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HF-5287 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HMSC067B03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HMSC068A09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HMSC073E02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. HPS0048 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. Marseille-P2653 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. Marseille-P3108 sp. Marseille-P3108 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. Marseille-P3132 sp. Marseille-P3132 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. Marseille-P3166 sp. Marseille-P3166 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. Marseille-P3208T strain Marseille-P3208 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. PHL 2737 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides sp. ZJ-18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides stercorirosoris ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides stercoris ATCC 43183 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides stercoris CC31F ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides stercoris strain CL09T03C01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides stercoris strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides thetaiotaomicron ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides thetaiotaomicron VPI-5482 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides thetaiotaomicron strain 7330 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides timonensis AP1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides uniformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides vulgatus ATCC 8482 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides xylanisolvens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bacteroides zoogleoformans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bariatricus massiliensis strain AT12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Barnesiella intestinihominis YIT 11860 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Barnesiella viscericola DSM 18177 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Beet necrotic yellow vein virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Berryella intestinalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium adolescentis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium adolescentis ATCC 15703 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium adolescentis strain 22L ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium adolescentis strain BBMN23 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium angulatum DSM 20098 = JCM 7096 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium animalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium biavatii DSM 23969 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum ATCC 29521 = JCM 1255 = DSM 20456 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum ATCC 29521 = JCM 1255 = DSM 20456.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum BGN4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum BGN4.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum LMG 13195 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum NCIMB 41171 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum PRL2010 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum PRL2010.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum S17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum S17.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain 156B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain 2789STDY5608877 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain 791 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain 85B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain BF3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain LMG ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium bifidum strain MJR8628B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve 689b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve 689b.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve ACS-071-V-Sch8b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve CECT 7263 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve JCM 7017 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve JCM 7019 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium breve MCC 0121 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium catenulatum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium catenulatum DSM 16992 = JCM 1194 = LMG 11043 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium catenulatum subsp. kashiwanohense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium catenulatum subsp. kashiwanohense JCM 15439 = DSM 21854 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium dentium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium dentium Bd1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium dentium JCM 1195 = DSM 20436 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium gallinarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum AGR2137 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum DJO10A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum DJO10A.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum E18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum NCC2705 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum NCC2705.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum isolate Bifido_01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum isolate Bifido_05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum isolate Bifido_06 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum isolate Bifido_09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum strain 379 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum strain BG7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis 157F ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis 157F.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis CCUG 52486 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis strain CECT ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. infantis strain IN-07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum 1-6B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum 17-1B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum 2-2B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum 7-1B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum ATCC 55813 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum BBMN68 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum BBMN68.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum EK13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum F8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum GT15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum GT15.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum JCM 1217 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum JCM 1217.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum JDM301 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum KACC 91563 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum KACC 91563.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain AH1206 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain LO-10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain LO-K29a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain MC-42 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain NCIMB8809 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain VMKB44 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum strain W11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. longum.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. suillum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium longum subsp. suis strain BSM11-5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium merycicum DSM 6492 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium merycicum strain LMG ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium mongoliense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium moukalabense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum DSM 20438 = JCM 1200 = LMG 10505 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum IPLA36007 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain 2789STDY5834840 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-B29 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-C29 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-D29 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-K29a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CA-K29b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pseudocatenulatum strain CECT ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium pullorum DSM 20433 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium saeculare DSM 6531 = LMG 14934 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium sp. 12_1_47BFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bifidobacterium sp. MSTE12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bilophila sp. 4_1_30 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bilophila wadsworthia 3_1_6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bilophila wadsworthia ATCC 49260 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bittarella massiliensis strain GD6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blastocystis hominis isolate B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blastocystis sp. ATCC 50177/Nand II ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blastocystis sp. subtype 3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blastocystis sp. subtype 4 strain WR1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia argi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia hansenii DSM 20583 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia hydrogenotrophica DSM 10507 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia hydrogenotrophica strain 2789STDY5608857 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia massiliensis sp. GD8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum ATCC 29174 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum strain 2789STDY5608837 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum strain 2789STDY5608838 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum strain 2789STDY5834861 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum strain 2789STDY5834921 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia obeum strain 2789STDY5834957 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia producta ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia producta ATCC 27340 = DSM 2950 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia schinkii DSM 10518 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. KLE 1732 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. LZLJ-3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. Marseille-P2398 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. Marseille-P3087 sp. Marseille-P3087 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. Marseille-P3201T strain Marseille-P3201 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. N6H1-15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. SC05B48 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. YL58 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia sp. YL58 sp. YL58 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blautia wexlerae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Blumeria ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bordetella trematum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Borreliella bissettii DN127 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Botrytis cinerea B05.10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bradyrhizobium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Brochothrix thermosphacta ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Brome mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bubaline alphaherpesvirus 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Bulleidia sp. zg-1006 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Burkholderiales bacterium 1_1_47 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Burkholderiales bacterium YL45 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricicoccus desmolans ATCC 43058 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricicoccus pullicaecorum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricimonas ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricimonas faecalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricimonas sp. Marseille-P2440 sp. Marseille-P2440 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricimonas synergistica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyricimonas virosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyrivibrio crossotus DSM 2876 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyrivibrio fibrisolvens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyrivibrio fibrisolvens AB2020 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Butyrivibrio sp. AD3002 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cactus virus X ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Caenorhabditis briggsae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candida albicans SC5314 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candidatus Methanomassiliicoccus intestinalis Issoire-Mx1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candidatus Nanosynbacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candidatus Nanosynbacter lyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candidatus Stoquefichus sp. KLE1796 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Candidatus Stoquefichus sp. SB1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Capnocytophaga sp. oral taxon 329 str. F0087 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Capnocytophaga sputigena ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cardiobacterium hominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Carnobacterium divergens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Carnobacterium maltaromaticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Carnobacterium maltaromaticum LMA28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Carrot cryptic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Catabacter hongkongensis strain ABBA15k ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Catabacter hongkongensis strain HKU16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Catenibacterium mitsuokai ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Catonella morbi ATCC 51271 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Caulobacter sp. K31 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cellulomonas carbonis T26 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Christensenella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Christensenella minuta ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Christensenella sp. AF73-05CM02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Christensenella sp. Marseille-P3954 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Christensenella timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium arthrosphaerae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium camelliae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium gallinarum strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium indologenes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium sp. ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Chryseobacterium sp. SNU WT5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter amalonaticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter amalonaticus strain FDAARGOS_122 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter braakii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter koseri ATCC BAA-895 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter pasteurii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter portucalensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. ABFQG ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. CF971 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. FDAARGOS_156 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. LUTT5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. LY-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHB20-C15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHB20-C16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00053 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00107 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00127 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00229 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00446 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00535 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00696 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00821 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00859 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00881 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00903 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00944 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-00986 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. RHBSTW-01013 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter sp. Y3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Citrobacter youngae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clavispora lusitaniae ATCC 42720 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cloacibacillus evryensis DSM 19522 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cloacibacillus porcorum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-1C12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-1D1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-1D10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-1E11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-2F7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-2H11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridia bacterium UC5.1-2H6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiaceae bacterium MS3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium 1_7_47FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium KLE1615 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium S5-A14a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-06 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-26 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-27 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridiales bacterium VE202-28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile 2007855 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile 630 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile ATCC 9689 = DSM 1296 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile P28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile R20291 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridioides difficile strain BR81 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium bornimense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium butyricum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium celatum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium celatum DSM 1785 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium cochlearium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium disporicum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium disporicum strain 2789STDY5608827 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium disporicum strain 2789STDY5834855 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium disporicum strain 2789STDY5834856 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium paraputrificum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium perfringens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium perfringens ATCC 13124 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium perfringens str. 13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium perfringens strain FORC_003 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium perfringens strain JP55 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium phoceensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium phoceensis strain GD3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sartagoforme ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium saudiense strain JCC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. 1_1_41A1FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. 7_2_43FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. 7_3_54FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. ASF502 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. AT4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. ATCC BAA-442 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. BNL1100 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. BR31 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. CL-2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. D5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. DSM 4029 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. FS41 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. HGF2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. KLE 1755 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. KNHs214 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. L2-50 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. M62/1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. Marseille-P2414 sp. Marseille-P2414 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium sp. Marseille-P3244 sp. Marseille-P3244 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium thermarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium tyrobutyricum strain KCTC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium ventriculi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Clostridium ventriculi strain 2789STDY5834858 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella aerofaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella aerofaciens ATCC 25986 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella intestinalis DSM 13280 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella sp. 4_8_47FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella sp. MS5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella sp. Marseille-P3245 sp. Marseille-P3245 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella stercoris DSM 13279 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella tanakaei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Collinsella tanakaei YIT 12063 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Comamonas kerstersii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus cateniformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus sp. 3_3_56FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus sp. 8_1_38FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus sp. 8_2_54BFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus sp. D6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacillus sp. D7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacter fastidiosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacter fastidiosus NSB1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacter secundus strain 177 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprobacter sp. 2CBH44 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus comes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus eutactus ATCC 27759 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus eutactus strain 2789STDY5608829 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus eutactus strain 2789STDY5608843 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus eutactus strain 2789STDY5608888 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus eutactus strain 2789STDY5834963 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus sp. HPP0048 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Coprococcus sp. HPP0074 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium genitalium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium kefirresidentii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium matruchotii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium propinquum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium pseudodiphtheriticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium segmentosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium sp. HMSC073H12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium striatum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium tuberculostearicum SK141 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Corynebacterium tuscaniense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Criibacterium bergeronii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cronobacter sakazakii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cryptobacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cryptobacterium curtum DSM 15641 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cucumber green mottle mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cucurbit aphid borne yellows virus associated RNA (pseudo genus) ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cucurbit chlorotic yellows virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cucurbit yellow stunting disorder virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Culturomica massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Culturomica massiliensis strain Marseille-P2698 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cupriavidus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cupriavidus metallidurans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes TypeIA2 P.acn17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes TypeIA2 P.acn31 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes TypeIA2 P.acn33 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes strain KCOM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium acnes strain PA_12_1_L1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Cutibacterium avidum strain DPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Debaryomyces hansenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Delftia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Delftia acidovorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Delftia acidovorans SPH-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfobulbus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfobulbus oralis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio carbinolicus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio desulfuricans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio fairfieldensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio fairfieldensis strain CCUG ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio piger ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio piger isolate DESPIGER1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio sp. 3_1_syn3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio sp. 6_1_46AFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio sp. G11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Desulfovibrio sp. Marseille-P3199 sp. Marseille-P3199 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister hominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister invisus DSM 15470 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister pneumosintes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister pneumosintes strain F0677 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dialister succinatiphilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dielma fastidiosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dietzia alimentaria strain BP ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea formicigenerans 4_6_53AFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea formicigenerans ATCC 27755 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena AGR2136 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena DSM 13814 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena strain 2789STDY5608851 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena strain 2789STDY5608866 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena strain 2789STDY5834914 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea longicatena strain 2789STDY5834961 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea sp. 5-2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea sp. AGR2135 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dorea sp. D27 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Drancourtella massiliensis strain GD1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Duncaniella sp. B8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dysosmobacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Dysosmobacter welbionis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella lenta ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella lenta 1_1_60AFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella lenta DSM 2243 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella sp. 1_3_56FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella sp. HF-1101 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella sp. HGA1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eggerthella sp. YY7918 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eisenbergiella tayi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Elizabethkingia anophelis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Emergencia timonensis strain SN18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Entamoeba ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter asburiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter bugandensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae EcWSU1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae P101 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae complex 'Hoffmann cluster IV' ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae complex sp. ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae complex sp. ECNIH7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae complex sp. FDA-CDC-AR_0132 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae complex sp. FDA-CDC-AR_0164 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter cloacae strain UW5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter hormaechei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter hormaechei subsp. hormaechei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter hormaechei subsp. oharae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter hormaechei subsp. steigerwaltii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter hormaechei subsp. xiangfangensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter kobei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter ludwigii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter ludwigii strain EN-119 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter phage phiT5282H ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter roggenkampii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. CRENT-193 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. Crenshaw ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. DSM 30060 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. LU1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. ODB01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. RHBSTW-00422 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterobacter sp. RHBSTW-00975 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterocloster ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterocloster bolteae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus avium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus casseliflavus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus casseliflavus EC20 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus durans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus durans strain KLDS ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus durans strain KLDS6.0933 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis ARO1/DG ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis ATCC 29212 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis D32 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis OG1RF ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis R712 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis V583 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis str. Symbioflor 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecalis strain KB1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium 10/96A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium ATCC 8459 = NRRL B-2354 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium DO ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium EnGen0004 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium EnGen0191 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium FB129-CNAB4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium NEF1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium T110 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium isolate Hp_21-11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium isolate Hp_23-14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium isolate Hp_6-10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium isolate Hp_6-9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium isolate Hp_74-d6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus faecium strain D344RRF isolate H ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus gallinarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus gilvus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus lactis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus raffinosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus saccharolyticus strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus saccharolyticus subsp. saccharolyticus ATCC 43076 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus saigonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus sp. DA9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus sp. FDAARGOS_375 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus sp. FDAARGOS_553 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterococcus sp. M190262 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Enterorhabdus caecimuris B7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eptesicus fuscus gammaherpesvirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelatoclostridium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelatoclostridium ramosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelatoclostridium ramosum DSM 1402 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelothrix rhusiopathiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium 21_3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium 2_2_44A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium 3_1_53 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium 5_2_54FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium 6_1_45 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium I46 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Erysipelotrichaceae bacterium MTC7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia albertii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli 536 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli DEC6E ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli ETEC H10407 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli K-12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli LF82 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli M17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli NCCP15648 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O103 str. RM10042 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O103 str. RM8385 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O111 str. RM9322 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O111:H- ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O111:H- str. 11128 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O113:H21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O121 str. RM8352 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O121:H19 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O145:H28 str. RM12581 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O145:H28 str. RM13514 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O169:H41 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O25:NM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O25b:H4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O25b:H4-ST131 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O2:H6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O6:H16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli O91 str. RM7190 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli PCN061 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli UMNK88 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli VR50 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli W ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli isolate NCTC86EC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli str. K-12 substr. MG1655 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli str. Sanji ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain 09-00049 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain 2009C-3133 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain 2011C-3911 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain 2012C-4227 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain 789 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain C4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain D1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain D3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain D5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain D7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain ECONIH1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain ECONIH2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Eco889 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_224 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_244 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_316 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_448 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_542 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_656 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_745 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_881 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_AZ159 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_AZ161 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Ecol_AZ162 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain GB089 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain H10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain H15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain H2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain H3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain JJ2434 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain K-15KW01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain M1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain M6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain M9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain MRE600 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain MS6198 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain NCTC86 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain NGF1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain O177:H21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain RM9387 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain S21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain S40 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain SEC470 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain SF-166 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain ST2747 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain ST648 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain SaT040 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain Y5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia coli strain ZH063 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia fergusonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia marmotae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia sp. E4742 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia sp. KTE114 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia sp. SCLE84 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Escherichia virus P1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium brachy ATCC 33089 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium callanderi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium infirmum F0142 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium limosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium limosum strain SA11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium maltosivorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium nodatum ATCC 33099 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium plexicaudatum ASF492 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium ramulus ATCC 29099 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium ramulus strain 2789STDY5608891 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium saphenum ATCC 49989 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sp. 3_1_31 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sp. 68-3-10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sp. ER2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sp. NSJ-61 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sp. SB2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium sulci ATCC 35585 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium ventriosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Eubacterium ventriosum ATCC 27560 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Exiguobacterium profundum strain PHM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Exophiala phaeomuriformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Exophiala spinifera ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ezakiella massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ezakiella massiliensis strain Marseille-P2951T sp. Marseille-P2951 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Facklamia hominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Facklamia sp. HMSC062C11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalibacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalibacillus intestinalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalibacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalibacterium prausnitzii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalibacterium prausnitzii A2-165 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalicoccus pleomorphus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalitalea cylindroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalitalea cylindroides ATCC 27803 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Faecalitalea cylindroides T2-87 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fannyhessea vaginae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fastidiosipila sanguinis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fenollaria massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fenollaria timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fibrobacter sp. UWB12 sp. UWB12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Filifactor alocis ATCC 35896 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Finegoldia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Finegoldia magna ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Finegoldia magna ATCC 29328 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Firmicutes bacterium ASF500 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flavobacterium sp. I3-2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flavonifractor ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flavonifractor plautii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flavonifractor plautii strain YL31 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flintibacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Flintibacter sp. KGMB00164 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fournierella massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Furfurilactobacillus rossiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusicatenibacter saccharivorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium nucleatum subsp. animalis strain KCOM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium periodonticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium pseudoperiodonticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium sp. CM21 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium ulcerans ATCC 49185 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Fusobacterium varium ATCC 27725 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gabonia massiliensis strain GM3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gardnerella vaginalis 409-05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Garlic common latent virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella bergeriae ATCC 700627 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella haemolysans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella morbillorum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sanguinis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sanguinis ATCC 700632 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sanguinis M325 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sanguinis strain 1094_BTHU ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sp. ND 6198 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gemella sp. oral taxon 928 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Geobacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Geobacillus thermocatenulatus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Geobacter sp. M18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Glaesserella parasuis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gordonibacter pamelaeae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gordonibacter pamelaeae 7-10-1-b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gordonibacter urolithinfaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Gorganvirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Granulicatella elegans ATCC 700633 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Granulicatella sp. HMSC30F09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Granulicatella sp. HMSC31F03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Grapevine yellow speckle viroid 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus haemolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus parahaemolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus parainfluenzae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus parainfluenzae T3T1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus pittmaniae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. C1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. CCUG 60358 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. HMSC061E01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. HMSC068C11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. HMSC073C03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. HMSC61B11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. HMSC71H05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Haemophilus sp. oral taxon 036 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hafnia alvei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hafnia paralvei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hallella seregens ATCC 51272 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Helianthus annuus alphaendornavirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Helicobacter bizzozeronii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hericium erinaceus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hespellia stercorisuis DSM 15480 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemanella biformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemanella biformis DSM 3989 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemania filiformis DSM 12042 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemania massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemania massiliensis AP2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Holdemania sp. Marseille-P2844 sp. Marseille-P2844 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Human feces pecovirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hungatella hathewayi WAL-18680 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Hyphopichia pseudoburtonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Idiomarina zobellii strain KMM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinibacter bartlettii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinibacter bartlettii DSM 16795 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinibacter bartlettii strain 2789STDY5834879 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinibaculum porci ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinimonas butyriciproducens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinimonas butyriciproducens strain AF211 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinimonas massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Intestinimonas massiliensis sp. GD2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Johnsonella ignava ATCC 51276 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kallipyga massiliensis ph2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kandleria vitulina MC3001 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kingella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella aerogenes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella aerogenes EA1509E ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella aerogenes strain FDAARGOS_139 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella aerogenes strain FDAARGOS_152 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella aerogenes strain G7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella africana ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella grimontii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella huaxiensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella michiganensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella michiganensis E718 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella michiganensis KCTC 1686 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella michiganensis strain M1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella oxytoca ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella phage 13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella phage PhiKpNIH-2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella phage Shelby ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella phage vB_KpnS_15-38_KLPPOU149 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella quasipneumoniae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella quasipneumoniae subsp. quasipneumoniae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella quasipneumoniae subsp. similipneumoniae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. BDA134-6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. FDAARGOS_511 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. M5al ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. P1CD1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. RHBSTW-00464 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. WP3-S18-ESBL-05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. WP3-W18-ESBL-02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. WP4-W18-ESBL-05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Klebsiella sp. WP8-S18-ESBL-06 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kluyvera ascorbata ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kluyvera intermedia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kocuria indica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kocuria kristinae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kocuria kristinae strain SA12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kocuria rhizophila DC2201 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Kocuria sp. KD4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachancea ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoanaerobaculum saburreum DSM 3986 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoanaerobaculum sp. MSX33 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoanaerobaculum sp. OBRC5-5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoanaerobaculum umeaense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoclostridium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoclostridium phocaeense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoclostridium phocaeense strain Marseille-P3177T sp. Marseille-P3177 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoclostridium sp. YL32 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnoclostridium sp. YL32 sp. YL32 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospira ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospira pectinoschiza strain 2789STDY5834836 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospira pectinoschiza strain 2789STDY5834886 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 10-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 1_1_57FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 1_4_56FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 2_1_46FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 2_1_58FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 3-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 3_1_46FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 3_1_57FAA_CT1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 5_1_57FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 5_1_63FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 6_1_37FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 6_1_63FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 7_1_58FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium 9_1_43BFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium A2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium COE1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium M18-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium TF01-11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium V9D3004 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lachnospiraceae bacterium oral taxon 082 str. F0431 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lacrimispora ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lacticaseibacillus paracasei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lacticaseibacillus paracasei subsp. tolerans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lacticaseibacillus rhamnosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactiplantibacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactiplantibacillus plantarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactiplantibacillus plantarum subsp. plantarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus animalis strain 381-IL-28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus casei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus casei UW1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus casei strain DPC6800 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus casei strain Z11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus casei subsp. casei ATCC 393 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus coryniformis subsp. torquens DSM 20004 = KCTC 3535 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus crispatus strain C25 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus crispatus strain PSS7772C ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus crispatus strain VMC7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus curvatus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus curvatus JCM 1096 = DSM 20019 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus curvatus strain NRIC0822 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus curvatus strain RI-406 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus fermentum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus frumenti ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus gasseri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus gasseri ATCC 33323 = JCM 1131 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus helveticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus jensenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus jensenii strain SNUV360 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus johnsonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus kefiri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus manihotivorans DSM 13343 = JCM 12514 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus mucosae LM1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus nenjiangensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus oligofermentans DSM 15707 = LMG 22743 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei ATCC 334 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei N1115 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei strain 275_LPAR ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei strain CAUH35 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei strain KL1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei subsp. paracasei JCM 8130 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei subsp. paracasei Lpp14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei subsp. paracasei Lpp17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei subsp. paracasei Lpp22 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paracasei subsp. paracasei Lpp225 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paragasseri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus paralimentarius DSM 19674 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus plantarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus plantarum 16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus plantarum strain CAUH2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus plantarum subsp. plantarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus plantarum subsp. plantarum ST-III ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus reuteri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus reuteri strain 484_39 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus rhamnosus ATCC 8530 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus rhamnosus LOCK908 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus rhamnosus Lc 705 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus rhamnosus strain 40f ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus rhamnosus strain BPL5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus ruminis ATCC 25644 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus ruminis S23 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus ruminis strain WC1T17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus sakei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus sakei subsp. sakei 23K ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus sanfranciscensis DSM 20451 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus sanfranciscensis TMW 1.1304 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactobacillus sp. HMSC056D05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus chungangensis CAU 28 = DSM 22330 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus cremoris ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus garvieae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage 79201 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage 88605 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage CHPC362 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage CHPC965 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage M6165 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus phage ul36 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus plantarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus raffinolactis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. 159469 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. DD01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. LG1074 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. LG1267 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. LG592 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus sp. LG606 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus virus bIL67 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactococcus virus c2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactonifactor longoviformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lactonifactor longoviformis DSM 17459 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lancefieldella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Latilactobacillus curvatus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Latilactobacillus sakei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lautropia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lautropia mirabilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leclercia adecarboxylata ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leclercia sp. J807 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leclercia sp. LSNIH3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lelliottia amnigena ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia hongkongensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia shahii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia sp. oral taxon 212 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia sp. oral taxon 498 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia trevisanii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leptotrichia wadei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc carnosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc carnosum JB16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc citreum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc citreum KM20 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc falkenbergense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc gelidum JB7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc gelidum subsp. gasicomitatum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc gelidum subsp. gasicomitatum KG16-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc inhae KCTC 3774 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc kimchii IMSNU 11154 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc lactis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. cremoris ATCC 19254 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. cremoris TIFN8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. dextranicum strain LbE15 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. mesenteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. mesenteroides ATCC 8293 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. mesenteroides J18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides subsp. mesenteroides strain DRC0211 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc mesenteroides.1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc pseudomesenteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc sp. LN180020 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Leuconostoc suionicum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Levilactobacillus brevis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Levyella massiliensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ligilactobacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ligilactobacillus animalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ligilactobacillus salivarius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Limosilactobacillus fermentum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Limosilactobacillus frumenti ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Limosilactobacillus mucosae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Limosilactobacillus vaginalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Loigolactobacillus backii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Longibaculum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Longibaculum sp. KGMB06250 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Lysobacter gummosus strain 3.2.11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Macrococcus caseolyticus JCSC5402 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mageeibacillus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Malassezia restricta ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mannheimia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Marvinbryantia formatexigens DSM 14469 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Marvinbryantia formatexigens strain I-52 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Massilioclostridium coli strain Marseille-P2976 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Massiliomicrobiota timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Massilistercora timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mediterranea massiliensis strain Marseille-P2645 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mediterraneibacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megamonas funiformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megamonas rupellensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera elsdenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera elsdenii 14-14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera elsdenii DSM 20460 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera micronuciformis F0359 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera sp. DISK 18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera sp. MJR8396C ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Megasphaera stantonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Merdibacter massiliensis strain Marseille-P3254 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mesorhizobium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mesorhizobium soli ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Methanobrevibacter smithii ATCC 35061 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Methanobrevibacter smithii TS145A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Methanosphaera stadtmanae DSM 3091 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Microbacterium paludicola ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mitsuokella jalaludinii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mobiluncus curtisii ATCC 43063 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mogibacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mogibacterium diversum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mogibacterium sp. CM50 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mogibacterium sp. Marseille-P3115 sp. Marseille-P3115 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mogibacterium timidum ATCC 33093 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Moraxella nonliquefaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Morganella morganii subsp. morganii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mucispirillum schaedleri ASF457 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Murdochiella vaginalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Muribaculum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Muribaculum intestinale ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Mycoplasma arginini ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Myroides odoratimimus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Myroides odoratimimus strain PR63039 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Myroides phaeus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Nannochloropsis gaditana CCMP526 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ndongobacter massiliensis strain Marseille-P3170T sp. Marseille-P3170 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Nectarine marafivirus M ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Nectria haematococca mpVI 77-13-4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Negativicoccus massiliensis strain AT7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neglecta timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria bacilliformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria elongata ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria mucosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria sp. HMSC055H02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Neisseria subflava ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Obesumbacterium proteus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ochrobactrum anthropi ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ochrobactrum intermedium M86 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Odoribacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Odoribacter laneus YIT 12061 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Odoribacter splanchnicus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Odoribacter splanchnicus DSM 20712 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella profusa F0195 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella sp. DNF00959 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella sp. GAM18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella sp. oral taxon 807 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella sp. oral taxon 807 strain F0089 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Olsenella uli DSM 7084 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oribacterium asaccharolyticum ACB7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oribacterium parvum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oribacterium parvum ACB1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oribacterium sinus F0268 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ornithobacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ornithobacterium rhinotracheale ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillibacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillibacter sp. 1-3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillibacter sp. ER4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillibacter sp. KLE 1745 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillibacter sp. PEA192 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oscillospiraceae bacterium VE202-24 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oxalobacter formigenes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Oxalobacter formigenes OXCC13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paenarthrobacter sp. YJN-D ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paenibacillus xylanexedens strain PAMC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paeniclostridium sordellii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pannonibacter phragmitetus strain 31801 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pantoea agglomerans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paprika mild mottle virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides distasonis ATCC 8503 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides goldsteinii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides goldsteinii CL02T12C30 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides goldsteinii DSM 19448 = WAL 12034 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides goldsteinii dnLKV18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides goldsteinii strain 910340 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides gordonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides gordonii DSM 23371 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides gordonii MS-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides johnsonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides johnsonii CL02T12C29 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides johnsonii DSM 18315 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides merdae ATCC 43184 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides merdae CL03T12C32 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides merdae CL09T00C40 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides merdae strain 2789STDY5834848 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides phage YZ-2015a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides phage YZ-2015b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. 20_3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. 2_1_7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. CT06 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. D13 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. D26 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parabacteroides sp. HGS0025 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,"Parabacteroides sp. Marseille-P3236 strain Marseille-P3236, sp. Marseille-P3136 ",0.0,KEEP,null_rate > 0.70
+microbes.csv,"Parabacteroides sp. SN4 strain SN4, sp. SB4 ",0.0,KEEP,null_rate > 0.70
+microbes.csv,Paracoccus yeei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paraprevotella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paraprevotella clara YIT 11840 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Paraprevotella xylaniphila YIT 11841 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parasutterella excrementihominis YIT 11859 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parolsenella catena ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parvimonas ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parvimonas micra ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parvimonas sp. KA00067 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Parvimonas sp. oral taxon 393 str. F0440 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peanut mottle virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pediococcus acidilactici D3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pediococcus argentinicus strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pediococcus claussenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pediococcus pentosaceus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Penicillium chrysogenum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Penicillium polonicum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Penicillium rubens Wisconsin 54-1255 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pepper mild mottle virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptacetobacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptacetobacter hiranonis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus grossensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus grossensis ph5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus harei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus lacrimalis 315-B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus lacrimalis DSM 7455 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus senegalensis JC140 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. BV3C26 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. ChDC B134 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. HMSC062D09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. HMSC075B08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. KHD5 sp. KHD5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. oral taxon 375 str. F0436 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus sp. oral taxon 836 str. F0141 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptoniphilus timonensis JC401 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptostreptococcus anaerobius VPI 4330 = DSM 2949 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptostreptococcus anaerobius strain C ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptostreptococcus anaerobius strain MJR8628A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptostreptococcus sp. MV1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Peptostreptococcus stomatis DSM 17678 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Persea americana chrysovirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Petrimonas mucosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phascolarctobacterium faecium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phascolarctobacterium succinatutens YIT 12067 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phaseolus vulgaris alphaendornavirus 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phaseolus vulgaris alphaendornavirus 2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phaseolus vulgaris endornavirus 1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phaseolus vulgaris endornavirus 2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phocaeicola ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phocaeicola coprophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Phocea massiliensis strain Marseille-P2769 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Plantactinospora ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Polerovirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pontibacillus litoralis JSM 072002 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas asaccharolytica DSM 20707 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas bennonis DSM 23058 = JCM 16335 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas endodontalis ATCC 35406 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas gingivalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas gulae strain COT-052_OH2199 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas levii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas macacae strain COT-192 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas somerae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas somerae DSM 23386 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas sp. HMSC065F10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas sp. HMSC077F02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas uenonis 60-3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Porphyromonas uenonis DSM 23387 = JCM 13868 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella albensis DSM 11370 = JCM 12258 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella baroniae DSM 16972 = JCM 13447 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bergensis DSM 17361 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia DNF00188 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia DNF00320 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia DNF00650 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia DSM 20514 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia JCVIHMP010 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia strain 700_PDEN ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia strain GED7760C ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bivia strain GED7880 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bryantii B14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bryantii C21a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bryantii strain FB3001 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella bryantii strain KHPX14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella buccae D17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella buccalis ATCC 35310 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella buccalis DNF00853 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella buccalis DNF00985 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella conceptionensis 9403948 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella copri DSM 18205 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella corporis DSM 18810 = JCM 8529 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella corporis strain MJR7716 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella dentalis DSM 3688 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella denticola F0289 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella disiens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella disiens DNF00882 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella disiens FB035-09AN ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella enoeca ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella histicola F0411 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella ihumii sp. Marseille-P3385 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella intermedia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella jejuni ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella marshii DSM 16973 = JCM 13450 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella melaninogenica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella melaninogenica ATCC 25845 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella multiformis DSM 16608 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella multisaccharivorax DSM 17128 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella nanceiensis DSM 19126 = JCM 15639 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella nigrescens F0103 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella oulorum JCM 14966 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella pallens ATCC 700821 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella pleuritidis JCM 14110 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella scopos JCM 17725 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. 109 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. C561 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. DNF00663 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. HMSC069G02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. HMSC073D09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. KHD1 sp. KHD1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. P4-65 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. P4-76 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. P5-119 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. P5-125 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. P5-60 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. S7-1-8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. oral taxon 306 str. F0472 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella sp. oral taxon 472 str. F0295 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella stercorea ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella stercorea DSM 18206 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella timonensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella timonensis 4401737 = DSM 22865 = JCM 15640 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella timonensis CRIS 5C-B1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella timonensis S9-PR14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella veroralis DSM 19559 = JCM 6290 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotella veroralis F0319 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotellaceae bacterium Marseille-P2826 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Prevotellamassilia timonensis strain Marseille-P2831 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Priestia flexa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium acidifaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium acnes 266 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium acnes hdn-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium acnes subsp. acnes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium acnes subsp. defendens ATCC 11828 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium freudenreichii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium freudenreichii subsp. freudenreichii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium freudenreichii subsp. freudenreichii strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium freudenreichii subsp. shermanii CIRM-BIA1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionibacterium freudenreichii subsp. shermanii isolate PFREUDJS1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Propionimicrobium sp. Marseille-P3275 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Proteus columbae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Proteus mirabilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Proteus vulgaris ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Providencia rettgeri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudobutyrivibrio ruminis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudobutyrivibrio xylanivorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudoflavonifractor capillosus ATCC 29799 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas aeruginosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas denitrificans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas helleri strain DSM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas psychrophila ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas stutzeri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudomonas stutzeri A1501 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pseudoramibacter alactolyticus ATCC 23263 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Puccinia graminis f. sp. tritici CRL 75-36-700-3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pyrenophora ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pyrenophora tritici-repentis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Pyricularia grisea ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia insidiosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia insidiosa strain ATCC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia mannitolilytica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia mannitolilytica strain SN82F48 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia pickettii 12D ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia pickettii 12J ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia solanacearum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia sp. AU12-08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ralstonia sp. MD27 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Raoultella ornithinolytica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Raoultella ornithinolytica strain A14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Raoultella ornithinolytica strain Yangling ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Raoultella planticola ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Raoultella sp. XY-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Riemerella anatipestifer Yb2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rikenella microfusus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rikenella microfusus DSM 15922 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Romboutsia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Romboutsia sp. CE17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia faecis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia hominis A2-183 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia intestinalis L1-82 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia inulinivorans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia sp. 499 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Roseburia sp. 831b ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia aeria ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia dentocariosa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia dentocariosa ATCC 17931 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia kristinae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia mucilaginosa DY-18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC061D12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC061E04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC062H08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC065B04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC065C03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC065C12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC065G12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC066G02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC066G07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC068E02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC069C04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC069C10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC069D01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC072B03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC073B08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC075F09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Rothia sp. HMSC076D04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminiclostridium herbifermentans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcaceae bacterium D16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcaceae bacterium Marseille-P2935 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcaceae bacterium Marseille-P2963 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcaceae bacterium cv2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus bicirculans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus callidus ATCC 27760 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus champanellensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus faecis JCM 15917 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus gauvreauii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus gnavus ATCC 29149 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus lactaris ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus lactaris ATCC 29176 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus lactaris CC59_002D ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. 5_1_39BFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. AT10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. DSM 100440 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. JC304 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. JE7A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. Marseille-P3213 sp. Marseille-P3213 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus sp. YE71 sp. YE71 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruminococcus torques ATCC 27756 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruthenibacterium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruthenibacterium lactatiformans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ruthenibacterium lactatiformans strain 585-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces boulardii (nom. inval.) ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces cerevisiae S288C ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces eubayanus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces jurei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces kudriavzevii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces paradoxus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces pastorianus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Saccharomyces sp. 'boulardii' strain unique28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Salmonella phage allotria ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sanguibacteroides justesenii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sarcina sp. JB2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Scardovia wiggsiae F0424 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Schaalia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Schaalia meyeri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Schaalia odontolytica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Schlumbergera virus X ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Selenomonas ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sellimonas intestinalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sellimonas intestinalis strain BR72 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Senegalimassilia anaerobia JC110 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Serratia liquefaciens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sfi11virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sfi21dt1virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sharpea azabuensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Shewanella colwelliana strain CSB03KR ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Shewanella maritima ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Shigella dysenteriae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Shigella flexneri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Shuttleworthia sp. MSX8B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sinorhizobium sp. GL28 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Slackia piriformis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Slackia piriformis YIT 12062 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Slackia sp. CM382 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sneathia sanguinegens strain CCUG41628 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sneathia vaginalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sodaliphilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sodaliphilus pleomorphus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Solobacterium moorei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Southern tomato virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sparassis latifolia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingobacterium hotanense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingobacterium multivorum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingobacterium thalpophilum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingomonas sp. Ant H11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingopyxis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingopyxis fribergensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sphingopyxis sp. EG6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus aureus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus epidermidis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus gallinarum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus haemolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus hominis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus pasteuri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus piscifermentans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus pseudintermedius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus saprophyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus succinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus vitulinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Staphylococcus warneri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Stenotrophomonas maltophilia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Stomatobaculum longum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus acidominimus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus agalactiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus agalactiae 2603V/R ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus agalactiae ILRI005 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus agalactiae strain GBS2-NM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus C1051 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus C238 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus strain J4211 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus strain SA1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus anginosus subsp. whileyi MAS624 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus australis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus canis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus constellatus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus constellatus subsp. pharyngis C1050 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus constellatus subsp. pharyngis C232 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus constellatus subsp. pharyngis C818 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus cristatus AS 1.3089 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus cristatus ATCC 51100 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus dentasini ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus dysgalactiae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus equinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus gallolyticus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus gordonii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus gordonii str. Challis substr. CH1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus gordonii strain KCOM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus gwangjuense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantarius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantarius strain ICDDRB-NRC-S5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantarius subsp. infantarius CJ18 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis ATCC 700779 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis SK1076 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis SK1302 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis SK970 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis X ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis strain UC6950A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus infantis strain UC921A ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus intermedius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus intermedius B196 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus intermedius C270 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus intermedius JTH08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus koreensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus lutetiensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus lutetiensis 033 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus macedonicus ACA-DC 198 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus milleri ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mitis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mitis B6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mitis NCTC 12261 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mitis SPAR10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mitis strain KCOM ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans B04Sm5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans GS-5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans LJ23 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans NN2025 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans UA159 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans UA159-FR ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus mutans strain NG8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis ATCC 35037 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis Uo5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis strain S.MIT/ORALIS-351 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis subsp. dentisani ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus oralis subsp. tigurinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus parasanguinis ATCC 15912 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus parasanguinis FW213 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus parauberis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus pasteurianus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus pasteurianus ATCC 43144 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus periodonticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus peroris ATCC 700780 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus phage TP-778L ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus phage YMC-2011 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus phage phiARI0131-1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus pluranimalium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus porcinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus pyogenes ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus pyogenes MGAS2096 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius CCHSS3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius JIM8777 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius strain HSISS4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius strain JF ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus salivarius strain NCTC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sanguinis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sanguinis SK36 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sobrinus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 116-D4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 1171_SSPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 1643 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 263_SSPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 2_1_36FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 343_SSPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 400_SSPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. 449_SSPC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. A12 sp. A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. AS14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. AS20 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. BS29a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. C150 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. C300 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CCH5-D3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CCH8-C6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CCH8-H5 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CCUG 49591 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CM6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. CM7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. ChDC B345 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. DD10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. F0441 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. F0442 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. FDAARGOS_192 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. FDAARGOS_520 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. FDAARGOS_522 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC034A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC034B03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC034E03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC034E12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC034F03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC056C01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC057G03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC061D10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC061E03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC062D07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC062H02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC063B03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC064D12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC064H09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC065C01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC065E03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC065H07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC066F01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC067H01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC068F04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC070B10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC071D03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC072C09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC072D03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC072D05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC072D07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC072G04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC073A12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC073D05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC073F11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC074B11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC074F05 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC076C08 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC076C09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC077D04 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC077F03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC078D09 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC078H03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC078H12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC10A01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC10E12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HMSC34B10 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HPH0090 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. HSISS3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. I-G2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. I-G2 sp. I-G2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. I-P16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. I-P16 sp. I-P16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. KS 6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. LPB0220 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. M143 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. NCTC 11567 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. NPS 308 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. SK140 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. SK643 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. SR1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. SR4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. oral taxon 061 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. oral taxon 064 strain W10853 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus sp. oral taxon 431 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis 05HAS68 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis 6407 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis D9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis GZ1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis JS14 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis SC070731 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis SS12 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus suis strain 90-1330 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus ASCC 1275 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus CNRZ1066 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus JIM 8232 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus LMD-9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus LMG 18311 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus MN-ZLW-002 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus ND03 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain CS8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain KLDS ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain MN-BM-A01 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain MN-BM-A02 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain ND07 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain S9 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus thermophilus strain SMQ-301 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus timonensis strain Marseille-P2915 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus vestibularis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus viridans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptococcus virus phiAbc2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Streptomyces spectabilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Subdoligranulum sp. 4_3_54A2FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Subdoligranulum variabile ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterella sp. KLE1602 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterella wadsworthensis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterella wadsworthensis 2_1_59BFAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterella wadsworthensis 3_1_45B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterella wadsworthensis HGA0223 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterellaceae bacterium Marseille-P2968 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Sutterellaceae bacterium ND3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Synergistes sp. 3_1_syn1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Talaromyces funiculosus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tannerella sp. 6_1_58FAA_CT1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tepidimonas fonticaldi strain PL17 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Terrisporobacter glycolicus ATCC 14880 = DSM 1288 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Terrisporobacter othiniensis strain 08-306576 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tidjanibacter massiliensis strain Marseille-P3084 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tissierellia bacterium S5-A11 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tissierellia bacterium S7-1-4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tobacco mild green mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tobacco mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tobamovirus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tomato brown rugose fruit virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tomato chlorosis virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tomato mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Toxoplasma gondii RH ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Traorella massiliensis strain Marseille-P3110 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema medium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema phagedenis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema sp. OMZ 838 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema sp. RCC2812 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Treponema succinifaciens DSM 2489 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tropical soda apple mosaic virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Trypanosoma brucei ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Turicibacter ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Turicibacter sanguinis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Turicibacter sp. H121 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Turicibacter sp. H121 sp. H121 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tyzzerella nexilis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Tyzzerella sp. Marseille-P3062 sp. Marseille-P3062 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Ureaplasma urealyticum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Urmitella timonensis sp. Marseille-P2918 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Valsa mali ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Variovorax paradoxus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella atypica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella atypica ACS-049-V-Sch6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella atypica ACS-134-V-Col7a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella atypica KON ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella atypica strain CMW7756B ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella dispar ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella magna DSM 19857 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella nakazawae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella parvula ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella parvula DSM 2008 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella parvula strain UTDB1-3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella rodentium ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella seminalis ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. 3_1_44 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. 6_1_27 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. ACP1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. AS16 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. HPA0037 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella sp. ICM51a ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonella tobetsuensis strain ATCC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Veillonellaceae bacterium DNF00751 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Watermelon chlorotic stunt virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella cibaria ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella cibaria strain CH2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella cibaria strain CMS2 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella cibaria strain CMU ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella confusa ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella hellenica ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella jogaejeotgali ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella koreensis KACC 15510 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella paramesenteroides ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella soli ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weissella sp. DD23 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Weizmannia coagulans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,White spot syndrome virus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,Zygosaccharomyces parabailii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Bacteroides] pectinophilus ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Candida] intermedia ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] aminophilum strain KH1P1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] asparagiforme ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] bolteae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] citroniae ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 2_1_49FAA ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A4 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A7 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90A8 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme 90B1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme AGR2157 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme CM201 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme WAL-7855 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme strain 2789STDY5834865 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme strain ATCC ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] clostridioforme strain NLAE-zl-G208 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] glycyrrhizinilyticum JCM 13369 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] hylemonae DSM 15053 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] innocuum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] innocuum 2959 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] innocuum strain 2789STDY5834853 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] innocuum strain AN88 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] innocuum strain NLAE-zl-C381 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] lactatifermentans ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] leptum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] leptum DSM 753 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] methoxybenzovorans SR3 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] methylpentosum DSM 5476 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] neopropionicum strain DSM-3847 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] saccharogumia DSM 17460 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] saccharolyticum WM1 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] scindens ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] scindens ATCC 35704 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] spiroforme ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] spiroforme DSM 1552 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] symbiosum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] symbiosum ATCC 14940 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] symbiosum WAL-14163 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] symbiosum WAL-14673 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Clostridium] symbiosum strain 2789STDY5834864 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium rectale] ATCC 33656 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] cellulosolvens 6 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] contortum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] contortum strain 2789STDY5834876 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] dolichum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] dolichum DSM 3991 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] eligens ATCC 27750 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] fissicatena ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] hallii ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] hallii DSM 3353 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] infirmum ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] rectale strain T1-815 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] siraeum DSM 15702 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Eubacterium] siraeum strain 2789STDY5834928 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Propionibacterium] namnetense ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Ruminococcus] gnavus ATCC 29149 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Ruminococcus] torques strain 2789STDY5608833 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Ruminococcus] torques strain 2789STDY5608867 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Ruminococcus] torques strain 2789STDY5834841 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,[Ruminococcus] torques strain 2789STDY5834889 ,0.0,KEEP,null_rate > 0.70
+microbes.csv,bacterium LF-3 ,0.0,KEEP,null_rate > 0.70

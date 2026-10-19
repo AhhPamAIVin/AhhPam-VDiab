@@ -1,0 +1,1 @@
+﻿recommendation_event_id,patient_id,recommendation_rule_id,generated_at,evidence_snapshot,recommendation_text,status,reviewed_by_doctor_id,reviewed_at,review_note,is_synthetic,engine_version

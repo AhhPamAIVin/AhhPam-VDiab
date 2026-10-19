@@ -1,0 +1,83 @@
+from functools import lru_cache
+from typing import Literal
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+    )
+
+    # App
+    app_name: str = "DiaB Agent"
+    app_env: Literal["development", "production", "test"] = "development"
+    app_port: int = Field(default=8100, ge=1, le=65535)
+    app_host: str = "0.0.0.0"
+    log_level: Literal["DEBUG", "INFO", "WARNING", "ERROR"] = "INFO"
+    cors_origins: str = "http://localhost:3100"
+
+    # Reminders — wall-clock timezone the fixed monitoring-plan cron (glucose/BP/
+    # medication reminders) schedules against, independent of the server's own TZ.
+    reminder_timezone: str = "Asia/Ho_Chi_Minh"
+
+    # LLM
+    openai_api_key: str = ""
+    model_name: str = "gpt-4o-mini"
+    llm_temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+
+    # Database
+    db_host: str = "localhost"
+    db_port: int = Field(default=5533, ge=1, le=65535)
+    db_user: str = "postgres"
+    db_password: str = "postgres"
+    db_name: str = "diab"
+    db_sslmode: str = "disable"
+
+    # Auth / JWT
+    jwt_secret_key: str
+    jwt_algorithm: str = "HS256"
+    access_token_expire_minutes: int = Field(default=60, ge=1)
+
+    # Admin bootstrap (used by scripts/seed_admin.py)
+    admin_seed_email: str = ""
+    admin_seed_password: str = ""
+    admin_seed_name: str = "System Admin"
+
+    # Vector Store
+    chroma_persist_dir: str = "./data/chroma"
+
+    # Zalo OA / ZBS notifications. Credentials must only be set via .env.
+    zalo_notifications_enabled: bool = False
+    zalo_oa_access_token: str = ""
+    zalo_oa_api_url: str = "https://openapi.zalo.me/v3.0/oa/message/cs"
+    zalo_zbs_access_token: str = ""
+    zalo_zbs_api_url: str = "https://business.openapi.zalo.me/message/template"
+    zalo_timeout_seconds: float = Field(default=10.0, gt=0, le=60)
+    zalo_max_retries: int = Field(default=2, ge=0, le=5)
+
+    # Zalo Bot Platform (bot-api.zaloplatforms.com) — separate product from Zalo
+    # OA above; auth is a bot token embedded in the URL, not an access_token header.
+    zalo_bot_enabled: bool = False
+    zalo_bot_token: str = ""
+    zalo_bot_api_base: str = "https://bot-api.zaloplatforms.com"
+    # The link a patient opens in Zalo to start a private chat with the bot (shown
+    # by Zalo when the bot was created — distinct from a group-invite link). Must
+    # be set by hand; there's no API to derive it from the bot token.
+    zalo_bot_chat_url: str = ""
+    zalo_link_code_ttl_minutes: int = Field(default=10, gt=0, le=60)
+
+    @property
+    def database_url(self) -> str:
+        return (
+            f"postgresql+psycopg2://{self.db_user}:{self.db_password}"
+            f"@{self.db_host}:{self.db_port}/{self.db_name}?sslmode={self.db_sslmode}"
+        )
+
+
+@lru_cache
+def get_settings() -> Settings:
+    return Settings()

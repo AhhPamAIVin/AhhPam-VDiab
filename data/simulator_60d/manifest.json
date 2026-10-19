@@ -1,0 +1,64 @@
+{
+  "generated_at_utc": "2026-08-10T14:56:30.281969+00:00",
+  "generator_version": "diabetes_simulator_60d_v1",
+  "seed": 20260810,
+  "start_date": "2026-01-01",
+  "end_date": "2026-03-01",
+  "days": 60,
+  "patient_count": 489,
+  "patient_groups": {
+    "TYPE_2_NON_INSULIN": 378,
+    "TYPE_2_INSULIN": 111
+  },
+  "row_counts": {
+    "episodes": 978,
+    "glucose": 100470,
+    "meals": 87594,
+    "runs": 489
+  },
+  "measurement_context_counts": {
+    "FASTING": 26845,
+    "BEFORE_MEAL": 30527,
+    "AFTER_MEAL": 24060,
+    "EVENT_RECOVERY": 978,
+    "BEFORE_SLEEP": 17949,
+    "RANDOM": 111
+  },
+  "episode_counts": {
+    "POSTPRANDIAL_HIGH": 489,
+    "SUSTAINED_HIGH": 378,
+    "HYPOGLYCEMIA": 111
+  },
+  "glucose_min_mg_dl": 40.0,
+  "glucose_max_mg_dl": 600.0,
+  "fasting_fallback_model": {
+    "method": "ordinary least squares fitted only on retained CGMacros source profiles",
+    "intercept": -72.23434427694687,
+    "a1c_slope": 31.26854555204671
+  },
+  "simulator_glucose_bounds_mg_dl": {
+    "minimum": 40,
+    "maximum": 600,
+    "policy": "Raw generated value is retained; bounded display value is flagged"
+  },
+  "provenance_policy": "Every generated meal and glucose row stores donor source_subject_id; meal-linked rows also store source_meal_id. Forced anomalies are explicit test scenarios, not estimates of clinical prevalence.",
+  "files": {
+    "simulation_episodes.csv": {
+      "sha256": "54654cf94a22c18e0e1174e799e3e99410666173965787d6e9c9c427712dd2d5",
+      "bytes": 215441
+    },
+    "simulation_runs.csv": {
+      "sha256": "57915acc79ceda981cc56670c906c070c19278dae7c05a6a2a2944ffb04e77a4",
+      "bytes": 74977
+    },
+    "synthetic_glucose_measurements.csv": {
+      "sha256": "d946512337210f65151ce23ceb60f5239b164cc8a41f4e24e41fcd68b79840d3",
+      "bytes": 26790588
+    },
+    "synthetic_meal_events.csv": {
+      "sha256": "2e13450f5056781267c120a46ec17fe16aa2837993dcf46e9bf199f2f02bcc3f",
+      "bytes": 17360457
+    }
+  },
+  "cohort_filter_version": "type2_only_after_prediabetes_purge_v1.0"
+}

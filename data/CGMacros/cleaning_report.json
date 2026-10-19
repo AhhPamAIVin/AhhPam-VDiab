@@ -1,0 +1,818 @@
+{
+  "generated_at_utc": "2026-08-10T08:53:45.002880+00:00",
+  "pipeline_version": "cgmacros_clean_v2_meal_events",
+  "source_directory": "C:\\Users\\ADMIN\\Downloads\\data\\CGMacros",
+  "output_directory": "C:\\Users\\ADMIN\\Downloads\\P-158\\data\\CGMacros",
+  "source_reference": "https://physionet.org/content/cgmacros/1.0.0/",
+  "sensor_null_column_rule": "drop when null_rate > 0.70 after meal extraction",
+  "meal_normalization_rule": "rows with non-empty Meal Type become meal_events; all non-empty Image path rows become meal_images; only same-row images receive a meal_id",
+  "healthy_definition": "A1c PDL (Lab) < 5.7%",
+  "healthy_subject_ids": [
+    1,
+    2,
+    4,
+    6,
+    15,
+    17,
+    18,
+    19,
+    21,
+    27,
+    31,
+    32,
+    33,
+    34,
+    48
+  ],
+  "healthy_subjects_removed": 15,
+  "type_1_subject_ids": [],
+  "type_1_subjects_removed": 0,
+  "type_1_note": "CGMacros v1.0.0 contains no documented Type 1 participants; Type 1 was not inferred from laboratory values.",
+  "meal_events_extracted": 1072,
+  "subject_profiles_written": 30,
+  "meal_images_extracted": 2020,
+  "directly_linked_meal_images": 1029,
+  "unlinked_source_images": 991,
+  "meal_quality_flag_counts": {
+    "MACRO_CALORIE_MISMATCH_GT_30PCT": 45,
+    "NO_DIRECT_MEAL_IMAGE": 43
+  },
+  "photo_directories_copied": 30,
+  "photo_files_copied": 2184,
+  "files": [
+    {
+      "file": "bio.csv",
+      "rows_before": 45,
+      "rows_after": 30,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 15,
+      "columns_before": 24,
+      "columns_after": 24,
+      "meal_events_extracted": 0,
+      "meal_images_extracted": 0,
+      "columns_extracted_to_meal_tables": [],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-001/CGMacros-001.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 1
+    },
+    {
+      "file": "CGMacros-002/CGMacros-002.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 2
+    },
+    {
+      "file": "CGMacros-003/CGMacros-003.csv",
+      "rows_before": 14565,
+      "rows_after": 14565,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 7,
+      "meal_events_extracted": 35,
+      "meal_images_extracted": 64,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-004/CGMacros-004.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 4
+    },
+    {
+      "file": "CGMacros-005/CGMacros-005.csv",
+      "rows_before": 14460,
+      "rows_after": 14460,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 7,
+      "meal_events_extracted": 46,
+      "meal_images_extracted": 92,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-006/CGMacros-006.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 6
+    },
+    {
+      "file": "CGMacros-007/CGMacros-007.csv",
+      "rows_before": 5655,
+      "rows_after": 5655,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 6,
+      "meal_events_extracted": 17,
+      "meal_images_extracted": 27,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein",
+        "RecordIndex"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-008/CGMacros-008.csv",
+      "rows_before": 14760,
+      "rows_after": 14760,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 30,
+      "meal_images_extracted": 60,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-009/CGMacros-009.csv",
+      "rows_before": 14370,
+      "rows_after": 14370,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 41,
+      "meal_images_extracted": 79,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-010/CGMacros-010.csv",
+      "rows_before": 16155,
+      "rows_after": 16155,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 45,
+      "meal_images_extracted": 78,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-011/CGMacros-011.csv",
+      "rows_before": 14805,
+      "rows_after": 14805,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 39,
+      "meal_images_extracted": 79,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-012/CGMacros-012.csv",
+      "rows_before": 14655,
+      "rows_after": 14655,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 33,
+      "meal_images_extracted": 62,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-013/CGMacros-013.csv",
+      "rows_before": 15840,
+      "rows_after": 15840,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 6,
+      "meal_events_extracted": 39,
+      "meal_images_extracted": 77,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein",
+        "Sugar"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-014/CGMacros-014.csv",
+      "rows_before": 17250,
+      "rows_after": 17250,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 40,
+      "meal_images_extracted": 88,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-015/CGMacros-015.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 15
+    },
+    {
+      "file": "CGMacros-016/CGMacros-016.csv",
+      "rows_before": 16290,
+      "rows_after": 16290,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 28,
+      "meal_images_extracted": 71,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-017/CGMacros-017.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 17
+    },
+    {
+      "file": "CGMacros-018/CGMacros-018.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 18
+    },
+    {
+      "file": "CGMacros-019/CGMacros-019.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 19
+    },
+    {
+      "file": "CGMacros-020/CGMacros-020.csv",
+      "rows_before": 16260,
+      "rows_after": 16260,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 41,
+      "meal_images_extracted": 92,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-021/CGMacros-021.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 21
+    },
+    {
+      "file": "CGMacros-022/CGMacros-022.csv",
+      "rows_before": 17625,
+      "rows_after": 17625,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 42,
+      "meal_images_extracted": 97,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-023/CGMacros-023.csv",
+      "rows_before": 16185,
+      "rows_after": 16185,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 42,
+      "meal_images_extracted": 81,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-026/CGMacros-026.csv",
+      "rows_before": 16320,
+      "rows_after": 16320,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 36,
+      "meal_images_extracted": 59,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-027/CGMacros-027.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 27
+    },
+    {
+      "file": "CGMacros-028/CGMacros-028.csv",
+      "rows_before": 18735,
+      "rows_after": 18735,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 13,
+      "columns_after": 6,
+      "meal_events_extracted": 34,
+      "meal_images_extracted": 53,
+      "columns_extracted_to_meal_tables": [
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-029/CGMacros-029.csv",
+      "rows_before": 17730,
+      "rows_after": 17730,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 13,
+      "columns_after": 6,
+      "meal_events_extracted": 30,
+      "meal_images_extracted": 57,
+      "columns_extracted_to_meal_tables": [
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-030/CGMacros-030.csv",
+      "rows_before": 15465,
+      "rows_after": 15465,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 28,
+      "meal_images_extracted": 42,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-031/CGMacros-031.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 31
+    },
+    {
+      "file": "CGMacros-032/CGMacros-032.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 32
+    },
+    {
+      "file": "CGMacros-033/CGMacros-033.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 33
+    },
+    {
+      "file": "CGMacros-034/CGMacros-034.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 34
+    },
+    {
+      "file": "CGMacros-035/CGMacros-035.csv",
+      "rows_before": 14400,
+      "rows_after": 14400,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 27,
+      "meal_images_extracted": 52,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-036/CGMacros-036.csv",
+      "rows_before": 17115,
+      "rows_after": 17115,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 7,
+      "meal_events_extracted": 30,
+      "meal_images_extracted": 59,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-038/CGMacros-038.csv",
+      "rows_before": 14505,
+      "rows_after": 14505,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 40,
+      "meal_images_extracted": 58,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-039/CGMacros-039.csv",
+      "rows_before": 17205,
+      "rows_after": 17205,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 34,
+      "meal_images_extracted": 66,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-041/CGMacros-041.csv",
+      "rows_before": 14310,
+      "rows_after": 14310,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 48,
+      "meal_images_extracted": 100,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-042/CGMacros-042.csv",
+      "rows_before": 14520,
+      "rows_after": 14520,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 22,
+      "meal_images_extracted": 36,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-043/CGMacros-043.csv",
+      "rows_before": 14520,
+      "rows_after": 14520,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 64,
+      "meal_images_extracted": 121,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-044/CGMacros-044.csv",
+      "rows_before": 14535,
+      "rows_after": 14535,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 43,
+      "meal_images_extracted": 86,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-045/CGMacros-045.csv",
+      "rows_before": 15570,
+      "rows_after": 15570,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 32,
+      "meal_images_extracted": 47,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-046/CGMacros-046.csv",
+      "rows_before": 14655,
+      "rows_after": 14655,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 29,
+      "meal_images_extracted": 50,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-047/CGMacros-047.csv",
+      "rows_before": 15690,
+      "rows_after": 15690,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 14,
+      "columns_after": 6,
+      "meal_events_extracted": 29,
+      "meal_images_extracted": 40,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "CGMacros-048/CGMacros-048.csv",
+      "status": "EXCLUDED_HEALTHY_OR_TYPE_1_SUBJECT",
+      "subject_id": 48
+    },
+    {
+      "file": "CGMacros-049/CGMacros-049.csv",
+      "rows_before": 15315,
+      "rows_after": 15315,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 0,
+      "columns_before": 15,
+      "columns_after": 7,
+      "meal_events_extracted": 28,
+      "meal_images_extracted": 47,
+      "columns_extracted_to_meal_tables": [
+        "Amount Consumed",
+        "Calories",
+        "Carbs",
+        "Fat",
+        "Fiber",
+        "Image path",
+        "Meal Type",
+        "Protein"
+      ],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "gut_health_test.csv",
+      "rows_before": 47,
+      "rows_after": 32,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 15,
+      "columns_before": 23,
+      "columns_after": 23,
+      "meal_events_extracted": 0,
+      "meal_images_extracted": 0,
+      "columns_extracted_to_meal_tables": [],
+      "columns_dropped_over_70pct_null": []
+    },
+    {
+      "file": "microbes.csv",
+      "rows_before": 45,
+      "rows_after": 30,
+      "type_1_rows_removed": 0,
+      "healthy_rows_removed": 15,
+      "columns_before": 1980,
+      "columns_after": 1980,
+      "meal_events_extracted": 0,
+      "meal_images_extracted": 0,
+      "columns_extracted_to_meal_tables": [],
+      "columns_dropped_over_70pct_null": []
+    }
+  ]
+}

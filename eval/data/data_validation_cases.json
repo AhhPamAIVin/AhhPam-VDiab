@@ -1,0 +1,269 @@
+{
+  "version": "1.0.0",
+  "name": "VDiab Data Quality & Validation Golden Dataset",
+  "description": "Bộ dữ liệu chuẩn kiểm thử tính toàn vẹn, xác thực dữ liệu đầu vào (Input Validation & Data Quality - F1) theo PRD §6 F1 AC.",
+  "total_cases": 15,
+  "cases": [
+    {
+      "id": "TC-VAL-001",
+      "name": "Bản ghi đường huyết hợp lệ chuẩn (mg/dL)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 115.0,
+        "unit": "mg/dL",
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z",
+        "note": "Đo sáng sau khi ngủ dậy"
+      },
+      "expected_result": {
+        "status": "ACCEPTED",
+        "http_code": 201,
+        "error_field": null,
+        "rejection_reason": null
+      }
+    },
+    {
+      "id": "TC-VAL-002",
+      "name": "Bản ghi đường huyết hợp lệ chuẩn (mmol/L)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 6.4,
+        "unit": "mmol/L",
+        "meal_context": "AFTER_MEAL",
+        "measured_at": "2026-08-15T13:00:00Z",
+        "note": "Sau ăn trưa 2h"
+      },
+      "expected_result": {
+        "status": "ACCEPTED",
+        "http_code": 201,
+        "error_field": null
+      }
+    },
+    {
+      "id": "TC-VAL-003",
+      "name": "Từ chối thời gian đo trong tương lai",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 120.0,
+        "unit": "mg/dL",
+        "meal_context": "FASTING",
+        "measured_at": "2099-08-20T08:00:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "measured_at",
+        "rejection_reason": "Thời gian đo không được nằm trong tương lai"
+      }
+    },
+    {
+      "id": "TC-VAL-004",
+      "name": "Từ chối giá trị đường huyết âm hoặc bằng 0",
+      "entity": "glucose_record",
+      "payload": {
+        "value": -5.0,
+        "unit": "mg/dL",
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "value",
+        "rejection_reason": "Giá trị đường huyết phải lớn hơn 0"
+      }
+    },
+    {
+      "id": "TC-VAL-005",
+      "name": "Từ chối giá trị ngoài khoảng sinh lý hợp lý (> 1000 mg/dL)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 1500.0,
+        "unit": "mg/dL",
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "value",
+        "rejection_reason": "Giá trị đường huyết vượt quá giới hạn đo tối đa (1000 mg/dL), vui lòng kiểm tra lại thiết bị hoặc nhập lại"
+      }
+    },
+    {
+      "id": "TC-VAL-006",
+      "name": "Từ chối giá trị ngoài khoảng sinh lý hợp lý cho mmol/L (> 55.5 mmol/L)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 90.0,
+        "unit": "mmol/L",
+        "meal_context": "AFTER_MEAL",
+        "measured_at": "2026-08-15T12:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "value",
+        "rejection_reason": "Giá trị đường huyết mmol/L vượt quá giới hạn tối đa hợp lệ (55.5 mmol/L)"
+      }
+    },
+    {
+      "id": "TC-VAL-007",
+      "name": "Từ chối khi thiếu đơn vị đo (unit missing)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 110.0,
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "unit",
+        "rejection_reason": "Đơn vị đo (unit) là trường bắt buộc (mg/dL hoặc mmol/L)"
+      }
+    },
+    {
+      "id": "TC-VAL-008",
+      "name": "Từ chối đơn vị đo không hỗ trợ",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 110.0,
+        "unit": "g/L",
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "unit",
+        "rejection_reason": "Đơn vị chỉ chấp nhận 'mg/dL' hoặc 'mmol/L'"
+      }
+    },
+    {
+      "id": "TC-VAL-009",
+      "name": "Từ chối khi thiếu ngữ cảnh đo (meal_context missing)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 110.0,
+        "unit": "mg/dL",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "meal_context",
+        "rejection_reason": "Ngữ cảnh đo (meal_context) là bắt buộc: fasting, before_meal, post_meal, bedtime, other"
+      }
+    },
+    {
+      "id": "TC-VAL-010",
+      "name": "Cảnh báo và từ chối bản ghi trùng lặp (Duplicate Detection)",
+      "entity": "glucose_record",
+      "payload": {
+        "value": 115.0,
+        "unit": "mg/dL",
+        "meal_context": "FASTING",
+        "measured_at": "2026-08-15T06:30:00Z"
+      },
+      "context": {
+        "existing_record": {
+          "value": 115.0,
+          "unit": "mg/dL",
+          "meal_context": "FASTING",
+          "measured_at": "2026-08-15T06:30:00Z"
+        }
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 409,
+        "error_field": "measured_at",
+        "rejection_reason": "Bản ghi trùng lặp với số đo đã tồn tại trong cùng thời điểm"
+      }
+    },
+    {
+      "id": "TC-VAL-011",
+      "name": "Tách biệt chỉ số HbA1c khỏi nhật ký đường huyết hàng ngày",
+      "entity": "hba1c_record",
+      "payload": {
+        "value": 6.8,
+        "test_date": "2026-08-10",
+        "lab_name": "BV Bạch Mai"
+      },
+      "expected_result": {
+        "status": "ACCEPTED",
+        "http_code": 201,
+        "is_daily_smbg": false,
+        "storage_table": "hba1c_records"
+      }
+    },
+    {
+      "id": "TC-VAL-012",
+      "name": "Ghi nhận thuốc từ danh mục bác sĩ (Chỉ cho phép xác nhận trạng thái)",
+      "entity": "medication_intake",
+      "payload": {
+        "prescription_item_id": "MED-PLAN-001",
+        "status": "TAKEN",
+        "taken_at": "2026-08-15T07:15:00Z"
+      },
+      "expected_result": {
+        "status": "ACCEPTED",
+        "http_code": 201,
+        "allowed_statuses": ["TAKEN", "MISSED", "SKIPPED"]
+      }
+    },
+    {
+      "id": "TC-VAL-013",
+      "name": "Từ chối bệnh nhân tự sửa tên thuốc hoặc liều lượng trong nhật ký",
+      "entity": "medication_intake",
+      "payload": {
+        "prescription_item_id": "MED-PLAN-001",
+        "status": "TAKEN",
+        "custom_medicine_name": "Insulin Degludec",
+        "custom_dosage": "30 IU"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 403,
+        "rejection_reason": "Bệnh nhân không có quyền thay đổi tên thuốc hoặc liều dùng. Chỉ được xác nhận trạng thái uống/tiêm theo kế hoạch của bác sĩ"
+      }
+    },
+    {
+      "id": "TC-VAL-014",
+      "name": "Chỉnh sửa bản ghi trong ngày - Lưu vết Audit Log trước/sau",
+      "entity": "glucose_record_edit",
+      "payload": {
+        "record_id": "REC-GLU-001",
+        "original_value": 210.0,
+        "new_value": 120.0,
+        "edit_reason": "Nhập nhầm số đo"
+      },
+      "context": {
+        "created_at": "2026-08-15T07:00:00Z",
+        "edit_attempt_at": "2026-08-15T08:30:00Z"
+      },
+      "expected_result": {
+        "status": "ACCEPTED",
+        "http_code": 200,
+        "audit_log_created": true,
+        "audit_fields_saved": ["original_value", "new_value", "editor_id", "edited_at", "edit_reason"]
+      }
+    },
+    {
+      "id": "TC-VAL-015",
+      "name": "Ghi nhận vận động - Từ chối thời lượng vô lý hoặc âm",
+      "entity": "activity_record",
+      "payload": {
+        "activity_type": "walking",
+        "duration_minutes": -30,
+        "performed_at": "2026-08-15T17:00:00Z"
+      },
+      "expected_result": {
+        "status": "REJECTED",
+        "http_code": 422,
+        "error_field": "duration_minutes",
+        "rejection_reason": "Thời lượng vận động phải là số dương hợp lý (1 - 720 phút)"
+      }
+    }
+  ]
+}
