@@ -52,6 +52,7 @@
 - [ ] Cờ cấu hình tắt LangSmith tracing ở production hoặc che (redact) dữ liệu bệnh nhân trước khi gửi.
 - [ ] Rà soát log ứng dụng: không có giá trị sức khỏe/tên/SĐT trong log.
 - [ ] Ghi rõ trong tài liệu dữ liệu nào gửi OpenAI/Zalo và cơ sở đồng ý.
+- [ ] Embedding không còn gửi ra ngoài sau task 5.8 (BGE-M3 local) — cập nhật tài liệu luồng dữ liệu tương ứng.
 - **AC:** checklist rà soát log ký duyệt; production mặc định không gửi PHI tới LangSmith.
 
 ### 6.5 Quyền dữ liệu & retention
