@@ -1,4 +1,26 @@
-.PHONY: run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness eval-all
+
+# One-time local environment: .venv (Python 3.11) + backend deps + frontend
+# deps + .env files copied from their .example templates. See scripts/setup.sh.
+setup:
+	bash scripts/setup.sh
+
+# Fill the database (schema, admin, NHANES demo data, thresholds, showcase
+# panel) and the vector store (RAG corpus). Idempotent. Needs `make db-up`.
+bootstrap:
+	python -m scripts.bootstrap_db $(BOOTSTRAP_ARGS)
+
+# ---- Langfuse (self-hosted LLM tracing, replaces LangSmith) — UI at
+# http://localhost:3300, login from LANGFUSE_INIT_USER_* in .env ----
+
+langfuse-up:
+	docker compose -f docker-compose.langfuse.yml up -d
+
+langfuse-down:
+	docker compose -f docker-compose.langfuse.yml down
+
+langfuse-logs:
+	docker compose -f docker-compose.langfuse.yml logs -f langfuse-web langfuse-worker
 
 run:
 	uvicorn codebase.backend.main:app --reload --host 0.0.0.0 --port 8100
@@ -54,10 +76,10 @@ logs:
 	docker compose logs -f
 
 db-up:
-	docker compose up -d db
+	docker compose up -d db qdrant
 
 db-down:
-	docker compose stop db
+	docker compose stop db qdrant
 
 # Wipe the database container and its volume, then bring up a fresh one.
 # The backend recreates the schema (SQLModel.metadata.create_all) on its next start.

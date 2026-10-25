@@ -27,6 +27,7 @@ from codebase.backend.notifications.scheduler import shutdown_scheduler, start_s
 from codebase.backend.notifications.zalo_link_listener import start_zalo_link_listener, stop_zalo_link_listener
 from codebase.backend.patients.router import router as patients_router
 from codebase.backend.security.sql_injection_guard import SQLInjectionGuardMiddleware
+from codebase.models.tracing import flush_tracing
 
 
 @asynccontextmanager
@@ -41,6 +42,7 @@ async def lifespan(app: FastAPI):
     stop_zalo_link_listener()
     shutdown_insights_scheduler()
     shutdown_scheduler()
+    flush_tracing()
     print("Shutting down...")
 
 

@@ -72,6 +72,7 @@ from codebase.backend.summaries.service import ensure_snapshot, refresh_patient_
 from codebase.models.agents.checkpoint import checkpointer
 from codebase.models.agents.graph import agent
 from codebase.models.agents.tools.insight_tools import get_patient_insights
+from codebase.models.tracing import tracing_callbacks
 
 router = APIRouter()
 
@@ -240,7 +241,14 @@ async def chat(
             "configurable": {
                 "session": session,
                 "thread_id": chat_session.thread_id,
-            }
+            },
+            "callbacks": tracing_callbacks(),
+            "run_name": "agent_chat",
+            "metadata": {
+                "langfuse_session_id": str(chat_session.thread_id),
+                "langfuse_user_id": str(current_user.id),
+                "user_role": current_user.role.value,
+            },
         },
     )
     _raise_for_graph_error(result)

@@ -1,0 +1,156 @@
+# Self-hosted Langfuse v3 (LLM tracing, replaces LangSmith) — standalone stack,
+# separate from docker-compose.yml so the app doesn't need it to run.
+#
+#   make langfuse-up      -> UI at http://localhost:3300
+#
+# Login + API keys are provisioned on first boot from LANGFUSE_INIT_* below,
+# which default to the same LANGFUSE_PUBLIC_KEY / LANGFUSE_SECRET_KEY the
+# backend reads from .env (compose interpolates from .env too) — so the app
+# traces into this instance with no manual key copying.
+#
+# Local-dev defaults only: change every secret below before exposing this
+# anywhere. Traces contain patient data (PHI) — keep it self-hosted.
+name: vdiab-langfuse
+
+x-langfuse-env: &langfuse-env
+  NEXTAUTH_URL: ${LANGFUSE_HOST:-http://localhost:3300}
+  DATABASE_URL: postgresql://postgres:${LANGFUSE_DB_PASSWORD:-postgres}@postgres:5432/postgres
+  SALT: ${LANGFUSE_SALT:-vdiab-langfuse-salt}
+  # 64 hex chars — generate with: openssl rand -hex 32
+  ENCRYPTION_KEY: ${LANGFUSE_ENCRYPTION_KEY:-0000000000000000000000000000000000000000000000000000000000000000}
+  TELEMETRY_ENABLED: "false"
+  CLICKHOUSE_MIGRATION_URL: clickhouse://clickhouse:9000
+  CLICKHOUSE_URL: http://clickhouse:8123
+  CLICKHOUSE_USER: clickhouse
+  CLICKHOUSE_PASSWORD: ${LANGFUSE_CLICKHOUSE_PASSWORD:-clickhouse}
+  CLICKHOUSE_CLUSTER_ENABLED: "false"
+  LANGFUSE_S3_EVENT_UPLOAD_BUCKET: langfuse
+  LANGFUSE_S3_EVENT_UPLOAD_REGION: auto
+  LANGFUSE_S3_EVENT_UPLOAD_ACCESS_KEY_ID: minio
+  LANGFUSE_S3_EVENT_UPLOAD_SECRET_ACCESS_KEY: ${LANGFUSE_MINIO_PASSWORD:-miniosecret}
+  LANGFUSE_S3_EVENT_UPLOAD_ENDPOINT: http://minio:9000
+  LANGFUSE_S3_EVENT_UPLOAD_FORCE_PATH_STYLE: "true"
+  LANGFUSE_S3_EVENT_UPLOAD_PREFIX: events/
+  LANGFUSE_S3_MEDIA_UPLOAD_BUCKET: langfuse
+  LANGFUSE_S3_MEDIA_UPLOAD_REGION: auto
+  LANGFUSE_S3_MEDIA_UPLOAD_ACCESS_KEY_ID: minio
+  LANGFUSE_S3_MEDIA_UPLOAD_SECRET_ACCESS_KEY: ${LANGFUSE_MINIO_PASSWORD:-miniosecret}
+  LANGFUSE_S3_MEDIA_UPLOAD_ENDPOINT: http://localhost:9090
+  LANGFUSE_S3_MEDIA_UPLOAD_FORCE_PATH_STYLE: "true"
+  LANGFUSE_S3_MEDIA_UPLOAD_PREFIX: media/
+  REDIS_HOST: redis
+  REDIS_PORT: "6379"
+  REDIS_AUTH: ${LANGFUSE_REDIS_PASSWORD:-myredissecret}
+  REDIS_TLS_ENABLED: "false"
+
+x-langfuse-depends-on: &langfuse-depends-on
+  postgres:
+    condition: service_healthy
+  minio:
+    condition: service_healthy
+  redis:
+    condition: service_healthy
+  clickhouse:
+    condition: service_healthy
+
+services:
+  langfuse-worker:
+    image: langfuse/langfuse-worker:3
+    restart: unless-stopped
+    depends_on: *langfuse-depends-on
+    environment:
+      <<: *langfuse-env
+
+  langfuse-web:
+    image: langfuse/langfuse:3
+    restart: unless-stopped
+    depends_on: *langfuse-depends-on
+    ports:
+      - "${LANGFUSE_PORT:-3300}:3000"
+    environment:
+      <<: *langfuse-env
+      NEXTAUTH_SECRET: ${LANGFUSE_NEXTAUTH_SECRET:-vdiab-langfuse-nextauth-secret}
+      LANGFUSE_INIT_ORG_ID: vdiab
+      LANGFUSE_INIT_ORG_NAME: VDiab
+      LANGFUSE_INIT_PROJECT_ID: vdiab-agent
+      LANGFUSE_INIT_PROJECT_NAME: vdiab-agent
+      LANGFUSE_INIT_PROJECT_PUBLIC_KEY: ${LANGFUSE_PUBLIC_KEY:-pk-lf-vdiab-local}
+      LANGFUSE_INIT_PROJECT_SECRET_KEY: ${LANGFUSE_SECRET_KEY:-sk-lf-vdiab-local}
+      LANGFUSE_INIT_USER_EMAIL: ${LANGFUSE_INIT_USER_EMAIL:-admin@vdiab.local}
+      LANGFUSE_INIT_USER_NAME: VDiab Admin
+      LANGFUSE_INIT_USER_PASSWORD: ${LANGFUSE_INIT_USER_PASSWORD:-vdiab-langfuse}
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:25.3
+    restart: unless-stopped
+    user: "101:101"
+    environment:
+      CLICKHOUSE_DB: default
+      CLICKHOUSE_USER: clickhouse
+      CLICKHOUSE_PASSWORD: ${LANGFUSE_CLICKHOUSE_PASSWORD:-clickhouse}
+    volumes:
+      - langfuse_clickhouse_data:/var/lib/clickhouse
+      - langfuse_clickhouse_logs:/var/log/clickhouse-server
+    healthcheck:
+      test: wget --no-verbose --tries=1 --spider http://localhost:8123/ping || exit 1
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 1s
+
+  minio:
+    # MinIO no longer publishes images on Docker Hub/quay (pulls are denied);
+    # Chainguard's build is the maintained public one. Runs as root so it can
+    # create the bucket directory on a fresh, root-owned named volume.
+    image: cgr.dev/chainguard/minio:latest
+    restart: unless-stopped
+    user: "0:0"
+    entrypoint: sh
+    # Creates the `langfuse` bucket on boot.
+    command: -c 'mkdir -p /data/langfuse && exec minio server --address ":9000" --console-address ":9001" /data'
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: ${LANGFUSE_MINIO_PASSWORD:-miniosecret}
+    ports:
+      # Browser uploads media straight to S3, so the host needs to reach it.
+      - "127.0.0.1:9090:9000"
+    volumes:
+      - langfuse_minio_data:/data
+    healthcheck:
+      # No `mc`/curl in this image — bash's /dev/tcp checks the S3 port is up.
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/9000"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 1s
+
+  redis:
+    image: redis:7.4-alpine
+    restart: unless-stopped
+    command: --requirepass ${LANGFUSE_REDIS_PASSWORD:-myredissecret}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${LANGFUSE_REDIS_PASSWORD:-myredissecret}", "ping"]
+      interval: 3s
+      timeout: 10s
+      retries: 10
+
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${LANGFUSE_DB_PASSWORD:-postgres}
+      POSTGRES_DB: postgres
+    volumes:
+      - langfuse_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  langfuse_postgres_data:
+  langfuse_clickhouse_data:
+  langfuse_clickhouse_logs:
+  langfuse_minio_data:

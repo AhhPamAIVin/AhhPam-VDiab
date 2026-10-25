@@ -22,7 +22,8 @@ from uuid import UUID
 from sqlmodel import Session, col, select
 
 from codebase.backend.insights.models import InsightStatus, PatientInsight
-from codebase.models.rag.ingest import get_chroma_client, get_embeddings_client
+from codebase.models.rag.ingest import get_embeddings_client
+from codebase.models.rag.vector_store import get_vector_client
 
 COLLECTION_NAME = "patient_insights"
 
@@ -42,7 +43,7 @@ def get_insights_collection(client: Any | None = None) -> Any:
     first use, same convention as rag/ingest.py's `knowledge_base`
     collection.
     """
-    client = client or get_chroma_client()
+    client = client or get_vector_client()
     return client.get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
 
 

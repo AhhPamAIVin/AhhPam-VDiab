@@ -47,8 +47,19 @@ class Settings(BaseSettings):
     admin_seed_password: str = ""
     admin_seed_name: str = "System Admin"
 
-    # Vector Store
+    # Vector Store — "chroma" (embedded, on-disk at chroma_persist_dir) or
+    # "qdrant" (server at qdrant_url, see docker-compose.yml). See
+    # codebase/models/rag/vector_store.py.
+    vector_store: Literal["chroma", "qdrant"] = "chroma"
     chroma_persist_dir: str = "./data/chroma"
+    qdrant_url: str = "http://localhost:6333"
+    qdrant_api_key: str = ""
+
+    # Langfuse LLM tracing (replaces LangSmith). Disabled unless both keys are
+    # set. See codebase/models/tracing.py and docker-compose.langfuse.yml.
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+    langfuse_host: str = "http://localhost:3300"
 
     # Zalo OA / ZBS notifications. Credentials must only be set via .env.
     zalo_notifications_enabled: bool = False

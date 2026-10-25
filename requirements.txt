@@ -11,7 +11,9 @@ langchain-openai>=0.3.0
 langgraph>=0.2.0
 
 # Database
-sqlmodel>=0.0.22
+# <0.0.45: 0.0.45+ rejects naive datetimes on DateTime columns (ValueError "Datetime values
+# must have timezone information"), and the models/services here store naive UTC throughout.
+sqlmodel>=0.0.22,<0.0.45
 psycopg2-binary>=2.9.9
 
 # Scheduling
@@ -25,10 +27,16 @@ email-validator>=2.2.0
 
 # Vector Store — RAG corpus, see docs/AI_Summary_Respond_System_Design.md §5
 chromadb>=0.5.0
+# Optional server-backed alternative to Chroma (VECTOR_STORE=qdrant), see codebase/models/rag/vector_store.py
+qdrant-client>=1.19.0
+
+# LLM tracing (replaces LangSmith tracing), see codebase/models/tracing.py
+langfuse>=3.0.0
 
 # ML — personalized WATCH classifier, see docs/ML_PERSONALIZED_WATCH_SYSTEM_PLAN.md
 pandas>=2.2.0
-scikit-learn>=1.5.0
+# Pinned to the version artifacts/personalized_watch/*.joblib were pickled with.
+scikit-learn==1.9.0
 matplotlib>=3.9.0
 jupyter>=1.1.0
 nbclient>=0.10.0

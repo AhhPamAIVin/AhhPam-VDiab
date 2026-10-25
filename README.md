@@ -44,7 +44,7 @@ Modular monolith: 1 FastAPI backend + 1 Next.js SPA (UI theo vai trò Patient/Do
 │   │   └── security/      #   SQL-injection guard middleware
 │   ├── models/
 │   │   ├── agents/        # LangGraph graph.py, state, nodes/, tools/
-│   │   └── rag/           # ingest.py, chunking.py — nạp data/knowledge_base/ vào Chroma
+│   │   └── rag/           # ingest.py, chunking.py, vector_store.py — nạp data/knowledge_base/ vào Qdrant/Chroma
 │   └── frontend/          # Next.js App Router SPA
 │       ├── app/            #   route theo vai trò: (app)/dashboard, doctor, admin, ai, health, medication...
 │       ├── components/     #   components/pages/* (1 page-component/route) + components/ui/* (shadcn)
@@ -53,61 +53,75 @@ Modular monolith: 1 FastAPI backend + 1 Next.js SPA (UI theo vai trò Patient/Do
 │   ├── chroma/             # Chroma vector index (gitignored, tự sinh từ ingest.py)
 │   └── knowledge_base/     # Guideline ADA/Bộ Y tế/Dược thư QG — nguồn RAG duy nhất
 ├── eval/                   # Golden dataset (76 case) + eval runner — xem eval/README.md
-├── scripts/                # seed_admin, migrate_nhanes_demo_data, ai_chat_cli
+├── scripts/                # setup.sh, bootstrap_db, seed_admin, migrate_nhanes_demo_data, ai_chat_cli
 ├── tests/                  # pytest (test_backend/, test_models/)
 ├── docs/                   # PRD, system design, wireframe, OpenAPI export
-├── Dockerfile / docker-compose.yml
+├── Dockerfile / docker-compose.yml (backend, frontend, Postgres, Qdrant)
+├── docker-compose.langfuse.yml   # Langfuse self-host (tracing)
 └── Makefile                # xem "Lệnh Makefile" bên dưới
 ```
 
 ## Bắt đầu nhanh (Quick Start)
 
-Yêu cầu: Python 3.11+, Docker (chạy Postgres), Node.js 20+ (nếu chạy frontend), OpenAI API key.
+Yêu cầu: Python 3.11, Docker, Node.js 20+, GNU make (Windows: `winget install ezwinports.make`), OpenAI API key.
 
 ```bash
-# 1. Clone & cài dependencies Python
-git clone <repo-url> vdiab && cd vdiab
-python3.11 -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+# 1. Cài môi trường: .venv (Python 3.11) + requirements + npm ci frontend + tạo .env / frontend/.env.local
+make setup                       # hoặc: bash scripts/setup.sh
+source .venv/Scripts/activate    # Windows Git Bash  (Linux/macOS: source .venv/bin/activate;
+                                 #                    PowerShell: .venv\Scripts\Activate.ps1)
 
-# 2. Cấu hình môi trường
-cp .env.example .env
-# Mở .env — bắt buộc điền OPENAI_API_KEY và JWT_SECRET_KEY (xem bảng biến môi trường bên dưới)
+# 2. Mở .env — bắt buộc điền OPENAI_API_KEY, JWT_SECRET_KEY, ADMIN_SEED_PASSWORD
 
-# 3. Khởi động Postgres (container riêng, cổng host mặc định 5533)
+# 3. Database: Postgres (cổng host 5533) + Qdrant (6333, dashboard http://localhost:6333/dashboard)
 make db-up
 
-# 4. Khởi tạo schema + seed admin + nạp dữ liệu demo (bệnh nhân/bác sĩ/chỉ số mô phỏng)
-#    Cách nhanh nhất, làm mới hoàn toàn từ đầu:
-make db-reset-migrate
-#    (tương đương db-reset + seed-admin + migrate-nhanes-data — xem "Lệnh Makefile")
+# 4. (Tuỳ chọn) Langfuse — trace LLM, thay LangSmith. UI http://localhost:3300
+#    Đăng nhập bằng LANGFUSE_INIT_USER_EMAIL / LANGFUSE_INIT_USER_PASSWORD trong .env
+make langfuse-up
 
-# 5. Chạy backend (http://localhost:8100, Swagger tại /docs)
+# 5. Nạp nội dung DB: schema + admin + dữ liệu demo NHANES + ngưỡng care plan
+#    + panel demo cho bác sĩ + RAG knowledge base vào Qdrant. Idempotent.
+make bootstrap                   # BOOTSTRAP_ARGS="--skip-rag" để bỏ bước gọi OpenAI embeddings
+#    Làm mới hoàn toàn từ đầu (xoá volume Postgres): make db-reset-migrate rồi make bootstrap
+
+# 6. Chạy backend (http://localhost:8100, Swagger tại /docs)
 make run
+
+# 7. Chạy frontend (http://localhost:3000)
+cd codebase/frontend && npm run dev
 ```
 
 Kiểm tra nhanh: `curl http://localhost:8100/health` → `{"status":"ok","env":"development"}`.
 
-### (Tuỳ chọn) Nạp knowledge base vào ChromaDB
+### Vector store: Qdrant hoặc Chroma
 
-`data/chroma/` không được commit — cần build lại từ `data/knowledge_base/` (guideline ADA, Bộ Y tế, Dược thư QG) trước khi AI Agent có thể trích dẫn nguồn:
+`VECTOR_STORE=qdrant` (mặc định trong `.env.example`) dùng Qdrant server từ `docker-compose.yml`;
+`VECTOR_STORE=chroma` dùng Chroma nhúng, lưu ở `data/chroma/` (gitignored). Cả hai được build lại từ
+`data/knowledge_base/` (guideline ADA, Bộ Y tế, Dược thư QG) bằng:
 
 ```bash
 python -m codebase.models.rag.ingest
 ```
 
-Idempotent, ghi lại `data/knowledge_base/ingestion_manifest.json` sau mỗi lần chạy.
+Idempotent, ghi lại `data/knowledge_base/ingestion_manifest.json` sau mỗi lần chạy. Đổi `VECTOR_STORE`
+thì chạy lại ingest cho store mới. Adapter: `codebase/models/rag/vector_store.py`.
+
+### Langfuse (tracing)
+
+Bật khi `.env` có `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` (để trống = tắt). Stack self-host
+(`docker-compose.langfuse.yml`) tự tạo project `vdiab-agent` với đúng 2 key trong `.env` ở lần boot đầu,
+nên không cần copy key thủ công. Mỗi lượt `/agent/chat` là một trace (session = chat thread), mọi lời gọi
+LLM khác (insights, summary, script) cũng được trace. Dùng Langfuse Cloud: đặt
+`LANGFUSE_HOST=https://cloud.langfuse.com` và key của project. Trace chứa dữ liệu bệnh nhân — giữ self-host.
 
 ### Frontend
 
 ```bash
 cd codebase/frontend
-cp .env.example .env.local
-# .env.example đặt sẵn NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1 — sửa thành
-# http://localhost:8100/api/v1 để khớp cổng backend thật (make run chạy ở 8100, không phải 8000)
-
-npm install
-npm run dev -- -p 3100   # http://localhost:3100 — cổng 3100 khớp CORS_ORIGINS mặc định của backend
+cp .env.example .env.local       # make setup đã làm sẵn; NEXT_PUBLIC_API_URL=http://localhost:8100/api/v1
+npm ci
+npm run dev                      # http://localhost:3000 (có trong CORS_ORIGINS mặc định)
 ```
 
 Đăng nhập bằng tài khoản đã seed ở bước 4 (mật khẩu của mỗi tài khoản demo chính là email của tài khoản đó; tài khoản Admin dùng mật khẩu cấu hình riêng). `npm test` (vitest) chạy test riêng của frontend (`lib/api.test.ts`).
@@ -127,12 +141,15 @@ Copy từ `.env.example` sang `.env` (không commit `.env`). Nguồn sự thật
 | `DB_SSLMODE` | | `disable` | SSL mode cho psycopg2. |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | | `60` | Thời hạn access token. |
 | `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` / `ADMIN_SEED_NAME` | | — | Tài khoản Admin đầu tiên, dùng bởi `make seed-admin`. |
-| `CHROMA_PERSIST_DIR` | | `./data/chroma` | Nơi persist Chroma vector index. |
+| `VECTOR_STORE` | | `chroma` (code) / `qdrant` (`.env.example`) | Backend vector store cho RAG + patient insights. |
+| `QDRANT_URL` / `QDRANT_API_KEY` | | `http://localhost:6333` / — | Qdrant server (khi `VECTOR_STORE=qdrant`). |
+| `CHROMA_PERSIST_DIR` | | `./data/chroma` | Nơi persist Chroma vector index (khi `VECTOR_STORE=chroma`). |
 | `APP_ENV` | | `development` | `development` \| `production` \| `test`. |
 | `APP_PORT` / `APP_HOST` | | `8100` / `0.0.0.0` | Cổng/host Uvicorn (`make run` cũng hard-code `--port 8100`, sửa cả hai nếu đổi). |
 | `CORS_ORIGINS` | | `http://localhost:3100` | Danh sách origin được phép, phân tách bởi dấu phẩy — phải khớp cổng frontend thật sự chạy. |
 | `LOG_LEVEL` | | `INFO` | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`. |
-| `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` / `LANGCHAIN_TRACING_V2` | | — | LangSmith — trace mọi lượt gọi Agent/Tool. |
+| `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST` | | — / — / `http://localhost:3300` | Langfuse — trace mọi lượt gọi Agent/LLM. Để trống key = tắt. |
+| `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` / `LANGCHAIN_TRACING_V2` | | — | LangSmith (legacy) — chỉ còn dùng cho `eval/` (datasets/experiments). |
 
 > Docker Compose override: khi chạy `make up` (backend trong container), `docker-compose.yml` tự ghi đè `DB_HOST=db` / `DB_PORT=5432` để backend nối tới service `db` trong cùng network thay vì `localhost` — không cần sửa `.env` cho việc này.
 
@@ -242,9 +259,12 @@ riêng theo hướng dẫn trong [docs/evaluation/README.md](docs/evaluation/REA
 
 | Lệnh | Mô tả |
 |---|---|
+| `make setup` | Tạo `.venv` (Python 3.11), cài requirements + `npm ci` frontend, tạo `.env` / `frontend/.env.local` |
+| `make bootstrap` | Nạp đầy đủ nội dung DB + RAG vào vector store (`scripts/bootstrap_db.py`, idempotent) |
 | `make run` | Chạy backend local (`--reload`, cổng 8100) |
-| `make up` / `make down` / `make restart` | Docker Compose: backend + Postgres |
-| `make db-up` / `make db-down` | Chỉ Postgres container |
+| `make up` / `make down` / `make restart` | Docker Compose: backend + frontend + Postgres + Qdrant |
+| `make db-up` / `make db-down` | Chỉ Postgres + Qdrant container |
+| `make langfuse-up` / `make langfuse-down` / `make langfuse-logs` | Langfuse self-host (http://localhost:3300) |
 | `make db-reset` | Xoá sạch DB + volume, tạo lại container rỗng |
 | `make seed-admin` | Bootstrap tài khoản Admin đầu tiên từ `ADMIN_SEED_*` (idempotent) |
 | `make migrate-nhanes-data` | Nạp dữ liệu demo mô phỏng (NHANES-derived): bệnh nhân, bác sĩ, gán bệnh nhân, thuốc, glucose, bữa ăn, ghi chú lâm sàng (idempotent, cần chạy `seed-admin` trước) |

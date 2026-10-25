@@ -47,6 +47,7 @@ from codebase.models.rag.chunking import (
     compute_hash,
     find_page_markers,
 )
+from codebase.models.rag.vector_store import get_vector_client
 
 logger = logging.getLogger("codebase.models.rag.ingest")
 
@@ -82,18 +83,11 @@ def get_embeddings_client() -> EmbeddingsClient:
     return OpenAIEmbeddings(model=EMBEDDING_MODEL, api_key=settings.openai_api_key, chunk_size=EMBED_BATCH_SIZE)
 
 
-def get_chroma_client() -> Any:
-    import chromadb
-
-    settings = get_settings()
-    return chromadb.PersistentClient(path=settings.chroma_persist_dir)
-
-
 def get_collection(client: Any | None = None) -> Any:
     """The `knowledge_base` Chroma collection, created with cosine distance
     (OpenAI embeddings are compared by cosine similarity, not Chroma's L2
     default) if it doesn't exist yet."""
-    client = client or get_chroma_client()
+    client = client or get_vector_client()
     return client.get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
 
 

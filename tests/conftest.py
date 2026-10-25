@@ -1,5 +1,13 @@
+import os
 from collections.abc import Generator
 from unittest.mock import AsyncMock
+
+# Keep tests off any locally configured tracing server / Qdrant instance, no
+# matter what the developer's .env enables (env vars win over .env). Must run
+# before the app import below caches Settings.
+os.environ["LANGFUSE_PUBLIC_KEY"] = ""
+os.environ["LANGFUSE_SECRET_KEY"] = ""
+os.environ["VECTOR_STORE"] = "chroma"
 
 import pytest
 import pytest_asyncio
