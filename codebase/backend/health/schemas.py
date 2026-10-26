@@ -10,6 +10,9 @@ from codebase.backend.time_utils import UtcDatetime
 GLUCOSE_UNITS = ("mg/dL", "mmol/L")
 GLUCOSE_MAX_MG_DL = 1000.0
 GLUCOSE_MAX_MMOL_L = 55.5
+# Standard clinical conversion (glucose 180.16 g/mol / 10), rounded as in
+# QĐ 5481's own paired figures (7 mmol/L ~ 126 mg/dL).
+MG_DL_PER_MMOL_L = 18.0
 
 
 class GlucoseRecordCreate(SQLModel):

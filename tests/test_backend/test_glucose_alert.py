@@ -96,6 +96,21 @@ def test_danger_reading_creates_urgent_notification(session: Session, patient_us
     assert "bác sĩ" in alerts[0].message
 
 
+def test_mmol_reading_is_stored_and_evaluated_in_mg_dl(
+    session: Session, patient_user: User, doctor_user: User, care_plan: CarePlanTarget
+):
+    """A normal 5.8 mmol/L fasting value used to be compared as 5.8 mg/dL
+    against the 54 mg/dL danger floor — a false DANGER alert."""
+    _seed_history(session, patient_user.id, doctor_user.id)
+    record = create_glucose_record(
+        session, patient_id=patient_user.id, value=5.8, unit="mmol/L", measured_at=datetime.now(UTC),
+        note=None, created_by=patient_user.id, meal_context=MealContext.FASTING,
+    )
+    assert (record.value, record.unit) == (104.4, "mg/dL")
+    assert record.threshold_status != "DANGER"
+    assert _glucose_alerts(session, patient_user.id) == []
+
+
 def test_failed_alert_still_saves_and_returns_the_reading(
     session: Session, patient_user: User, doctor_user: User, care_plan: CarePlanTarget, monkeypatch
 ):
