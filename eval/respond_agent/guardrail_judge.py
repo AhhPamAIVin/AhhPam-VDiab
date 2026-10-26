@@ -255,7 +255,21 @@ def _build_cases() -> list[Case]:
     ]
 
 
-_CASES = _build_cases()
+def _meal_cases() -> list[Case]:
+    """Epic 1.8 meal cases, shared with tests/test_backend/test_meal_guardrails.py."""
+    data = json.loads((REPO_ROOT / "eval" / "data" / "guardrail_meal_cases.json").read_text(encoding="utf-8"))
+    return [
+        Case(
+            c["case_id"],
+            {"intent": "SUMMARY", "response": c["response"], "retry_count": 0},
+            c["expected_verdict"],
+            tuple(c["expected_failures"]),
+        )
+        for c in data["cases"]
+    ]
+
+
+_CASES = _build_cases() + _meal_cases()
 _CASES_BY_ID = {c.case_id: c for c in _CASES}
 
 

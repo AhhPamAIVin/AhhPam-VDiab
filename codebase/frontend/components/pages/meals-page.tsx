@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState } from 'react'
 import { DatePicker, TimePicker } from 'antd'
 import dayjs from 'dayjs'
 import { Camera, ChevronDown, ChevronUp, Clock, Loader2, Plus } from 'lucide-react'
-import { api, type MealInputSource, type MealPhotoAnalysis, type MealRecord, type MealType } from '@/lib/api'
+import { api, type MealAnalysis, type MealInputSource, type MealPhotoAnalysis, type MealRecord, type MealType } from '@/lib/api'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/toast'
 import { Pagination } from '@/components/ui/pagination'
 import { MealPhotoPrefill } from '@/components/meal-photo-prefill'
+import { CarbLoadBadge, MealAnalysisCard, carbTotalText } from '@/components/meal-analysis-card'
+import { MealGlucoseResponsePanel } from '@/components/meal-glucose-response'
 
 const mealTypes: { value: MealType; label: string }[] = [
   { value: 'breakfast', label: 'Bữa sáng' },
@@ -58,6 +60,19 @@ export function MealsPage() {
   }, [showToast])
 
   useEffect(() => loadMeals(), [loadMeals])
+
+  const setAnalysis = (mealId: string, analysis: MealAnalysis) =>
+    setRecords((current) => current.map((meal) => (meal.id === mealId ? { ...meal, analysis } : meal)))
+
+  // The analysis runs in the background after saving: pick it up when the
+  // patient opens a meal that didn't have one yet (404 = still pending).
+  const toggleMeal = (meal: MealRecord) => {
+    const opening = expanded !== meal.id
+    setExpanded(opening ? meal.id : null)
+    if (opening && !meal.analysis) {
+      api.mealAnalysis(meal.id).then((analysis) => setAnalysis(meal.id, analysis)).catch(() => {})
+    }
+  }
 
   const applyPhotoDraft = (analysis: MealPhotoAnalysis) => {
     setDescription(analysis.description ?? '')
@@ -122,7 +137,9 @@ export function MealsPage() {
         <button type='button' onClick={handleSave} disabled={saving} className='flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-3 text-sm font-semibold text-primary-foreground disabled:opacity-60'>{saving ? <Loader2 className='h-4 w-4 animate-spin' /> : <Plus className='h-4 w-4' />}{saving ? 'Đang lưu...' : 'Lưu bữa ăn'}</button>
       </div>
 
-      <div><h3 className='mb-3 font-semibold'>Lịch sử bữa ăn</h3>{loading ? <div className='flex justify-center rounded-2xl border border-border bg-card p-10'><Loader2 className='h-5 w-5 animate-spin text-primary' /></div> : <div className='space-y-3'>{paginatedMeals.map((meal) => <div key={meal.id} className='overflow-hidden rounded-2xl border border-border bg-card'><button type='button' onClick={() => setExpanded(expanded === meal.id ? null : meal.id)} className='flex w-full items-start gap-3 p-4 text-left'><span className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent'>{meal.input_source === 'photo' ? <Camera className='h-4 w-4 text-[#43B5AE]' aria-label='Ghi từ ảnh' /> : <Clock className='h-4 w-4 text-[#43B5AE]' />}</span><div className='min-w-0 flex-1'><div className='flex items-center gap-2 text-xs'><span className='font-medium text-[#2D9D97]'>{mealLabels[meal.meal_type]}</span><span className='text-muted-foreground'>{new Date(meal.meal_time).toLocaleString('vi-VN')}</span></div><p className='mt-1 truncate text-sm font-semibold'>{meal.description}</p></div>{expanded === meal.id ? <ChevronUp className='h-4 w-4 text-muted-foreground' /> : <ChevronDown className='h-4 w-4 text-muted-foreground' />}</button>{expanded === meal.id && <div className='space-y-2 border-t border-border px-4 py-3 text-sm text-muted-foreground'>{meal.input_source === 'photo' && <p className='text-xs'>Ghi từ ảnh (AI nhận diện, bạn đã xác nhận)</p>}{meal.portion && <p><span className='font-medium text-foreground'>Khẩu phần:</span> {meal.portion}</p>}<p>{meal.note || 'Không có ghi chú'}</p></div>}</div>)}{records.length > 0 && <Pagination page={currentMealPage} totalItems={records.length} onPageChange={setMealPage} className='rounded-2xl border border-border bg-card' />}{records.length === 0 && <div className='rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground'>Chưa có bữa ăn nào được ghi nhận.</div>}</div>}</div>
+      <MealGlucoseResponsePanel audience='patient' />
+
+      <div><h3 className='mb-3 font-semibold'>Lịch sử bữa ăn</h3>{loading ? <div className='flex justify-center rounded-2xl border border-border bg-card p-10'><Loader2 className='h-5 w-5 animate-spin text-primary' /></div> : <div className='space-y-3'>{paginatedMeals.map((meal) => <div key={meal.id} className='overflow-hidden rounded-2xl border border-border bg-card'><button type='button' onClick={() => toggleMeal(meal)} aria-expanded={expanded === meal.id} className='flex w-full items-start gap-3 p-4 text-left'><span className='flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent'>{meal.input_source === 'photo' ? <Camera className='h-4 w-4 text-[#43B5AE]' aria-label='Ghi từ ảnh' /> : <Clock className='h-4 w-4 text-[#43B5AE]' />}</span><div className='min-w-0 flex-1'><div className='flex items-center gap-2 text-xs'><span className='font-medium text-[#2D9D97]'>{mealLabels[meal.meal_type]}</span><span className='text-muted-foreground'>{new Date(meal.meal_time).toLocaleString('vi-VN')}</span></div><p className='mt-1 truncate text-sm font-semibold'>{meal.description}</p>{meal.analysis && <div className='mt-1.5 flex flex-wrap items-center gap-2 text-xs text-muted-foreground'><CarbLoadBadge load={meal.analysis.carb_load} /><span>{carbTotalText(meal.analysis)}</span></div>}</div>{expanded === meal.id ? <ChevronUp className='h-4 w-4 text-muted-foreground' /> : <ChevronDown className='h-4 w-4 text-muted-foreground' />}</button>{expanded === meal.id && <div className='space-y-2 border-t border-border px-4 py-3 text-sm text-muted-foreground'>{meal.input_source === 'photo' && <p className='text-xs'>Ghi từ ảnh (AI nhận diện, bạn đã xác nhận)</p>}{meal.portion && <p><span className='font-medium text-foreground'>Khẩu phần:</span> {meal.portion}</p>}<p>{meal.note || 'Không có ghi chú'}</p><MealAnalysisCard mealId={meal.id} analysis={meal.analysis} onChange={(analysis) => setAnalysis(meal.id, analysis)} /></div>}</div>)}{records.length > 0 && <Pagination page={currentMealPage} totalItems={records.length} onPageChange={setMealPage} className='rounded-2xl border border-border bg-card' />}{records.length === 0 && <div className='rounded-2xl border border-border bg-card p-10 text-center text-sm text-muted-foreground'>Chưa có bữa ăn nào được ghi nhận.</div>}</div>}</div>
     </div>
   )
 }

@@ -221,6 +221,48 @@ def _build_trends(metrics: dict, role: str) -> list[str]:
     return trends
 
 
+_CARB_LOAD_LABELS = {"low": "carb thấp", "medium": "carb vừa", "high": "carb cao", "unknown": "chưa rõ carb"}
+# A group is worth a doctor's line when post-meal glucose is usually high.
+_MEAL_RESPONSE_FLAG_PCT = 50.0
+_MEAL_RESPONSE_MAX_FOODS = 3
+
+
+def _build_meal_response_lines(meal_response: dict | None, role: str) -> list[str]:
+    """Doctor only (Epic 1.4): foods / carb bands that go with post-meal
+    glucose above target in most of their meals, from meal_tools'
+    already-thresholded groups (>= min_n meals each). Association wording
+    only — "thường đi kèm", never cause."""
+    if role != "doctor" or not meal_response:
+        return []
+    target = meal_response.get("post_prandial_target_mg_dl")
+    days = meal_response.get("days")
+    flagged_foods = [g for g in meal_response.get("by_food") or [] if g["pct_over_target"] >= _MEAL_RESPONSE_FLAG_PCT]
+    flagged_loads = [
+        g for g in meal_response.get("by_carb_load") or [] if g["pct_over_target"] >= _MEAL_RESPONSE_FLAG_PCT
+    ]
+    if not flagged_foods and not flagged_loads:
+        return []
+    lines = []
+    if flagged_foods:
+        parts = [
+            f"{g['name']} ({g['n']} bữa, ĐH sau ăn TB {g['avg_post_mg_dl']} mg/dL, "
+            f"{g['pct_over_target']}% bữa > {target} mg/dL)"
+            for g in flagged_foods[:_MEAL_RESPONSE_MAX_FOODS]
+        ]
+        lines.append(
+            f"Bữa ăn liên quan tăng đường huyết ({days} ngày): thường đi kèm ĐH sau ăn vượt mục tiêu — "
+            + "; ".join(parts)
+            + ". Là liên quan thống kê, không phải nguyên nhân."
+        )
+    for g in flagged_loads:
+        label = _CARB_LOAD_LABELS.get(g["carb_load"], g["carb_load"])
+        lines.append(
+            f"Bữa {label}: {g['n']} bữa, ĐH sau ăn TB {g['avg_post_mg_dl']} mg/dL, "
+            f"{g['pct_over_target']}% bữa > {target} mg/dL ({days} ngày)."
+        )
+    return lines
+
+
 def _build_attention_points(metrics: dict) -> list[str]:
     points: list[str] = []
     post = metrics.get("post_prandial") or {}
@@ -371,7 +413,10 @@ async def synthesize_summary(state: AgentState) -> dict:
             "data_used": data_used,
         }
 
-    trends = _build_trends(metrics, role)
+    meal_response = tool_results.get("meal_glucose_response")
+    trends = _build_trends(metrics, role) + _build_meal_response_lines(meal_response, role)
+    if role == "doctor" and meal_response and meal_response.get("meals_paired"):
+        data_used.append(f"meal_glucose_pairs (n={meal_response['meals_paired']})")
     attention_points = _build_attention_points(metrics) + medication_attention
     suggested_questions = _build_suggested_questions(attention_points, role)
     limitations = _build_limitations(completeness)

@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 from langchain_core.runnables import RunnableConfig
 
 from codebase.models.agents.state import AgentState
+from codebase.models.agents.tools.meal_tools import get_meal_glucose_response, is_meal_question
 from codebase.models.agents.tools.patient_tools import (
     get_assigned_doctor,
     get_health_records,
@@ -96,12 +97,15 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
     medications = get_medication_summary(session, patient_id, start, end)
     assigned_doctor = get_assigned_doctor(session, patient_id)
 
-    return {
-        "tool_results": {
-            "profile": profile,
-            "records": records,
-            "medications": medications,
-            "assigned_doctor": assigned_doctor,
-        },
-        "date_range": (start, end),
+    tool_results = {
+        "profile": profile,
+        "records": records,
+        "medications": medications,
+        "assigned_doctor": assigned_doctor,
     }
+    # Epic 1.4: meal <-> post-meal glucose groups over their own fixed 30-day
+    # window (too few pairs in 7 days). Always for SUMMARY; for QA only when
+    # the question is about food, so unrelated answers don't bring it up.
+    if intent == "SUMMARY" or is_meal_question(state.get("message")):
+        tool_results["meal_glucose_response"] = get_meal_glucose_response(session, patient_id)
+    return {"tool_results": tool_results, "date_range": (start, end)}

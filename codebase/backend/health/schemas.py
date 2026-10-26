@@ -4,7 +4,16 @@ from uuid import UUID
 from pydantic import ValidationInfo, field_validator
 from sqlmodel import Field, SQLModel
 
-from codebase.backend.health.models import DoctorWatchLabel, MealContext, MealInputSource, MealType, MeasurementSource
+from codebase.backend.health.models import (
+    CarbLoad,
+    DoctorWatchLabel,
+    MealAnalysis,
+    MealAnalysisStatus,
+    MealContext,
+    MealInputSource,
+    MealType,
+    MeasurementSource,
+)
 from codebase.backend.time_utils import UtcDatetime
 
 GLUCOSE_UNITS = ("mg/dL", "mmol/L")
@@ -120,6 +129,59 @@ class MealRecordCreate(SQLModel):
     input_source: MealInputSource = Field(default=MealInputSource.TEXT)
 
 
+class MealAnalysisItemPublic(SQLModel):
+    name: str
+    matched_food_id: str | None = None
+    matched_name: str | None = None
+    quantity: float | None = None
+    unit: str | None = None
+    grams: float | None = None
+    carbs_g: float | None = None
+    kcal: float | None = None
+    gi_level: str | None = None
+    match_confidence: float | None = None
+    # The unit isn't known for this food; the default serving was assumed.
+    portion_estimated: bool = False
+
+
+class MealAnalysisPublic(SQLModel):
+    """Estimate from the nutrition table (Epic 1.3). With `has_unmatched`
+    the totals cover only the matched items, so they are lower bounds."""
+
+    id: UUID
+    meal_id: UUID
+    items: list[MealAnalysisItemPublic]
+    total_carbs_g: float | None
+    total_kcal: float | None
+    carb_load: CarbLoad
+    has_unmatched: bool
+    source: MealInputSource
+    status: MealAnalysisStatus
+    model_version: str | None
+    nutrition_db_version: str | None
+    updated_at: UtcDatetime
+
+    @classmethod
+    def from_row(cls, row: MealAnalysis) -> "MealAnalysisPublic":
+        return cls(
+            **row.model_dump(exclude={"items", "patient_id", "created_at"}),
+            items=[MealAnalysisItemPublic(**item) for item in row.items],
+            has_unmatched=any(item.get("carbs_g") is None for item in row.items),
+        )
+
+
+class MealItemEdit(SQLModel):
+    name: str = Field(min_length=1, max_length=100)
+    quantity: float | None = Field(default=None, gt=0, le=2000)
+    unit: str | None = Field(default=None, min_length=1, max_length=20)
+
+
+class MealAnalysisEdit(SQLModel):
+    """The patient's own item list; replaces the parsed one (status=edited)."""
+
+    items: list[MealItemEdit] = Field(min_length=1, max_length=10)
+
+
 class MealRecordPublic(SQLModel):
     id: UUID
     patient_id: UUID
@@ -131,6 +193,41 @@ class MealRecordPublic(SQLModel):
     input_source: MealInputSource | None = None
     created_by: UUID
     created_at: UtcDatetime
+    # Filled in the background after the meal is saved; None until then.
+    analysis: MealAnalysisPublic | None = None
+
+
+class MealFoodResponsePublic(SQLModel):
+    food_id: str
+    name: str
+    n: int
+    avg_post_mg_dl: float
+    avg_delta_mg_dl: float | None
+    n_with_delta: int
+    pct_over_target: float
+
+
+class MealCarbLoadResponsePublic(SQLModel):
+    carb_load: CarbLoad
+    n: int
+    avg_post_mg_dl: float
+    avg_delta_mg_dl: float | None
+    n_with_delta: int
+    pct_over_target: float
+
+
+class MealGlucoseResponsePublic(SQLModel):
+    """Association between meals and post-meal glucose — not cause. Groups
+    with fewer than `min_n` paired meals are left out."""
+
+    start: UtcDatetime
+    end: UtcDatetime
+    days: int
+    meals_paired: int
+    min_n: int
+    post_prandial_target_mg_dl: float
+    by_food: list[MealFoodResponsePublic]
+    by_carb_load: list[MealCarbLoadResponsePublic]
 
 
 class MealPhotoItemPublic(SQLModel):

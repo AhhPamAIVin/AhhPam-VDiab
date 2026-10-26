@@ -19,6 +19,14 @@ from codebase.models.agents.nodes.check_data_quality import check_data_quality
 from codebase.models.agents.nodes.classify_intent import classify_intent
 from codebase.models.agents.nodes.fetch_data import fetch_data
 from codebase.models.agents.nodes.guardrail import guardrail_check
+from codebase.models.agents.nodes.meal.analysis import (
+    MealAnalysisState,
+    aggregate_node,
+    entry_step,
+    lookup_nutrition_node,
+    parse_meal_items_node,
+    persist_analysis_node,
+)
 from codebase.models.agents.nodes.plan_response import plan_response
 from codebase.models.agents.nodes.reflect import reflect_node
 from codebase.models.agents.nodes.resolve_context import resolve_context
@@ -170,5 +178,30 @@ def build_reflect_graph() -> StateGraph:
     graph.set_entry_point("reflect")
     graph.add_edge("reflect", "upsert_insight")
     graph.add_edge("upsert_insight", END)
+
+    return graph.compile()
+
+
+def build_meal_analysis_graph() -> StateGraph:
+    """Meal analysis graph (Epic 1.3): parse_meal_items -> lookup_nutrition
+    -> aggregate -> persist_analysis, one MealRecord per run. Like
+    build_reflect_graph(), no checkpointer: each run is one-shot. A patient
+    edit enters at lookup_nutrition with its own items (entry_step), so a
+    correction never goes back through the model. The DB session comes from
+    config["configurable"]["session"], as in the respond graph."""
+    graph = StateGraph(MealAnalysisState)
+
+    graph.add_node("parse_meal_items", timed_node("parse_meal_items", parse_meal_items_node))
+    graph.add_node("lookup_nutrition", timed_node("lookup_nutrition", lookup_nutrition_node))
+    graph.add_node("aggregate", timed_node("aggregate", aggregate_node))
+    graph.add_node("persist_analysis", timed_node("persist_analysis", persist_analysis_node))
+
+    graph.set_conditional_entry_point(
+        entry_step, {"parse_meal_items": "parse_meal_items", "lookup_nutrition": "lookup_nutrition"}
+    )
+    graph.add_edge("parse_meal_items", "lookup_nutrition")
+    graph.add_edge("lookup_nutrition", "aggregate")
+    graph.add_edge("aggregate", "persist_analysis")
+    graph.add_edge("persist_analysis", END)
 
     return graph.compile()

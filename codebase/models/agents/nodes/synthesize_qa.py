@@ -212,6 +212,11 @@ def _format_chunks_block(chunks: list[RetrievedChunk]) -> str:
 _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
     ("profile", "Hồ sơ bệnh nhân"),
     ("records", "Bản ghi sức khỏe (đường huyết / huyết áp / bữa ăn / vận động)"),
+    (
+        "meal_glucose_response",
+        "Món ăn / mức carb thường đi kèm đường huyết sau ăn cao (30 ngày, chỉ nhóm có từ 3 bữa trở lên; "
+        "là liên quan thống kê, KHÔNG phải nguyên nhân — chỉ nói \"thường đi kèm\", không nói \"gây ra\")",
+    ),
     ("medications", "Thuốc đang dùng"),
     ("assigned_doctor", "Bác sĩ điều trị được phân công"),
     # Last on purpose, same recency reasoning as assigned_doctor above — this

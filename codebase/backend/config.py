@@ -44,6 +44,19 @@ class Settings(BaseSettings):
     # stores it. false turns the feature off for everyone.
     meal_photo_analysis_enabled: bool = True
     meal_photo_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1)
+    # Meal carb_load bands per meal (Epic 1.3): < low_max -> low,
+    # >= high_min -> high, between -> medium. Default after the ~45-60 g/meal
+    # range of ADA carb-counting education; pending the clinical team's
+    # sign-off — see codebase/models/agents/nodes/meal/analysis.py.
+    meal_carb_low_max_g: float = Field(default=30.0, gt=0)
+    meal_carb_high_min_g: float = Field(default=60.0, gt=0)
+    # Meal <-> post-meal glucose pairing (Epic 1.4, health/meal_response.py):
+    # an AFTER_MEAL reading 60-180 min after the meal, a BEFORE_MEAL/FASTING
+    # one up to 60 min before; a food/carb band is shown only from min_n meals.
+    meal_response_after_min_minutes: int = Field(default=60, ge=0)
+    meal_response_after_max_minutes: int = Field(default=180, ge=1)
+    meal_response_before_max_minutes: int = Field(default=60, ge=0)
+    meal_response_min_n: int = Field(default=3, ge=1)
 
     # Database
     db_host: str = "localhost"

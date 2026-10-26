@@ -80,3 +80,16 @@ def _no_background_summary_refresh(monkeypatch):
 
     monkeypatch.setattr("codebase.backend.health.router.refresh_patient_summaries", _noop)
     monkeypatch.setattr("codebase.backend.agent.router.refresh_patient_summaries", _noop)
+
+
+@pytest.fixture(autouse=True)
+def _no_background_meal_analysis(monkeypatch):
+    """Same reason as above for the meal analysis BackgroundTask (Epic 1.3):
+    analyze_meal_in_background opens Session(engine) on the real database.
+    Tests run the analysis through health.meal_analysis.analyze_meal on the
+    test session instead."""
+
+    async def _noop(meal_id) -> None:
+        return None
+
+    monkeypatch.setattr("codebase.backend.health.meal_analysis.analyze_meal_in_background", _noop)

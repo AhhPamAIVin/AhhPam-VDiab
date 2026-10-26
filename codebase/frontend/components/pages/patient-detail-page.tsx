@@ -34,6 +34,7 @@ import {
 import { cn, parseUtcTimestamp } from "@/lib/utils";
 import { ClinicalNotesPanel } from "@/components/clinical-notes-panel";
 import { PatientInsightsPanel } from "@/components/patient-insights-panel";
+import { PatientMealsPanel } from "@/components/patient-meals-panel";
 import { AgentSummaryCard } from "@/components/agent-summary-card";
 import { Pagination } from "@/components/ui/pagination";
 import { ChatAnswerCards } from "@/components/chat-answer-cards";
@@ -57,6 +58,7 @@ import {
   type ChatMessage,
   type ClinicalNote,
   type GlucoseRecord,
+  type MealGlucoseResponse,
   type MedicationNote,
   type MedicationRecord,
 } from "@/lib/api";
@@ -65,6 +67,7 @@ type Tab =
   | "overview"
   | "glucose"
   | "medication"
+  | "meals"
   | "appointments"
   | "ai"
   | "insights"
@@ -213,6 +216,22 @@ export function PatientDetailPage({
   const [clinicalNotes, setClinicalNotes] = useState<ClinicalNote[]>([]);
   const [medicationList, setMedicationList] = useState<Medication[]>([]);
   const [medicationNotes, setMedicationNotes] = useState<MedicationNote[]>([]);
+  // Meal <-> post-meal glucose groups (Epic 1.4), for the printed report.
+  const [mealResponse, setMealResponse] = useState<MealGlucoseResponse | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .mealGlucoseResponse(patientId)
+      .then((result) => {
+        if (!cancelled) setMealResponse(result);
+      })
+      .catch(() => {
+        if (!cancelled) setMealResponse(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
   const [medicationSaving, setMedicationSaving] = useState(false);
   const [medicationError, setMedicationError] = useState<string | null>(null);
   const [isMedicationManagerOpen, setIsMedicationManagerOpen] = useState(false);
@@ -679,6 +698,11 @@ export function PatientDetailPage({
       icon: <Pill className="w-3.5 h-3.5" />,
     },
     {
+      id: "meals",
+      label: "Bữa ăn",
+      icon: <UtensilsCrossed className="w-3.5 h-3.5" />,
+    },
+    {
       id: "appointments",
       label: "Lịch khám",
       icon: <Calendar className="w-3.5 h-3.5" />,
@@ -795,6 +819,9 @@ export function PatientDetailPage({
     const medicationRows = medicationList.length
       ? medicationList.map((item) => `<tr><td><strong>${escapeReportText(item.name)}</strong></td><td>${escapeReportText(item.dose)}</td><td>${escapeReportText(item.frequency)}</td><td>${escapeReportText(item.status === "active" ? "Đang dùng" : "Đã ngừng")}</td><td>${escapeReportText(item.instruction || "—")}</td></tr>`).join("")
       : '<tr><td colspan="5" class="empty">Chưa có thông tin thuốc.</td></tr>';
+    const mealResponseRows = mealResponse && mealResponse.by_food.length
+      ? mealResponse.by_food.map((group) => `<tr><td><strong>${escapeReportText(group.name)}</strong></td><td>${escapeReportText(group.n)}</td><td>${escapeReportText(Math.round(group.avg_post_mg_dl))} mg/dL</td><td>${group.avg_delta_mg_dl === null ? "—" : `${escapeReportText(Math.round(group.avg_delta_mg_dl))} mg/dL`}</td><td>${escapeReportText(Math.round(group.pct_over_target))}%</td></tr>`).join("")
+      : `<tr><td colspan="5" class="empty">Chưa đủ dữ liệu (cần từ ${escapeReportText(mealResponse?.min_n ?? 3)} bữa có đo đường huyết sau ăn cho mỗi món).</td></tr>`;
     const appointmentRows = appointmentList.length
       ? appointmentList.map((item) => `<tr><td>${escapeReportText(new Date(item.scheduled_at).toLocaleString("vi-VN"))}</td><td>${escapeReportText(item.reason || "Tái khám")}</td><td>${escapeReportText(item.status === "scheduled" ? "Đã lên lịch" : item.status === "completed" ? "Đã hoàn thành" : "Đã hủy")}</td><td>${escapeReportText(item.notes || "—")}</td></tr>`).join("")
       : '<tr><td colspan="4" class="empty">Chưa có lịch khám.</td></tr>';
@@ -805,6 +832,7 @@ export function PatientDetailPage({
     <section class="patient"><h1>${escapeReportText(patient.name)}</h1><div>${escapeReportText(patient.age > 0 ? `${patient.age} tuổi` : "Chưa rõ tuổi")} · ${escapeReportText(patient.gender)} · ${escapeReportText(patient.disease)}</div></section>
     <div class="metrics"><div class="metric"><span>Đường huyết gần nhất</span><strong>${latestGlucoseRecord ? `${escapeReportText(latestGlucoseRecord.value)} mg/dL` : "Chưa có"}</strong></div><div class="metric"><span>Trung bình</span><strong>${glucoseValues.length ? `${glucoseAverage} mg/dL` : "Chưa có"}</strong></div><div class="metric"><span>Trong mục tiêu</span><strong>${glucoseValues.length ? `${glucoseTargetPercent}%` : "Chưa có"}</strong></div><div class="metric"><span>Huyết áp gần nhất</span><strong>${latestBloodPressureRecord ? `${escapeReportText(latestBloodPressureRecord.systolic)}/${escapeReportText(latestBloodPressureRecord.diastolic)}` : "Chưa có"}</strong></div></div>
     <h2>Lịch sử đường huyết (${escapeReportText(rangeLabel)})</h2><table><thead><tr><th>Thời gian</th><th>Chỉ số</th><th>Trạng thái</th><th>Thời điểm đo</th><th>Ghi chú</th></tr></thead><tbody>${glucoseRows}</tbody></table>
+    <h2>Bữa ăn liên quan tăng đường huyết (${escapeReportText(mealResponse?.days ?? 30)} ngày)</h2><table><thead><tr><th>Món</th><th>Số bữa</th><th>ĐH sau ăn TB</th><th>Tăng so với trước ăn</th><th>% bữa &gt; ${escapeReportText(mealResponse?.post_prandial_target_mg_dl ?? 180)} mg/dL</th></tr></thead><tbody>${mealResponseRows}</tbody></table><p class="muted">Liên quan thống kê từ nhật ký tự ghi, không phải nguyên nhân. Carb ước tính từ bảng tra.</p>
     <h2>Phác đồ thuốc</h2><table><thead><tr><th>Thuốc</th><th>Liều dùng</th><th>Tần suất</th><th>Trạng thái</th><th>Hướng dẫn</th></tr></thead><tbody>${medicationRows}</tbody></table>
     <h2>Lịch khám</h2><table><thead><tr><th>Thời gian</th><th>Lý do</th><th>Trạng thái</th><th>Ghi chú</th></tr></thead><tbody>${appointmentRows}</tbody></table>
     <p class="footer">Báo cáo được tạo từ dữ liệu đang có trong hệ thống VDiab và chỉ dùng để hỗ trợ theo dõi. Cần đối chiếu hồ sơ lâm sàng trước khi đưa ra quyết định điều trị.</p><div class="actions"><button onclick="window.print()">In / Lưu PDF</button></div></body></html>`);
@@ -2062,6 +2090,8 @@ export function PatientDetailPage({
       )}
 
       {/* Tab: Notes */}
+      {activeTab === "meals" && <PatientMealsPanel patientId={patientId} />}
+
       {activeTab === "insights" && <PatientInsightsPanel patientId={patientId} />}
 
       {activeTab === "notes" && <ClinicalNotesPanel patientId={patientId} />}

@@ -645,7 +645,9 @@ async def test_fetch_data_populates_all_tool_results_from_real_db(session: Sessi
     result = await fetch_data(_state(intent="SUMMARY", patient_id=patient.id), {"configurable": {"session": session}})
 
     tool_results = result["tool_results"]
-    assert set(tool_results.keys()) == {"profile", "records", "medications", "assigned_doctor"}
+    # SUMMARY always carries the meal <-> glucose groups (Epic 1.4).
+    assert set(tool_results.keys()) == {"profile", "records", "medications", "assigned_doctor", "meal_glucose_response"}
+    assert tool_results["meal_glucose_response"]["by_food"] == []
     assert tool_results["profile"]["found"] is True
     assert tool_results["profile"]["patient_id"] == str(patient.id)
     assert tool_results["assigned_doctor"] == {

@@ -1,6 +1,6 @@
 # Epic 1 — Meal Intelligence: agent phân tích bữa ăn
 
-**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Đang làm — 1.1 và 1.6 xong (ảnh không được lưu)
+**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Gần xong — 1.1–1.6, 1.8 xong; 1.7 và 1.9 hoãn sang 2026-10-29
 
 ## Mục tiêu
 
@@ -56,17 +56,30 @@ dạng app giảm cân, tích hợp CGM.
   cột mới. *Test: `tests/test_backend/test_meal_photo.py::test_old_database_gains_new_meal_columns`.*
 
 ### 1.2 Bảng tra dinh dưỡng món Việt
-- [ ] `data/nutrition/vn_foods.csv`: `food_id, name_vi, aliases, default_unit, grams_per_unit,
+- [x] `data/nutrition/vn_foods.csv`: `food_id, name_vi, aliases, default_unit, grams_per_unit,
       carbs_per_100g, kcal_per_100g, gi_level, source, source_page`. Nguồn chính: *Bảng thành phần thực
       phẩm Việt Nam* (Viện Dinh dưỡng Quốc gia); món chế biến (phở, cơm tấm, bánh mì, bún bò…) ghi rõ
       nguồn/công thức ước tính. Mục tiêu bản đầu: **150–300 món/thực phẩm phổ biến**.
-- [ ] `codebase/models/agents/tools/nutrition_tools.py`: load CSV một lần/process, `lookup_food(name)`
+      *Đặt ở `codebase/models/agents/tools/nutrition_data/vn_foods.csv` (không phải `data/`): `.dockerignore`
+      loại `data/` và volume `/app/data` sẽ che file trong image. **214 món/thực phẩm**, thêm cột `gi_source`.
+      **Trung thực về nguồn:** mức GI có nguồn (`VADE` = bảng GI của VADE trong kho tri thức, `BYT-5481` =
+      phân loại trái cây định tính); **toàn bộ carb/kcal là ước tính (`source=ESTIMATE`) chưa đối chiếu Bảng
+      TPTP VN** — `NUTRITION_DB_VERSION = vn_foods-2026.10-unverified`, lưu kèm mỗi phân tích, UI ghi "ước tính".
+      Việc đối chiếu số liệu với Bảng TPTP VN nằm trong task ngày 29/10 (1.9).*
+- [x] `codebase/models/agents/tools/nutrition_tools.py`: load CSV một lần/process, `lookup_food(name)`
       dùng chuẩn hóa bỏ dấu + fuzzy match; trả `match_confidence`; không match → `None` (không đoán).
-- [ ] Bảng quy đổi đơn vị dân gian: bát, chén, đĩa, tô, cái, ổ, ly, cốc, muỗng → gram theo từng món.
+      *Thứ tự: khớp đúng (1.0) → khớp không dấu chỉ khi người dùng gõ không dấu (0.95; gõ "bò" có dấu không
+      bao giờ rơi thành "bơ") → tên món nằm trong câu, tên một từ chỉ tính khi là từ đầu ("nước mắm" không
+      thành "nước") (0.8) → fuzzy ≥ 0.85. Tên trùng giữa hai món làm load lỗi ngay.*
+- [x] Bảng quy đổi đơn vị dân gian: bát, chén, đĩa, tô, cái, ổ, ly, cốc, muỗng → gram theo từng món.
+      *`vn_food_units.csv` theo từng món + đồng nghĩa (chén=bát, cốc=ly, thìa=muỗng, trái=quả, chiếc=cái,
+      suất=phần) + đơn vị khối lượng (g, kg, lạng, ml, lít). Đơn vị lạ với món đó → dùng khẩu phần mặc định
+      và đánh dấu `portion_estimated`.*
 - **AC:** test lookup cho ≥30 món mẫu (có/không dấu, viết tắt); món không có trong bảng trả `None`.
+  *`tests/test_models/test_nutrition_tools.py` (38 món có dấu, 7 không dấu, 3 viết tắt, 9 trường hợp `None`).*
 
 ### 1.3 Meal analysis graph
-- [ ] Graph riêng `build_meal_analysis_graph()` (cùng kiểu `build_reflect_graph()` trong
+- [x] Graph riêng `build_meal_analysis_graph()` (cùng kiểu `build_reflect_graph()` trong
       `codebase/models/agents/graph.py`, không checkpointer), các node trong
       `codebase/models/agents/nodes/meal/`:
   1. `parse_meal_items` — LLM structured output: tách `description` + `portion` thành
@@ -74,30 +87,51 @@ dạng app giảm cân, tích hợp CGM.
   2. `lookup_nutrition` — deterministic, gọi `nutrition_tools`.
   3. `aggregate` — tính tổng, `carb_load` theo ngưỡng cấu hình (đặt trong config, có nguồn trích).
   4. `persist_analysis` — ghi `meal_analyses` với `status=draft`.
-- [ ] Trigger: chạy nền sau `POST /health/meals` (FastAPI `BackgroundTasks`) và sau `apply_action`
+  *`parse_meal_items` tách bằng luật trước (`nodes/meal/parsing.py`); chỉ gọi LLM khi còn tên món bảng tra
+  không biết; LLM lỗi → giữ kết quả luật. `carb_load`: < 30 g thấp, 30–<60 vừa, ≥ 60 cao
+  (`MEAL_CARB_LOW_MAX_G`/`MEAL_CARB_HIGH_MIN_G`, theo khoảng 45–60 g/bữa trong giáo dục đếm carb của ADA —
+  **chờ bác sĩ duyệt**); có món không tra được → `unknown`, trừ khi phần đã biết đã ≥ ngưỡng cao.*
+- [x] Trigger: chạy nền sau `POST /health/meals` (FastAPI `BackgroundTasks`) và sau `apply_action`
       tạo bữa ăn trong `record_actions.py`; lỗi LLM không làm hỏng việc lưu bữa ăn.
-- [ ] Endpoint: `GET /health/meals/{id}/analysis`, `POST /health/meals/{id}/analysis/rerun`,
+      *Trigger chat nằm ở `agent/router.py::handle_record_action` (cùng chỗ refresh summary).*
+- [x] Endpoint: `GET /health/meals/{id}/analysis`, `POST /health/meals/{id}/analysis/rerun`,
       `PATCH /health/meals/{id}/analysis` (bệnh nhân sửa món/khẩu phần → `status=edited`, tính lại).
+      *Thêm `POST .../analysis/confirm` và `analysis` đi kèm mỗi bữa trong `GET /health/meals`. PATCH không gọi
+      LLM; rerun dùng chung rate limit `/agent/*`.*
 - **AC:** "1 bát phở bò, 1 ly trà đá" → 2 item, phở có carb từ bảng tra, trà đá ~0; món lạ →
   item có `carbs_g=null`, `carb_load` không bị tính sai; test với `mock_llm`.
+  *`tests/test_backend/test_meal_analysis.py` (20 case, kể cả LLM bịa số dinh dưỡng bị bỏ qua).*
 
 ### 1.4 Tương quan bữa ăn ↔ đường huyết
-- [ ] `codebase/backend/health/meal_response.py`: ghép mỗi bữa với glucose `AFTER_MEAL` trong cửa sổ
+- [x] `codebase/backend/health/meal_response.py`: ghép mỗi bữa với glucose `AFTER_MEAL` trong cửa sổ
       60–180 phút (cấu hình được) và glucose trước ăn gần nhất (≤60 phút trước, nếu có) → `delta`.
-- [ ] Gộp theo món (`matched_food_id`) và theo `carb_load`: số lần, glucose sau ăn trung bình, % vượt
+      *Nhiều lần đo sau ăn → lấy lần gần mốc 2 giờ nhất; "trước ăn" = `BEFORE_MEAL` hoặc `FASTING`.*
+- [x] Gộp theo món (`matched_food_id`) và theo `carb_load`: số lần, glucose sau ăn trung bình, % vượt
       180 mg/dL (`POST_PRANDIAL_TARGET_MG_DL` trong `metrics_tools.py`). **Chỉ hiển thị khi n ≥ 3.**
-- [ ] Tool agent `get_meal_glucose_response(patient_id, days)`; thêm vào `fetch_data` cho intent liên
+      *`GET /health/meals/glucose-response?days=30` (7–90).*
+- [x] Tool agent `get_meal_glucose_response(patient_id, days)`; thêm vào `fetch_data` cho intent liên
       quan dinh dưỡng và vào `synthesize_summary` (nhánh bác sĩ: mục "Bữa ăn liên quan tăng đường huyết").
-- [ ] Ngôn ngữ mô tả tương quan, không khẳng định nhân quả ("thường đi kèm", không phải "gây ra").
+      *`tools/meal_tools.py`; QA chỉ nhận khối này khi câu hỏi có từ khóa ăn uống (luật tất định), SUMMARY
+      luôn nhận. Mỗi bữa trong `records` có thêm `carb_estimate` để agent trả lời "bữa trưa bao nhiêu carb".*
+- [x] Ngôn ngữ mô tả tương quan, không khẳng định nhân quả ("thường đi kèm", không phải "gây ra").
 - **AC:** dữ liệu seed có pattern rõ → món đó xuất hiện top; n < 3 không hiển thị; guardrail chặn câu
   khẳng định nhân quả/khuyên bỏ thuốc.
+  *`tests/test_backend/test_meal_response.py` (18 case); guardrail ở 1.8.*
 
 ### 1.5 Giao diện
-- [ ] Bệnh nhân (`meals-page.tsx`): card phân tích dưới mỗi bữa — danh sách món, tổng carb, badge
+- [x] Bệnh nhân (`meals-page.tsx`): card phân tích dưới mỗi bữa — danh sách món, tổng carb, badge
       carb_load/GI, mức tin cậy, nút "Sửa" và "Xác nhận"; nhãn rõ "ước tính, không thay thế chuyên gia dinh dưỡng".
-- [ ] Bệnh nhân: mục "Món ảnh hưởng đường huyết của bạn" (từ 1.4).
-- [ ] Bác sĩ (`patient-detail-page.tsx`): tab/section bữa ăn + bảng tương quan; đưa vào bản in báo cáo.
+      *`components/meal-analysis-card.tsx` (thêm "Phân tích lại"). Mức tin cậy hiện dạng chữ: "bạn ghi: …" khi
+      tên được chuẩn hóa, "khẩu phần theo mặc định", "chưa có trong bảng tra". **Bệnh nhân chỉ thấy carb, không
+      thấy kcal** (tránh ăn kiêng cực đoan — xem câu hỏi mở); bác sĩ thấy cả kcal.*
+- [x] Bệnh nhân: mục "Món ảnh hưởng đường huyết của bạn" (từ 1.4).
+      *`components/meal-glucose-response.tsx`, dùng chung với bác sĩ.*
+- [x] Bác sĩ (`patient-detail-page.tsx`): tab/section bữa ăn + bảng tương quan; đưa vào bản in báo cáo.
+      *Tab "Bữa ăn" (`components/patient-meals-panel.tsx`) + mục "Bữa ăn liên quan tăng đường huyết" trong
+      báo cáo in.*
 - **AC:** không dùng chỉ màu để biểu thị mức (PRD NFR); hiển thị tốt ở 360px.
+  *Mỗi mức carb có chữ + icon riêng; layout `flex-wrap`, không bảng ngang trên mobile. **Chưa kiểm trên
+  trình duyệt thật** — typecheck/ESLint sạch.*
 
 ### 1.6 Nhận diện món từ ảnh (làm cùng 1.1 — ảnh không được lưu)
 - [x] Node `recognize_from_photo` dùng vision model (`gpt-4o-mini` hỗ trợ ảnh) → danh sách món ứng viên
@@ -116,24 +150,35 @@ dạng app giảm cân, tích hợp CGM.
 - **AC:** ảnh không phải đồ ăn → trả "không nhận diện được", không tạo item.
   *Test: `tests/test_backend/test_meal_photo.py`, `tests/test_models/test_meal_photo_recognition.py`.*
 
-### 1.7 Ghi bữa ăn bằng giọng nói
+### 1.7 Ghi bữa ăn bằng giọng nói — **hoãn, lịch 2026-10-29**
 - [ ] Nối STT (`codebase/stt-service`) → text → parser bữa ăn trong `record_actions.py` → confirm →
       trigger 1.3. Chủ yếu là việc frontend + kiểm tra parser với văn nói.
+      *Đã sẵn: bữa ăn xác nhận từ chat đã kích hoạt phân tích (1.3); `MealInputSource.VOICE` đã có.*
 - **AC:** "trưa nay tôi ăn một đĩa cơm tấm sườn" tạo draft bữa trưa đúng giờ, có phân tích.
 
 ### 1.8 An toàn
-- [ ] Bổ sung pattern vào `guardrail.py`: chặn gợi ý liều insulin/thuốc theo lượng carb, chặn "bỏ bữa
+- [x] Bổ sung pattern vào `guardrail.py`: chặn gợi ý liều insulin/thuốc theo lượng carb, chặn "bỏ bữa
       để hạ đường", chặn chẩn đoán từ bữa ăn.
-- [ ] Prompt của `parse_meal_items` không nhận chỉ dẫn từ nội dung bữa ăn (đã có case SEC-004
+      *Kiểm theo từng câu, câu có phủ định ("không nên bỏ bữa…", "đừng tự ý ngừng thuốc") được cho qua.
+      Lỗi mới: `carb_based_dose_advice`, `meal_skipping_advice`, `medication_stop_advice`; khẳng định nhân quả
+      cá nhân ("phở là nguyên nhân làm đường huyết của bạn tăng") vào `causal_overreach`; thêm 7 cụm chẩn đoán
+      (kháng insulin, tiền đái tháo đường…).*
+- [x] Prompt của `parse_meal_items` không nhận chỉ dẫn từ nội dung bữa ăn (đã có case SEC-004
       indirect injection qua ghi chú bữa ăn trong `data/testset/`).
+      *Prompt coi nội dung bữa ăn là dữ liệu; và dù model làm theo, mọi số dinh dưỡng đều từ bảng tra (test
+      `test_llm_nutrition_numbers_are_ignored`).*
 - **AC:** thêm ≥8 case vào eval guardrail; 100% bị chặn.
+  *`eval/data/guardrail_meal_cases.json`: 10 case phải chặn + 6 case an toàn đối chứng, dùng chung cho
+  `tests/test_backend/test_meal_guardrails.py` (16/16) và `eval/respond_agent/guardrail_judge.py`.*
 
-### 1.9 Eval
+### 1.9 Eval — **hoãn, lịch 2026-10-29**
 - [ ] `eval/meal_analysis/`: golden ≥50 mô tả bữa ăn tiếng Việt (có viết tắt, không dấu, nhiều món) với
       carb kỳ vọng. Metric: độ chính xác tách món, **MAE carb** (mục tiêu đề xuất ≤15 g/bữa — chốt lại
       với bác sĩ), tỷ lệ "không match" đúng.
 - [ ] Target `make eval-meal-analysis` trong `Makefile`.
-- [ ] **Lịch: 2026-10-29** — eval nhận diện món từ ảnh (`recognize_from_photo`, 1.6): bộ ảnh món Việt
+- [ ] Đối chiếu carb/kcal trong `vn_foods.csv` với *Bảng thành phần thực phẩm Việt Nam* (Viện Dinh dưỡng),
+      điền `source`/`source_page`, bỏ hậu tố `-unverified` khỏi `NUTRITION_DB_VERSION`.
+- [ ] Eval nhận diện món từ ảnh (`recognize_from_photo`, 1.6): bộ ảnh món Việt
       tự chụp/có giấy phép (không dùng ảnh bệnh nhân — hệ thống không lưu ảnh), nhãn
       `[{name, quantity, unit}]` kỳ vọng + vài ảnh không phải đồ ăn. Metric: precision/recall tên món,
       tỷ lệ khẩu phần đúng đơn vị, tỷ lệ ảnh không phải đồ ăn bị trả `is_food=false`, latency p50/p95 qua proxy.
@@ -146,5 +191,7 @@ dạng app giảm cân, tích hợp CGM.
 
 ## Câu hỏi mở
 - Ngưỡng `carb_load` low/medium/high theo nguồn nào (VADE/ADA)? — cần bác sĩ duyệt.
+  *Tạm dùng < 30 / 30–<60 / ≥ 60 g mỗi bữa (theo khoảng 45–60 g/bữa của ADA), chỉnh bằng config.*
 - Có cho bệnh nhân thấy số kcal không, hay chỉ carb? (tránh hành vi ăn kiêng cực đoan ở người già)
+  *Tạm thời: bệnh nhân chỉ thấy carb; kcal vẫn lưu và bác sĩ thấy.*
 - ~~Lưu ảnh bao lâu?~~ — không lưu ảnh (quyết định 2026-10-27, xem 1.1).

@@ -70,6 +70,7 @@ from codebase.backend.agent.schemas import (
 from codebase.backend.auth.dependencies import require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.db import get_session
+from codebase.backend.health import meal_analysis
 from codebase.backend.patients.access import ensure_patient_access
 from codebase.backend.summaries.service import ensure_snapshot, refresh_patient_summaries
 from codebase.models.agents.checkpoint import checkpointer
@@ -434,6 +435,8 @@ def handle_record_action(
         record_type = interaction.draft.get("record_type")
         if record_type in {"glucose", "blood_pressure", "meal", "activity"}:
             background_tasks.add_task(refresh_patient_summaries, patient_id=current_user.id)
+        if record_type == "meal" and interaction.saved_record_id is not None:
+            background_tasks.add_task(meal_analysis.analyze_meal_in_background, meal_id=interaction.saved_record_id)
     return AgentRecordActionResponse(response=response, interaction=interaction)
 
 

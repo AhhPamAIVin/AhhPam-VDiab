@@ -103,7 +103,66 @@ export interface MealRecord {
   input_source: MealInputSource | null;
   created_by: string;
   created_at: string;
+  // Filled in by a background job after saving; null until it has run.
+  analysis: MealAnalysis | null;
 }
+
+export type CarbLoad = "low" | "medium" | "high" | "unknown";
+export type MealAnalysisStatus = "draft" | "confirmed" | "edited";
+
+export interface MealAnalysisItem {
+  name: string;
+  matched_food_id: string | null;
+  matched_name: string | null;
+  quantity: number | null;
+  unit: string | null;
+  grams: number | null;
+  carbs_g: number | null;
+  kcal: number | null;
+  gi_level: "low" | "medium" | "high" | null;
+  match_confidence: number | null;
+  portion_estimated: boolean;
+}
+
+// Estimate from the nutrition table. With has_unmatched the totals cover
+// only the matched items (a lower bound).
+export interface MealAnalysis {
+  id: string;
+  meal_id: string;
+  items: MealAnalysisItem[];
+  total_carbs_g: number | null;
+  total_kcal: number | null;
+  carb_load: CarbLoad;
+  has_unmatched: boolean;
+  source: MealInputSource;
+  status: MealAnalysisStatus;
+  model_version: string | null;
+  nutrition_db_version: string | null;
+  updated_at: string;
+}
+
+export interface MealGroupResponse {
+  n: number;
+  avg_post_mg_dl: number;
+  avg_delta_mg_dl: number | null;
+  n_with_delta: number;
+  pct_over_target: number;
+}
+
+// Association between meals and post-meal glucose, not cause. Groups with
+// fewer than min_n paired meals are left out by the server.
+export interface MealGlucoseResponse {
+  start: string;
+  end: string;
+  days: number;
+  meals_paired: number;
+  min_n: number;
+  post_prandial_target_mg_dl: number;
+  by_food: (MealGroupResponse & { food_id: string; name: string })[];
+  by_carb_load: (MealGroupResponse & { carb_load: CarbLoad })[];
+}
+
+export type MealItemEdit = { name: string; quantity: number | null; unit: string | null };
 
 export type MealInputSource = "text" | "photo" | "voice";
 
@@ -651,6 +710,22 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  mealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis`),
+  rerunMealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis/rerun`, { method: "POST" }),
+  editMealAnalysis: (mealId: string, items: MealItemEdit[]) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis`, {
+      method: "PATCH",
+      body: JSON.stringify({ items }),
+    }),
+  confirmMealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis/confirm`, { method: "POST" }),
+  mealGlucoseResponse: (patientId?: string, days = 30) => {
+    const params = new URLSearchParams({ days: String(days) });
+    if (patientId) params.set("patient_id", patientId);
+    return apiRequest<MealGlucoseResponse>(`/health/meals/glucose-response?${params}`);
+  },
   analyzeMealPhoto: (file: File, hint?: string) => {
     const form = new FormData();
     form.append("file", file);

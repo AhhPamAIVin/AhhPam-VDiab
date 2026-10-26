@@ -18,6 +18,7 @@ from uuid import UUID
 from sqlmodel import Session
 
 from codebase.backend.auth.models import User
+from codebase.backend.health.meal_analysis import analyses_by_meal
 from codebase.backend.health.service import (
     list_activity_records,
     list_blood_pressure_records,
@@ -80,6 +81,27 @@ def _record_to_dict(record) -> dict:
     return record.model_dump()
 
 
+def _meals_with_analysis(session: Session, meals: list) -> list[dict]:
+    """Meal rows plus, once the background analysis has run (Epic 1.3), its
+    table-based estimate under "carb_estimate". The carbs of an unmatched
+    item stays None — the model must say "chưa ước tính được", not guess."""
+    analyses = analyses_by_meal(session, [m.id for m in meals])
+    rows = []
+    for meal in meals:
+        row = _record_to_dict(meal)
+        analysis = analyses.get(meal.id)
+        if analysis is not None:
+            row["carb_estimate"] = {
+                "total_carbs_g": analysis.total_carbs_g,
+                "carb_load": analysis.carb_load.value,
+                "has_unmatched_items": any(i.get("carbs_g") is None for i in analysis.items),
+                "items": [{"name": i.get("matched_name") or i.get("name"), "carbs_g": i.get("carbs_g")} for i in analysis.items],
+                "status": analysis.status.value,
+            }
+        rows.append(row)
+    return rows
+
+
 def get_health_records(session: Session, patient_id: UUID, start: datetime, end: datetime) -> dict:
     """Wrap codebase.backend.health.service.list_glucose_records /
     list_blood_pressure_records / list_meal_records / list_activity_records
@@ -106,7 +128,7 @@ def get_health_records(session: Session, patient_id: UUID, start: datetime, end:
     return {
         "glucose": [_record_to_dict(r) for r in glucose],
         "blood_pressure": [_record_to_dict(r) for r in blood_pressure],
-        "meals": [_record_to_dict(r) for r in meals],
+        "meals": _meals_with_analysis(session, meals),
         "activities": [_record_to_dict(r) for r in activities],
     }
 
