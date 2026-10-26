@@ -133,6 +133,11 @@ dạng app giảm cân, tích hợp CGM.
       carb kỳ vọng. Metric: độ chính xác tách món, **MAE carb** (mục tiêu đề xuất ≤15 g/bữa — chốt lại
       với bác sĩ), tỷ lệ "không match" đúng.
 - [ ] Target `make eval-meal-analysis` trong `Makefile`.
+- [ ] **Lịch: 2026-10-29** — eval nhận diện món từ ảnh (`recognize_from_photo`, 1.6): bộ ảnh món Việt
+      tự chụp/có giấy phép (không dùng ảnh bệnh nhân — hệ thống không lưu ảnh), nhãn
+      `[{name, quantity, unit}]` kỳ vọng + vài ảnh không phải đồ ăn. Metric: precision/recall tên món,
+      tỷ lệ khẩu phần đúng đơn vị, tỷ lệ ảnh không phải đồ ăn bị trả `is_food=false`, latency p50/p95 qua proxy.
+      Target `make eval-meal-photo`.
 
 ## Definition of Done
 - Toàn bộ task 1.1–1.5, 1.8, 1.9 xong; 1.7 có thể tách release sau (1.6 đã làm cùng 1.1).
