@@ -7,7 +7,8 @@ from unittest.mock import AsyncMock
 # before the app import below caches Settings.
 os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 os.environ["LANGFUSE_SECRET_KEY"] = ""
-os.environ["VECTOR_STORE"] = "chroma"
+# In-process Qdrant: no server needed, nothing written to a real collection.
+os.environ["QDRANT_LOCATION"] = ":memory:"
 
 import pytest
 import pytest_asyncio

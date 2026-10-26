@@ -1,16 +1,16 @@
 """Reflect-agent tests — EVAL-REFLECT-001/002 against the mock demo-patient
 fixture (data/mock/demo_patient/, design doc §7.5), plus the two isolation
 regression tests plan §C calls for (patient_id / source_kind partitioning
-of the Chroma similarity match).
+of the vector-store similarity match).
 
 LLM calls are mocked (unittest.mock.patch/AsyncMock), matching this repo's
 established convention (tests/test_backend/test_agent_chat.py,
-tests/test_models/test_graph.py). Chroma similarity search uses a real,
-ephemeral, per-test collection with a controlled fake embeddings client
+tests/test_models/test_graph.py). Vector similarity search uses a real,
+in-memory Qdrant, per-test collection with a controlled fake embeddings client
 (deterministic 2D vectors with an exact chosen cosine similarity — same
 technique tests/test_models/test_rag_knowledge_tools.py already uses for
 knowledge_tools.py) rather than a mocked find_similar_insights — this is
-what lets the isolation tests actually exercise the real Chroma `where`
+what lets the isolation tests actually exercise the real vector-store `where`
 filter, not just assert a mock was called with the right args.
 """
 
@@ -98,15 +98,11 @@ def _fake_llm_returning(content: str) -> AsyncMock:
 
 @pytest.fixture
 def ephemeral_insights_collection():
-    """Fresh, isolated Chroma collection per test — same technique/caveat as
-    tests/test_models/test_rag_knowledge_tools.py's ephemeral_collection
-    fixture (chromadb.EphemeralClient() instances are NOT isolated from
-    each other within one process, so each test needs a uniquely-named
-    collection, not the fixed patient_insights COLLECTION_NAME)."""
-    import chromadb
+    """Fresh, isolated in-memory Qdrant collection per test (one client per
+    test, so nothing leaks between tests)."""
+    from codebase.models.rag.vector_store import QdrantChromaClient
 
-    client = chromadb.EphemeralClient()
-    return client.get_or_create_collection(f"test-insights-{uuid.uuid4().hex}", metadata={"hnsw:space": "cosine"})
+    return QdrantChromaClient(location=":memory:").get_or_create_collection(f"test-insights-{uuid.uuid4().hex}")
 
 
 def _vector_with_similarity(similarity: float) -> list[float]:
@@ -117,7 +113,7 @@ def _vector_with_similarity(similarity: float) -> list[float]:
 
 
 class _LookupEmbeddingsClient:
-    """Deterministic stand-in for OpenAIEmbeddings — every text a test cares
+    """Deterministic stand-in for the embedding model — every text a test cares
     about is registered up front with an exact vector, so the create-vs-
     update decision (SIMILARITY_THRESHOLD) is fully controlled rather than
     depending on real semantic embeddings. Looking up an unregistered text
@@ -376,7 +372,7 @@ async def test_isolation_two_patients_near_identical_text_produce_separate_insig
 ):
     """Plan §C: two different patients with near-identical candidate
     phrasing must produce two separate PatientInsight rows, never one
-    shared/updated row — the patient_id Chroma-filter invariant. Both
+    shared/updated row — the patient_id vector-filter invariant. Both
     candidates embed to the EXACT same vector (a stand-in for "as
     semantically similar as it gets") so a missing patient_id filter would
     make this an obvious match; asserting the merge LLM is never called is
@@ -425,7 +421,7 @@ async def test_isolation_appointment_and_weekly_batch_stay_separate_rows(
     """Plan §B/§C: one patient's same-week appointment-triggered and
     weekly-batch-triggered candidates describing the same underlying
     pattern must also remain two separate rows, different source_kind — the
-    source_kind Chroma-filter invariant (different audience/trust level:
+    source_kind vector-filter invariant (different audience/trust level:
     doctor-facing vs. patient-facing, an unreviewed weekly candidate must
     never silently overwrite a doctor-confirmed appointment insight or vice
     versa)."""

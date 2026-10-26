@@ -1,16 +1,16 @@
-"""Unit tests for codebase/models/rag/chunking.py.
+"""Unit tests for codebase/models/rag/chunking.py (v2, structure-aware).
 
-Pure string-in/dict-out logic, no embeddings API and no chromadb — these
-tests exercise Track A (##-boundary) and Track B (page-marker / pseudo-
-header / table-atomicity) chunking directly, including against real excerpts
-of the corpus per docs/AI_Summary_Respond_System_Design.md §5.2, and the
-sources.csv skip/build logic per §5.1.
+Pure string-in/dict-out logic, no model inference and no vector store. Small
+synthetic inputs pin each cleaning/segmentation rule; whole-corpus tests pin
+the regressions the v1 chunker had on the real files (see the module
+docstring of chunking.py for the measured v1 numbers).
 """
 
 from __future__ import annotations
 
+import collections
 import csv
-import os
+import re
 from pathlib import Path
 
 import pytest
@@ -22,281 +22,290 @@ RAW_DIR = REPO_ROOT / "data" / "knowledge_base" / "raw"
 SOURCES_CSV = REPO_ROOT / "data" / "knowledge_base" / "sources.csv"
 
 
-# --- track assignment ---------------------------------------------------------
+@pytest.fixture(scope="module")
+def corpus() -> dict[str, str]:
+    return {p.name: p.read_text(encoding="utf-8") for p in sorted(RAW_DIR.glob("*.md"))}
 
 
-def test_track_mapping_covers_every_real_corpus_file():
-    """Regression guard for the design doc's own file-count claim: direct
-    inspection (os.listdir, not eyeballing `ls` output) shows 45 files on
-    disk, not the 44 the design doc's prose states. This asserts the
-    explicit TRACK_A_FILES/TRACK_B_FILES mapping in chunking.py stays in
-    sync with whatever is actually in raw/ — if a file is added or removed
-    this test fails loudly instead of chunk_tier2_file silently mis-skipping it."""
-    on_disk = {f for f in os.listdir(RAW_DIR) if f.endswith(".md")}
-    mapped = ck.TRACK_A_FILES | ck.TRACK_B_FILES
-    assert on_disk == mapped
+@pytest.fixture(scope="module")
+def vocab(corpus) -> ck.SyllableVocab:
+    return ck.build_syllable_vocab([c for c in corpus.values() if "--- Trang " not in c])
 
 
-def test_classify_file_unknown_raises():
-    with pytest.raises(ValueError, match="not in TRACK_A_FILES"):
-        ck.classify_file("some-new-file-nobody-added-yet.md")
+@pytest.fixture(scope="module")
+def chunks_by_file(corpus, vocab) -> dict[str, list[dict]]:
+    return {name: ck.chunk_document(name, content, syllable_vocab=vocab) for name, content in corpus.items()}
 
 
-def test_classify_file_known():
-    assert ck.classify_file("byt-5481-qd-byt-full-text.md") == "B"
-    assert ck.classify_file("vade-chi-so-gi.md") == "A"
+# --- split-syllable repair ----------------------------------------------------
+
+_VOCAB = {"thuốc": 20, "đồng": 10, "vận": 5, "sau": 50, "ăn": 40, "hạ": 30, "h": 3, "ạ": 1, "của": 90}
 
 
-# --- Track A: real short file (vade-chi-so-gi.md) --------------------------
+def test_repair_joins_fragments_that_are_not_words():
+    text, n = ck.repair_split_syllables("thu ốc đ ồng v ận", _VOCAB)
+    assert text == "thuốc đồng vận"
+    assert n == 3
 
 
-@pytest.fixture
-def vade_chi_so_gi_content() -> str:
-    return (RAW_DIR / "vade-chi-so-gi.md").read_text(encoding="utf-8")
+def test_repair_keeps_two_real_words_whose_concatenation_is_not_a_word():
+    assert ck.repair_split_syllables("sau ăn", _VOCAB) == ("sau ăn", 0)
 
 
-def test_track_a_splits_long_preamble_into_windows(vade_chi_so_gi_content):
-    """This file has a single H1 and no ## until a "Ghi chú đối chiếu"
-    section near the end, so everything under the H1 is one ~4,450-token
-    section (measured directly) that must fall back to windowed chunking
-    per §5.2's "~800-token window with ~100-token overlap"."""
-    chunks = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content)
-    assert len(chunks) > 1
-    for c in chunks[:-1]:  # last section (Ghi chú) is short, not windowed
-        assert ck.estimate_tokens(c["text"]) <= ck.TRACK_A_MAX_TOKENS + 50  # small slack for atomic paragraphs
+def test_repair_joins_two_real_words_when_the_joined_word_dominates():
+    # "h" (giờ) and "ạ" are both words, but "hạ" is 10x more frequent.
+    assert ck.repair_split_syllables("h ạ đường huyết", _VOCAB)[0] == "hạ đường huyết"
 
 
-def test_track_a_char_offsets_exactly_match_source(vade_chi_so_gi_content):
-    chunks = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content)
-    for c in chunks:
-        assert vade_chi_so_gi_content[c["char_start"] : c["char_end"]] == c["text"]
+def test_repair_handles_overlapping_pairs_and_punctuation():
+    # The pair to fix is ("c", "ủa,"), after a word that must stay alone.
+    assert ck.repair_split_syllables("sau c ủa, ăn", _VOCAB)[0] == "sau của, ăn"
 
 
-def test_track_a_last_section_gets_its_own_heading(vade_chi_so_gi_content):
-    chunks = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content)
-    assert chunks[-1]["section_heading"] == "Ghi chú đối chiếu — QUAN TRỌNG"
+def test_repair_never_changes_clean_web_files(corpus, vocab):
+    """False-positive guard: the clean files are where the vocabulary comes
+    from, so the repair must be a no-op on them."""
+    for name, content in corpus.items():
+        if "--- Trang " not in content:
+            assert ck.repair_split_syllables(content, vocab)[1] == 0, name
 
 
-def test_track_a_header_metadata_extracted(vade_chi_so_gi_content):
-    chunks = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content)
-    assert chunks[0]["doc_title"] == "Chỉ số GI"
-    assert chunks[0]["source_url"] == "https://vade.org.vn/chi-so-gi/"
-    assert chunks[0]["crawl_date"] == "2026-08-07"
+# --- PDF cleaning ---------------------------------------------------------------
 
 
-def test_track_a_chunk_id_deterministic_across_runs(vade_chi_so_gi_content):
-    """chunk_id must not depend on ingested_at (wall-clock time) — otherwise
-    every ingestion run would look like a full-corpus content change."""
-    run1 = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content, ingested_at="2020-01-01T00:00:00Z")
-    run2 = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content, ingested_at="2099-01-01T00:00:00Z")
-    assert [c["chunk_id"] for c in run1] == [c["chunk_id"] for c in run2]
-    assert [c["content_hash"] for c in run1] == [c["content_hash"] for c in run2]
+def _pdf(*pages: list[str]) -> str:
+    return "\n".join(f"--- Trang {i} ---\n" + "\n".join(lines) for i, lines in enumerate(pages, 1))
 
 
-def test_track_a_chunk_ids_globally_unique(vade_chi_so_gi_content):
-    chunks = ck.chunk_track_a("vade-chi-so-gi.md", vade_chi_so_gi_content)
-    ids = [c["chunk_id"] for c in chunks]
-    assert len(ids) == len(set(ids))
+def test_clean_drops_toc_pages_page_numbers_and_running_headers():
+    header = "HƯỚNG DẪN CỦA IWGDF VỀ GIẢM TẢI"
+    toc = ["MỤC LỤC", "1. Mở đầu ........ 3", "2. Điều trị ........ 5", "3. Theo dõi ........ 9"]
+    topics = ["giảm tải", "giày dép", "nẹp cổ chân", "theo dõi áp lực", "tái khám"]
+    body = [[header, f"{n}", f"Nội dung về {topic}."] for n, topic in enumerate(topics, 2)]
+    lines, _ = ck.parse_lines(_pdf(toc, *body))
+    kept, chapters, stats = ck.clean_pdf_lines(lines, None)
+    texts = [ln.text for ln in kept]
+    assert stats.toc_pages_dropped == 1
+    assert not any("........" in t for t in texts)
+    assert header not in texts
+    assert not any(t.strip().isdigit() for t in texts)
+    assert "Nội dung về nẹp cổ chân." in texts
+    assert set(chapters.values()) == {header}
 
 
-def test_track_a_source_url_override_wins_over_header():
-    content = "> Nguồn: https://in-file.example/\n> Crawl ngày: 2026-01-01\n\n# Title\n\nBody text.\n"
-    chunks = ck.chunk_track_a("f.md", content, source_url="https://from-sources-csv.example/")
-    assert chunks[0]["source_url"] == "https://from-sources-csv.example/"
+def test_alternating_running_header_phrasings_keep_one_chapter():
+    a, b = "HƯỚNG DẪN GIẢM TẢI CỦA IWGDF", "HƯỚNG DẪN CỦA IWGDF VỀ GIẢM TẢI"
+    pages = [[a if n % 2 else b, f"Đoạn {n}."] for n in range(1, 9)]
+    lines, _ = ck.parse_lines(_pdf(*pages))
+    _, chapters, _ = ck.clean_pdf_lines(lines, None)
+    assert len(set(chapters.values())) == 1
 
 
-# --- Track A: synthetic windowing/overlap check -----------------------------
+# --- heading detection ----------------------------------------------------------
 
 
-def test_group_paragraphs_overlap_repeats_a_paragraph_across_windows():
-    # 10 paragraphs, each ~100 tokens ("word " * 100), budget 250/overlap 60
-    # forces multiple windows with a real carried-forward overlap.
-    paragraphs = []
-    pos = 0
-    for i in range(10):
-        text = f"paragraph {i} " + ("word " * 95)
-        start = pos
-        end = start + len(text)
-        paragraphs.append((start, end, text))
-        pos = end + 2
-    groups = ck.group_paragraphs(paragraphs, max_tokens=250, overlap_tokens=60)
-    assert len(groups) > 1
-    # some paragraph tuple should appear in two consecutive groups (the overlap)
-    first_group_paras = set(groups[0])
-    second_group_paras = set(groups[1])
-    assert first_group_paras & second_group_paras
+@pytest.mark.parametrize(
+    ("line", "rank"),
+    [
+        ("PHẦN 2: CHẨN ĐOÁN VÀ PHÂN LOẠI", 1),
+        ("PHỤ LỤC 03:", 1),
+        ("IV. ĐIỀU TRỊ", 1),
+        ("1. Chẩn đoán", 2),
+        ("1.1. Chẩn đoán đái tháo đường", 3),
+        ("3.3.2.4. Chụp cắt lớp vi tính mạch máu (CLVT)", 5),
+        ("2.5 mg mỗi ngày", None),  # body text, not a heading
+        ("1. Tăng glucose máu;", None),  # list item
+        ("CHẨN ĐOÁN", 2),  # IWGDF section title
+        ("IWGDF", None),  # single ALL-CAPS word: too weak
+        ("ABI, CK, CKMB, BNP,", None),  # a table cell that wrapped, not a title
+    ],
+)
+def test_heading_rank_pdf(line, rank):
+    assert ck._heading_rank(line, pdf=True) == rank
 
 
-def test_group_paragraphs_never_splits_a_single_oversized_paragraph():
-    huge = ("word " * 2000, )[0]
-    paragraphs = [(0, len(huge), huge)]
-    groups = ck.group_paragraphs(paragraphs, max_tokens=100, overlap_tokens=10)
-    assert len(groups) == 1
-    assert groups[0] == paragraphs
-
-
-# --- Track B: pseudo-header carry-forward (synthetic, deterministic) --------
-
-
-def test_pseudo_header_carries_forward_until_next_match():
-    content = (
-        "PHẦN 1: MỞ ĐẦU\n\n"
-        "Đoạn văn thuộc phần 1.\n\n"
-        "Đoạn văn khác vẫn thuộc phần 1.\n\n"
-        "PHẦN 2: NỘI DUNG CHÍNH\n\n"
-        "Đoạn văn thuộc phần 2.\n"
+def test_numbered_recommendation_out_of_sequence_is_not_a_heading():
+    """v1 read IWGDF's numbered recommendation "27. Để điều trị ..." as a
+    section heading and carried it across 77 chunks."""
+    lines, _ = ck.parse_lines(
+        "--- Trang 1 ---\n1. Chẩn đoán\nVăn bản.\n2. Điều trị\nVăn bản.\n"
+        "27. Để điều trị chuyên biệt nhiễm trùng trong loét chân đái tháo đường:\nVăn bản khuyến cáo.\n"
     )
-    headers = ck.find_pseudo_headers(content)
-    assert [h[1] for h in headers] == ["PHẦN 1: MỞ ĐẦU", "PHẦN 2: NỘI DUNG CHÍNH"]
-    # offset squarely inside the "phần 1" paragraphs -> heading is PHẦN 1
-    mid_section_1 = content.index("Đoạn văn khác")
-    assert ck._section_heading_at(headers, mid_section_1) == "PHẦN 1: MỞ ĐẦU"
-    mid_section_2 = content.index("Đoạn văn thuộc phần 2")
-    assert ck._section_heading_at(headers, mid_section_2) == "PHẦN 2: NỘI DUNG CHÍNH"
-    assert ck._section_heading_at(headers, 0) is None or ck._section_heading_at(headers, -1) is None
+    headings = [s.text for s in ck.segment_lines(lines, pdf=True) if s.kind == "heading"]
+    assert headings == ["1. Chẩn đoán", "2. Điều trị"]
 
 
-def test_clean_heading_strips_toc_dot_leaders():
-    line = "PHẦN 1: ĐỊNH NGHĨA VÀ DỊCH TỄ HỌC ........................................................... 8 "
-    assert ck._clean_heading(line) == "PHẦN 1: ĐỊNH NGHĨA VÀ DỊCH TỄ HỌC"
+def test_phan_heading_takes_its_title_from_the_next_line():
+    lines, _ = ck.parse_lines("--- Trang 1 ---\nPHẦN 6\n\nHẠ ĐƯỜNG HUYẾT\nHạ glucose huyết là biến chứng cấp tính.\n")
+    headings = [s.text for s in ck.segment_lines(lines, pdf=True) if s.kind == "heading"]
+    assert headings == ["PHẦN 6: HẠ ĐƯỜNG HUYẾT"]
 
 
-def test_dense_numbered_run_is_dropped_as_a_reference_list():
-    """A real header ('4. Chỉ định...') far from anything else must survive;
-    a run of closely-packed numbered lines (a bibliography) must not."""
-    matches = [
-        (0, "4. Chỉ định đo đường huyết liên tục"),
-        (5000, "1. American Diabetes Association."),
-        (5040, "2. Consensus Statement by The American"),
-        (5090, "3. Atlas IDF 2015"),
-        (5110, "4. Current Medical Diagnosis and"),
+def test_decimal_heading_does_not_nest_under_an_unrelated_numbered_section():
+    """QĐ 5481: "4." and "5." were lost to PDF line breaks, so "5.2.3. Dinh
+    dưỡng" landed under "3. Phân tầng nguy cơ" in v2.0."""
+    segs = [
+        ck.Segment("heading", "PHẦN 4: ĐIỀU TRỊ", 1, 1, rank=1),
+        ck.Segment("heading", "3. Phân tầng nguy cơ", 1, 1, rank=2),
+        ck.Segment("heading", "4.2. Lựa chọn cụ thể", 1, 1, rank=3),
+        ck.Segment("heading", "5.2.3. Dinh dưỡng", 2, 2, rank=4),
+        ck.Segment("prose", "Glucid chiếm 50-60% năng lượng.", 2, 2),
     ]
-    kept = ck._drop_dense_numbered_runs(matches)
-    assert kept == [(0, "4. Chỉ định đo đường huyết liên tục")]
+    sections, _ = ck.build_sections(segs, {})
+    assert sections[-1].path == ["PHẦN 4: ĐIỀU TRỊ", "5.2.3. Dinh dưỡng"]
 
 
-# --- Track B: real excerpt (byt-5481, Trang 20-21: Bảng 4 + Bảng 5) ---------
+def test_pdf_hard_wrapped_lines_are_rejoined_into_one_paragraph():
+    lines, _ = ck.parse_lines(
+        "--- Trang 1 ---\nĐái tháo đường là bệnh mạn tính\nảnh hưởng tới nhiều cơ quan.\nCâu thứ hai bắt đầu.\n"
+    )
+    prose = [s.text for s in ck.segment_lines(lines, pdf=True) if s.kind == "prose"]
+    assert prose == ["Đái tháo đường là bệnh mạn tính ảnh hưởng tới nhiều cơ quan.", "Câu thứ hai bắt đầu."]
 
 
-@pytest.fixture
-def byt5481_table_excerpt() -> str:
-    """Lines 765-868 of the real file: "--- Trang 20 ---" through the end of
-    "--- Trang 21 ---"'s content, i.e. the "2. Mục tiêu điều trị" section
-    containing Bảng 4 (adult glycemic targets) and Bảng 5 (older-adult
-    targets) — the exact table §5.2 flags as high-stakes (the mock patient
-    scenario in §7 depends on its HbA1c/glucose numbers). A representative
-    slice of the 3,311-line file, not the whole thing, per the task brief."""
-    full = (RAW_DIR / "byt-5481-qd-byt-full-text.md").read_text(encoding="utf-8")
-    lines = full.splitlines(keepends=True)
-    return "".join(lines[764:868])  # 0-indexed: lines 765..868 inclusive
+def test_wrapped_bold_heading_in_html_file_is_one_heading():
+    lines, _ = ck.parse_lines("**4. Tiêu chuẩn để làm xét nghiệm chẩn\nđoán ĐTĐ**\n\nNội dung.\n")
+    headings = [s.text for s in ck.segment_lines(lines, pdf=False) if s.kind == "heading"]
+    assert headings == ["4. Tiêu chuẩn để làm xét nghiệm chẩn đoán ĐTĐ"]
 
 
-def test_byt5481_excerpt_has_expected_page_markers(byt5481_table_excerpt):
-    markers = ck.find_page_markers(byt5481_table_excerpt)
-    assert [page for _, page in markers] == [20, 21]
+# --- chunk_document on synthetic and real excerpts ---------------------------------
 
 
-def test_byt5481_excerpt_chunks_have_valid_offsets(byt5481_table_excerpt):
-    chunks = ck.chunk_track_b("byt-5481-qd-byt-full-text.md", byt5481_table_excerpt)
-    assert chunks
-    for c in chunks:
-        assert byt5481_table_excerpt[c["char_start"] : c["char_end"]] == c["text"]
+def test_chunk_text_starts_with_title_and_heading_path():
+    content = "# Metformin — Dược thư\n\n## Chống chỉ định\n\nSuy thận nặng (eGFR < 30).\n"
+    (chunk,) = ck.chunk_document("duocthu-metformin-monograph.md", content)
+    assert chunk["text"].startswith("Metformin — Dược thư\nChống chỉ định\n\n")
+    assert chunk["heading_path"] == "Chống chỉ định"
+    assert chunk["doc_type"] == "drug_monograph"
 
 
-def test_byt5481_bang4_table_stays_atomic_with_its_numbers(byt5481_table_excerpt):
-    """The specific correctness property §5.2 warns about: the HbA1c/glucose
-    target numbers must land in the same chunk as the "Bảng 4:" label that
-    identifies what table they belong to — a table cut in half here would
-    silently produce an uncitable or mis-attributed number."""
-    chunks = ck.chunk_track_b("byt-5481-qd-byt-full-text.md", byt5481_table_excerpt)
-    bang4_chunks = [c for c in chunks if "Bảng 4:" in c["text"]]
-    assert len(bang4_chunks) == 1
-    text = bang4_chunks[0]["text"]
-    assert "HbA1c" in text
-    assert "7%" in text
-    assert "80-130" in text  # fasting glucose target range
-
-
-def test_byt5481_excerpt_page_numbers_assigned(byt5481_table_excerpt):
-    chunks = ck.chunk_track_b("byt-5481-qd-byt-full-text.md", byt5481_table_excerpt)
-    pages = {c["page_number"] for c in chunks}
-    assert pages <= {20, 21}
-    assert pages  # at least one chunk got a page number
-
-
-def test_byt5481_excerpt_section_heading_picked_up(byt5481_table_excerpt):
-    chunks = ck.chunk_track_b("byt-5481-qd-byt-full-text.md", byt5481_table_excerpt)
-    headings = {c["section_heading"] for c in chunks}
-    assert "2. Mục tiêu điều trị" in headings
-
-
-# --- Track B: whole-corpus dry run (no embeddings, offsets + no exceptions) -
-
-
-def test_all_track_b_files_chunk_without_error_and_have_valid_offsets():
-    for filename in sorted(ck.TRACK_B_FILES):
-        content = (RAW_DIR / filename).read_text(encoding="utf-8")
-        chunks = ck.chunk_track_b(filename, content)
-        assert chunks, f"{filename} produced zero chunks"
-        for c in chunks:
-            assert content[c["char_start"] : c["char_end"]] == c["text"], f"{filename} chunk {c['chunk_index']}"
-            assert c["text"].strip()
-
-
-def test_byt5481_and_byt3319_page_marker_presence_matches_ground_truth():
-    """Regression guard for a discrepancy found while building this pipeline:
-    the design doc's §5.2 prose says byt-5481 has *no* page markers and
-    implies byt-3319 does. Direct inspection of the actual files shows the
-    opposite (byt-5481: 77 markers; byt-3319: 0). chunk_track_b must detect
-    this from each file itself, not from a hardcoded assumption either way."""
-    byt5481 = (RAW_DIR / "byt-5481-qd-byt-full-text.md").read_text(encoding="utf-8")
-    byt3319 = (RAW_DIR / "byt-3319-qd-byt-full-text.md").read_text(encoding="utf-8")
-    assert ck.find_page_markers(byt5481)
-    assert not ck.find_page_markers(byt3319)
-
-    b3319_chunks = ck.chunk_track_b("byt-3319-qd-byt-full-text.md", byt3319)
-    assert all(c["page_number"] is None for c in b3319_chunks)
-
-
-def test_all_track_a_files_chunk_without_error_and_have_valid_offsets():
-    for filename in sorted(ck.TRACK_A_FILES):
-        content = (RAW_DIR / filename).read_text(encoding="utf-8")
-        chunks = ck.chunk_track_a(filename, content)
-        assert chunks, f"{filename} produced zero chunks"
-        for c in chunks:
-            assert content[c["char_start"] : c["char_end"]] == c["text"], f"{filename} chunk {c['chunk_index']}"
-            assert c["text"].strip()
-
-
-def test_whole_corpus_chunk_ids_globally_unique():
-    all_ids = []
-    for filename in sorted(ck.TRACK_A_FILES | ck.TRACK_B_FILES):
-        content = (RAW_DIR / filename).read_text(encoding="utf-8")
-        chunks = ck.chunk_tier2_file(filename, content)
-        all_ids.extend(c["chunk_id"] for c in chunks)
-    assert len(all_ids) == len(set(all_ids))
-    assert len(all_ids) > 500  # sanity bound, not an exact pin to one algorithm tuning
-
-
-# --- has_curator_annotation ---------------------------------------------------
-
-
-def test_curator_bracket_annotations_are_kept_not_stripped():
-    """§5.2: bracketed curator notes like "[Lưu ý: ...]" and "[Chuyển đổi
-    ảnh → text...]" are intentional content, not extraction noise — they
-    must remain verbatim in the chunk text, with has_curator_annotation
-    flagging that the chunk needs to be cited as curator-transcribed rather
-    than verbatim guideline prose."""
+def test_reference_sections_are_dropped():
     content = (
-        "--- Trang 1 ---\n"
-        "Nội dung bình thường.\n\n"
+        "# Tài liệu\n\n## Điều trị\n\nNội dung điều trị.\n\n## Tài liệu tham khảo\n\n"
+        "1. Tác giả A. Bài báo.\n2. Tác giả B. Bài báo khác.\n"
+    )
+    chunks = ck.chunk_document("vade-x.md", content)
+    assert all("Tác giả A" not in c["text"] for c in chunks)
+
+
+def test_curator_annotations_are_kept_and_flagged():
+    content = (
+        "--- Trang 1 ---\nNội dung bình thường.\n\n"
         "[Lưu ý: tên người ký bị lỗi encoding font ngay trong PDF gốc.]\n\n"
         "> **[Chuyển đổi ảnh → text để phục vụ embedding — nguồn ảnh: images/x.png]**\n"
     )
-    chunks = ck.chunk_track_b("byt-5481-qd-byt-full-text.md", content)
-    assert any(c["has_curator_annotation"] for c in chunks)
+    chunks = ck.chunk_document("byt-5481-qd-byt-full-text.md", content)
     annotated = [c for c in chunks if c["has_curator_annotation"]]
+    assert annotated
     assert any("[Lưu ý" in c["text"] or "[Chuyển đổi ảnh" in c["text"] for c in annotated)
+
+
+@pytest.fixture
+def byt5481_table_excerpt(corpus) -> str:
+    """ "--- Trang 20 ---" through page 21: the "2. Mục tiêu điều trị" section
+    with Bảng 4 (adult targets) and Bảng 5 (older adults) — the numbers the
+    mock patient scenario depends on."""
+    full = corpus["byt-5481-qd-byt-full-text.md"]
+    start = full.index("--- Trang 20 ---")
+    end = full.index("--- Trang 22 ---")
+    return full[start:end]
+
+
+def test_byt5481_bang4_table_stays_together_with_its_numbers(byt5481_table_excerpt):
+    chunks = ck.chunk_document("byt-5481-qd-byt-full-text.md", byt5481_table_excerpt)
+    bang4 = [c for c in chunks if "Bảng 4:" in c["text"]]
+    assert len(bang4) == 1
+    text = bang4[0]["text"]
+    assert "HbA1c" in text and "7%" in text and "80-130" in text
+    assert {c["page_start"] for c in chunks} <= {20, 21}
+    assert any("2. Mục tiêu điều trị" in (c["heading_path"] or "") for c in chunks)
+
+
+# --- whole corpus ---------------------------------------------------------------------
+
+
+def test_every_corpus_file_chunks_and_ids_are_unique(chunks_by_file):
+    ids = [c["chunk_id"] for chunks in chunks_by_file.values() for c in chunks]
+    assert all(chunks_by_file.values())
+    assert len(ids) == len(set(ids))
+
+
+def test_chunk_ids_are_deterministic(corpus, vocab):
+    name = "byt-3280-qd-byt-full-text.md"
+    a = ck.chunk_document(name, corpus[name], syllable_vocab=vocab, ingested_at="x")
+    b = ck.chunk_document(name, corpus[name], syllable_vocab=vocab, ingested_at="y")
+    assert [c["chunk_id"] for c in a] == [c["chunk_id"] for c in b]
+
+
+def test_chunks_stay_within_budget(chunks_by_file):
+    """v1: 234 of 784 long-document chunks ran over 1,000 tokens. Now only a
+    table may exceed MAX_TOKENS, and never by more than the context line."""
+    for chunks in chunks_by_file.values():
+        for c in chunks:
+            assert c["n_tokens"] <= ck.TABLE_MAX_TOKENS + 128, (c["source_file"], c["chunk_index"])
+    all_chunks = [c for chunks in chunks_by_file.values() for c in chunks]
+    over = sum(c["n_tokens"] > ck.MAX_TOKENS for c in all_chunks)
+    assert over / len(all_chunks) < 0.03
+
+
+def test_no_page_number_or_toc_only_chunks(chunks_by_file):
+    for chunks in chunks_by_file.values():
+        for c in chunks:
+            body = c["text"].split("\n\n", 1)[-1]
+            assert not re.fullmatch(r"\s*\d{1,3}\s*", body)
+            assert not re.search(r"\.{8,}\s*\d+\s*$", body, re.MULTILINE), (c["source_file"], body[:80])
+
+
+def test_byt3319_bold_headings_are_detected(chunks_by_file):
+    """v1 found no headings at all in 3319 (they are bold, not `##`)."""
+    chunks = chunks_by_file["byt-3319-qd-byt-full-text.md"]
+    with_path = [c for c in chunks if c["heading_path"]]
+    assert len(with_path) / len(chunks) > 0.9
+    assert any(c["heading_path"].startswith("II. CHẨN ĐOÁN") for c in with_path)
+
+
+def test_iwgdf_heading_paths_are_not_carried_across_the_whole_file(chunks_by_file):
+    """v1 carried one heading across 142 IWGDF chunks; now each chunk sits
+    under its sub-guideline (running header) and a section within it."""
+    chunks = chunks_by_file["iwgdf-2019-guideline-full-text.md"]
+    most_common = collections.Counter(c["heading_path"] for c in chunks).most_common(1)[0][1]
+    assert most_common < 40
+    assert not any("27. Để điều trị" in (c["heading_path"] or "") for c in chunks)
+    tops = {(c["heading_path"] or "").split(ck.CONTEXT_SEPARATOR)[0] for c in chunks}
+    assert "HƯỚNG DẪN CHẨN ĐOÁN VÀ ĐIỀU TRỊ NHIỄM TRÙNG" in tops
+
+
+def test_byt5481_split_syllables_are_repaired(chunks_by_file):
+    text = "\n".join(c["text"] for c in chunks_by_file["byt-5481-qd-byt-full-text.md"])
+    for broken in ("c ủa", "li ệu", "g ồm", "thu ốc"):
+        assert broken not in text
+
+
+def test_reference_lists_are_not_indexed(chunks_by_file):
+    for chunks in chunks_by_file.values():
+        for c in chunks:
+            assert "TÀI LIỆU THAM KHẢO" not in (c["heading_path"] or "").upper()
+
+
+def test_superseded_decisions_are_marked(chunks_by_file):
+    for name in ("byt-3280-qd-byt-full-text.md", "byt-3319-qd-byt-full-text.md"):
+        chunks = chunks_by_file[name]
+        assert {c["status"] for c in chunks} == {"superseded"}
+        assert all("[VĂN BẢN ĐÃ HẾT HIỆU LỰC]" in c["text"].split("\n", 1)[0] for c in chunks)
+    assert {c["status"] for c in chunks_by_file["byt-5481-qd-byt-full-text.md"]} == {"active"}
+
+
+def test_drug_monograph_chunks_name_the_drug(chunks_by_file):
+    """v1 embedded "## Chống chỉ định" sections with no drug name in the text."""
+    for name, chunks in chunks_by_file.items():
+        if name.startswith("duocthu-"):
+            drug = name.removeprefix("duocthu-").removesuffix("-monograph.md")
+            assert all(drug.lower() in c["text"].split("\n", 1)[0].lower() for c in chunks), name
+
+
+def test_every_file_has_a_known_doc_type(corpus):
+    assert {name for name in corpus if ck.doc_type_for(name) == "other"} == set()
 
 
 # --- Tier 1 (sources.csv) ----------------------------------------------------
@@ -309,37 +318,40 @@ def sources_rows() -> list[dict[str, str]]:
 
 
 def test_tier1_skip_classification_matches_verified_corpus_counts(sources_rows):
-    """Locks in the real counts verified by hand while building this
-    pipeline: 56 rows total, 3 unembeddable (1 no_local_file / deprioritized
-    duplicate, 2 explicitly flagged as failed 403-blocked crawls), 53
-    embeddable. (The design doc's §5.1 prose approximates this as "~3 rows
-    with no local_file" and "~4 rows flagged as failed crawl" as if they
-    were disjoint sets summing to 7 skips — they are not: every failed-crawl
-    row is also a no-local_file row in this corpus, so both descriptions
-    point at the same 3 rows viewed two ways, not 7 distinct rows.)"""
+    """56 rows: 1 with no local_file (a deprioritized duplicate), 2 flagged
+    as failed (403-blocked) crawls, 53 embeddable."""
     reasons = [ck.classify_tier1_skip(row) for row in sources_rows]
-    no_local = reasons.count(ck.SKIP_NO_LOCAL_FILE)
-    failed_crawl = reasons.count(ck.SKIP_FAILED_CRAWL)
-    embedded = reasons.count(None)
-    assert (no_local, failed_crawl, embedded) == (1, 2, 53)
-    assert no_local + failed_crawl + embedded == len(sources_rows) == 56
+    assert (reasons.count(ck.SKIP_NO_LOCAL_FILE), reasons.count(ck.SKIP_FAILED_CRAWL), reasons.count(None)) == (
+        1,
+        2,
+        53,
+    )
 
 
-def test_build_tier1_chunk_embeds_key_content_verbatim(sources_rows):
+def test_build_tier1_chunk_prefixes_title_and_keeps_key_content(sources_rows):
     row = sources_rows[1]  # Bảng 4 row
     chunk = ck.build_tier1_chunk(row, 1)
-    assert chunk["text"] == row["key_content"].strip()
+    assert chunk["text"] == f"{row['document_title'].strip()}\n\n{row['key_content'].strip()}"
     assert chunk["tier"] == 1
     assert chunk["trust_tier"] == "Bộ Y tế"
     assert chunk["page_ref"] == "tr. 19"
-    assert chunk["content_hash"] == ck.compute_hash(row["key_content"].strip())
+    assert chunk["content_hash"] == ck.compute_hash(chunk["text"], ck.CHUNKER_VERSION)
 
 
-def test_build_tier1_chunk_id_depends_on_row_id_and_content(sources_rows):
+def test_tier1_chunk_id_is_unchanged_from_v1(sources_rows):
+    """The retrieval-recall eval's gold labels are tier-1 chunk_ids, so the id
+    must stay derived from (row_id, key_content) only — not the new text."""
     row = sources_rows[1]
-    a = ck.build_tier1_chunk(row, row_id=1)
-    b = ck.build_tier1_chunk(row, row_id=2)  # same content, different row_id
-    assert a["chunk_id"] != b["chunk_id"]
+    expected = ck.make_chunk_id("t1", "sources_csv", "1", row["key_content"].strip())
+    assert ck.build_tier1_chunk(row, 1)["chunk_id"] == expected
+    assert ck.build_tier1_chunk(row, 2)["chunk_id"] != expected
+
+
+def test_tier1_superseded_status_is_shown_in_text(sources_rows):
+    row = sources_rows[1]
+    chunk = ck.build_tier1_chunk(row, 1, status="superseded")
+    assert chunk["status"] == "superseded"
+    assert "[VĂN BẢN ĐÃ HẾT HIỆU LỰC]" in chunk["text"].split("\n", 1)[0]
 
 
 def test_tier1_skip_reason_no_local_file_and_low_priority_note(sources_rows):

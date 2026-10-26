@@ -45,7 +45,7 @@ if [ ! -f codebase/frontend/.env.local ]; then
 fi
 
 # Data directories
-mkdir -p data/chroma
+mkdir -p data/hf-cache
 
 # Frontend
 if [ -z "$SKIP_FRONTEND" ] && command -v npm >/dev/null 2>&1; then

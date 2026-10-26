@@ -5,10 +5,11 @@ OWNER: long-term memory workstream (Phase 2, plan §B). See
 docs/AI_Summary_Respond_System_Design.md §7.1, §8 and
 /Users/phamminh/.claude/plans/warm-crafting-muffin.md §B/§C.
 
-Chroma client/collection pattern is reused directly from
-codebase/models/rag/ingest.py (same settings.chroma_persist_dir,
-text-embedding-3-small embeddings client) — a second, separate collection
-(`patient_insights`, not `knowledge_base`), never mixed into general RAG
+Same vector store and local embedding model as the knowledge base
+(codebase/models/rag/vector_store.py, codebase/models/rag/embeddings.py —
+insight text is PHI and is embedded on this machine, never sent out) — a
+second, separate collection (`patient_insights__<model>`, not the knowledge
+base), never mixed into general RAG
 retrieval (design doc §7.1: "used only for the similarity check in §7.3,
 never surfaced in general retrieval").
 """
@@ -21,11 +22,14 @@ from uuid import UUID
 
 from sqlmodel import Session, col, select
 
+from codebase.backend.config import get_settings
 from codebase.backend.insights.models import InsightStatus, PatientInsight
-from codebase.models.rag.ingest import get_embeddings_client
+from codebase.models.rag.embeddings import get_embeddings_client, model_slug
 from codebase.models.rag.vector_store import get_vector_client
 
 COLLECTION_NAME = "patient_insights"
+# Filtered on every similarity check (find_similar_insights).
+PAYLOAD_INDEXES = {"patient_id": "keyword", "source_kind": "keyword"}
 
 __all__ = [
     "COLLECTION_NAME",
@@ -36,7 +40,9 @@ __all__ = [
 
 
 def get_insights_collection(client: Any | None = None) -> Any:
-    """The `patient_insights` Chroma collection (design doc §7.1) — one
+    """The patient-insights collection (design doc §7.1) for the configured
+    embedding model, named `patient_insights__<model>` so vectors of a
+    different size never share a collection — one
     embedded vector per ACTIVE insight's `text`, metadata-filtered by BOTH
     `patient_id` and `source_kind` (plan §B/§C's hard partitioning
     invariant — see find_similar_insights below). Cosine space, created on
@@ -44,12 +50,13 @@ def get_insights_collection(client: Any | None = None) -> Any:
     collection.
     """
     client = client or get_vector_client()
-    return client.get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
+    name = f"{COLLECTION_NAME}__{model_slug(get_settings().embedding_model)}"
+    return client.get_or_create_collection(name, payload_indexes=PAYLOAD_INDEXES)
 
 
 def _distance_to_score(distance: float) -> float:
     """Same conversion as knowledge_tools._distance_to_score — the
-    collection is cosine space, so Chroma's distance = 1 - cosine_similarity.
+    collection is cosine space, so distance = 1 - cosine_similarity.
     Clipped defensively (floating point can push this a hair outside
     [0, 1])."""
     return max(0.0, min(1.0, 1.0 - distance))

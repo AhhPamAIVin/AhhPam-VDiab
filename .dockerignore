@@ -19,16 +19,13 @@ codebase/frontend/node_modules
 data/
 # Except the RAG source corpus (sources.csv + raw/*.md) — scripts/
 # docker-entrypoint.sh runs the ingestion pipeline (codebase/models/rag/
-# ingest.py) against these on every container boot, writing into the
-# Chroma collection at chroma_persist_dir (a mounted Railway volume in
-# production, so it survives redeploys — see that volume's own notes).
+# ingest.py) against these on every container boot, writing into Qdrant
+# (the vector index used to live on the data volume as a Chroma store).
 # Without these files in the image, ingestion has nothing to embed and
 # every chat QA question silently "finds nothing" even though the code and
 # DB are otherwise fine — this exact failure mode shipped to production
-# once already when data/chroma/ was baked in but the corpus files weren't,
-# and a stale/empty bake could silently shadow the volume anyway (whichever
-# is mounted at the same path wins), which is why the persisted Chroma
-# store itself is no longer baked into the image at all.
+# once already when the old data/chroma/ index was baked in but the corpus
+# files weren't.
 !data/knowledge_base/sources.csv
 !data/knowledge_base/raw/
 !data/knowledge_base/raw/**

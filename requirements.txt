@@ -25,10 +25,13 @@ bcrypt>=4.1.0
 python-multipart>=0.0.9
 email-validator>=2.2.0
 
-# Vector Store — RAG corpus, see docs/AI_Summary_Respond_System_Design.md §5
-chromadb>=0.5.0
-# Optional server-backed alternative to Chroma (VECTOR_STORE=qdrant), see codebase/models/rag/vector_store.py
+# Vector Store — RAG corpus + patient insights, see codebase/models/rag/vector_store.py
 qdrant-client>=1.19.0
+
+# Local embeddings (BAAI/bge-m3), see codebase/models/rag/embeddings.py. Pulls in
+# torch + transformers; the Dockerfile installs the CPU-only torch wheel first so
+# the image doesn't ship CUDA libraries.
+sentence-transformers>=3.0.0
 
 # LLM tracing (replaces LangSmith tracing), see codebase/models/tracing.py
 langfuse>=3.0.0

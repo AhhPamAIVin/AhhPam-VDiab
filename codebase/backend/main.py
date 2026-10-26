@@ -1,4 +1,5 @@
 import logging
+import threading
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
@@ -30,11 +31,24 @@ from codebase.backend.security.sql_injection_guard import SQLInjectionGuardMiddl
 from codebase.models.tracing import flush_tracing
 
 
+def _warm_up_embeddings() -> None:
+    try:
+        from codebase.models.rag.embeddings import warm_up
+
+        warm_up()
+    except Exception:
+        logging.getLogger(__name__).exception("embedding model warm-up failed")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
     print(f"Starting {settings.app_name} in {settings.app_env} mode")
     create_db_and_tables()
+    if settings.app_env != "test":
+        # Load the local embedding model off the event loop so the first chat
+        # request doesn't pay the multi-second model load.
+        threading.Thread(target=_warm_up_embeddings, name="embeddings-warmup", daemon=True).start()
     start_scheduler()
     start_insights_scheduler()
     start_zalo_link_listener()

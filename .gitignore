@@ -32,7 +32,9 @@ Thumbs.db
 *.db
 *.sqlite3
 
-# Chroma vector index — regenerated from data/knowledge_base/ via the ingestion pipeline
+# Embedding model cache when HF_HOME points into data/ (see .env.example)
+data/hf-cache/
+# Legacy Chroma index (OpenAI embeddings), kept locally only as a baseline
 data/chroma/
 
 # Vietnamese ASR test set — regenerated via `python -m eval.fetch_testset` (FLEURS, CC-BY-4.0)

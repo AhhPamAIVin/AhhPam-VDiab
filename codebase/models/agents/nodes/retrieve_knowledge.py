@@ -21,9 +21,9 @@ state["message"] otherwise — matters for short follow-ups, which are a poor
 embedding query verbatim.
 
 `search_approved_knowledge` is a synchronous function that does blocking I/O
-(an embeddings API call, then a Chroma query) — run via `asyncio.to_thread`
+(a local embedding-model call, then a vector-store query) — run via `asyncio.to_thread`
 so it can't block the event loop this `async def` node runs on. Without this,
-a slow embeddings call would stall every other concurrent request the same
+a slow embedding call would stall every other concurrent request the same
 FastAPI process is serving, not just this one.
 
 `_RETRIEVAL_K` overrides the tool's own default (6): verified live (golden

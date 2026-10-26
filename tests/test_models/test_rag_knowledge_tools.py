@@ -7,17 +7,15 @@ real coverage, but knowledge_tools.py only had manual, throwaway verification
 test_agent_guardrails.py all mock it out entirely, so nothing here actually
 locked in the implementation. This file exercises the real function.
 
-Same technique as test_rag_ingest.py: a real (ephemeral, in-memory) Chroma
-collection, no network/API key required. Unlike run_ingestion, though,
+Same technique as test_rag_ingest.py: a real in-memory Qdrant collection
+(qdrant-client `:memory:` mode), no server/network/model required. Unlike run_ingestion, though,
 search_approved_knowledge() has no embeddings_client/collection parameters of
 its own (it calls get_embeddings_client()/get_collection() directly) — so
 these tests monkeypatch those two module-level names instead of passing
 fakes in as arguments.
 
-chromadb.EphemeralClient() instances are NOT isolated from each other within
-the same process — see test_rag_ingest.py's ephemeral_collection fixture for
-the confirmed detail — so every test here gets its own uniquely-named
-collection rather than sharing one.
+Every test gets its own in-memory client, so tests never see each other's
+collections.
 """
 
 from __future__ import annotations
@@ -32,11 +30,9 @@ import pytest
 from codebase.models.agents.tools import knowledge_tools as kt
 
 # Metadata shapes mirror what codebase/models/rag/chunking.py actually
-# produces (§5.3) — a tier-1 chunk built from a sources.csv row, and a
-# tier-2 chunk from either chunking track. No `None` values: Chroma metadata
-# only accepts str/int/float/bool, same constraint ingest.py's real chunks
-# respect (chunking.py's chunk builders filter None keys out; here it's just
-# kept out of the fixture directly).
+# produces — a tier-1 chunk built from a sources.csv row, and a tier-2 chunk
+# from a raw/*.md file. No `None` values: ingest.py drops None-valued keys
+# before writing, so the fixtures leave them out too.
 TIER1_META = {
     "tier": 1,
     "document_title": "Quyết định 5481/QĐ-BYT - Bảng 4: Mục tiêu điều trị",
@@ -49,14 +45,16 @@ TIER1_META = {
 TIER2_META = {
     "tier": 2,
     "doc_title": "Hướng dẫn chẩn đoán và điều trị đái tháo đường típ 2",
-    "section_heading": "PHẦN 4: ĐIỀU TRỊ",
-    "page_number": 21,
+    "heading_path": "PHẦN 4: ĐIỀU TRỊ › 2. Mục tiêu điều trị",
+    "section_heading": "2. Mục tiêu điều trị",
+    "page_start": 21,
+    "page_end": 21,
     "source_url": "https://example.org/byt-5481.pdf",
 }
 
 
 class _FixedEmbeddingsClient:
-    """Stand-in for the real OpenAIEmbeddings client — returns the same,
+    """Stand-in for the local embedding model — returns the same,
     caller-chosen query vector regardless of the query text, so tests can
     control the exact cosine similarity to pre-inserted chunk vectors instead
     of depending on real semantic embeddings."""
@@ -73,11 +71,10 @@ class _FixedEmbeddingsClient:
 
 @pytest.fixture
 def ephemeral_collection():
-    """A fresh, isolated Chroma collection per test — see module docstring."""
-    import chromadb
+    """A fresh, isolated in-memory Qdrant collection per test."""
+    from codebase.models.rag.vector_store import QdrantChromaClient
 
-    client = chromadb.EphemeralClient()
-    return client.get_or_create_collection(f"test-{uuid.uuid4().hex}", metadata={"hnsw:space": "cosine"})
+    return QdrantChromaClient(location=":memory:").get_or_create_collection(f"test-{uuid.uuid4().hex}")
 
 
 def _vector_with_similarity(similarity: float) -> list[float]:
@@ -148,21 +145,28 @@ def test_to_retrieved_chunk_tier1_shape():
     }
 
 
-def test_to_retrieved_chunk_tier2_shape_maps_doc_title_and_page_number():
-    chunk = kt._to_retrieved_chunk("t2b-7e21d0aa", "nội dung", TIER2_META, 0.75)
+def test_to_retrieved_chunk_tier2_shape_maps_doc_title_heading_path_and_page():
+    chunk = kt._to_retrieved_chunk("t2-7e21d0aa", "nội dung", TIER2_META, 0.75)
 
     assert chunk["title"] == TIER2_META["doc_title"]
-    assert chunk["section"] == TIER2_META["section_heading"]
+    assert chunk["section"] == TIER2_META["heading_path"]
     assert chunk["page_ref"] == "tr. 21"
     assert chunk["tier"] == 2
-    # Tier-2 chunks carry no sources.csv-style trust_tier — key must be
-    # absent, not fabricated as None (RetrievedChunk is total=False).
+    # No sources.csv row referenced this file -> no trust_tier; the key must
+    # be absent, not fabricated as None (RetrievedChunk is total=False).
     assert "trust_tier" not in chunk
 
 
-def test_to_retrieved_chunk_tier2_missing_page_number_yields_none_page_ref():
-    meta = {**TIER2_META, "page_number": None}
-    chunk = kt._to_retrieved_chunk("t2b-none", "nội dung", meta, 0.5)
+def test_to_retrieved_chunk_tier2_inherits_trust_tier_and_page_range():
+    meta = {**TIER2_META, "trust_tier": "Bộ Y tế", "page_end": 22}
+    chunk = kt._to_retrieved_chunk("t2-range", "nội dung", meta, 0.5)
+    assert chunk["trust_tier"] == "Bộ Y tế"
+    assert chunk["page_ref"] == "tr. 21–22"
+
+
+def test_to_retrieved_chunk_tier2_missing_page_yields_none_page_ref():
+    meta = {k: v for k, v in TIER2_META.items() if k not in ("page_start", "page_end")}
+    chunk = kt._to_retrieved_chunk("t2-none", "nội dung", meta, 0.5)
     assert chunk["page_ref"] is None
 
 
@@ -213,6 +217,47 @@ def test_search_respects_k_and_returns_boosted_score_order(monkeypatch, ephemera
     assert len(ranked) == 3
     scores = [c["score"] for c in ranked]
     assert scores == sorted(scores, reverse=True)
+
+
+def test_superseded_chunks_rank_after_current_guidance(monkeypatch, ephemeral_collection):
+    """A superseded decision (3319) more similar to the query than current
+    guidance (5481) still ranks below it — and is still returned when there
+    is room, rather than dropped."""
+    superseded = {**TIER2_META, "status": "superseded"}
+    _insert(ephemeral_collection, chunk_id="t2-3319", similarity=0.95, metadata=superseded)
+    _insert(ephemeral_collection, chunk_id="t2-5481", similarity=0.70, metadata={**TIER2_META, "status": "active"})
+    _patch_search_deps(monkeypatch, ephemeral_collection)
+
+    assert [c["chunk_id"] for c in kt.search_approved_knowledge("câu hỏi mẫu", k=2)] == ["t2-5481", "t2-3319"]
+    assert [c["chunk_id"] for c in kt.search_approved_knowledge("câu hỏi mẫu", k=1)] == ["t2-5481"]
+
+
+def test_query_tokens_drop_conversational_function_words():
+    """ "tôi" passed the BM25 rarity gate and matched IWGDF's "chúng tôi
+    khuyến cáo", pushing off-topic chunks above the right one."""
+    assert kt._query_tokens("Khi bị hạ đường huyết tôi nên xử trí thế nào?") == ["đường", "huyết", "trí"]
+    assert "glucid" in kt._query_tokens("Lượng chất bột đường (glucid) nên chiếm bao nhiêu?")
+
+
+def test_stopword_in_query_does_not_let_bm25_outrank_dense_match(monkeypatch, ephemeral_collection):
+    _insert(
+        ephemeral_collection, chunk_id="t2-right", similarity=0.80, metadata=TIER2_META, text="hạ đường huyết điều trị"
+    )
+    for i in range(3):
+        _insert(
+            ephemeral_collection,
+            chunk_id=f"t2-noise-{i}",
+            similarity=0.60 - i * 0.01,
+            metadata=TIER2_META,
+            text="chúng tôi khuyến cáo chúng tôi đề nghị",
+        )
+    for i in range(40):  # make "đường"/"huyết" common so only "tôi" could be rare
+        _insert(ephemeral_collection, chunk_id=f"t2-fill-{i}", similarity=0.1, metadata=TIER2_META, text="đường huyết")
+    _patch_search_deps(monkeypatch, ephemeral_collection)
+
+    ranked = kt.search_approved_knowledge("Khi bị hạ đường huyết tôi nên xử trí thế nào?", k=2)
+
+    assert ranked[0]["chunk_id"] == "t2-right"
 
 
 def test_search_returns_empty_list_for_empty_collection(monkeypatch, ephemeral_collection):
@@ -327,7 +372,7 @@ def test_search_logs_structured_retrieval_line(monkeypatch, ephemeral_collection
     payload = json.loads(records[0].getMessage())
     assert payload["tool_name"] == "search_approved_knowledge"
     assert payload["tool_input"] == {"query": "metformin có dùng được khi suy thận không?", "k": 1}
-    assert payload["embedding_model"] == kt.EMBEDDING_MODEL
+    assert payload["embedding_model"] == kt.get_settings().embedding_model
     assert len(payload["tool_output"]) == 1
 
     entry = payload["tool_output"][0]

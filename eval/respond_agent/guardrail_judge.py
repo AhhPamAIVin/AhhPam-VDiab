@@ -15,7 +15,7 @@ the two verdicts:
     over-blocking, the design doc's own §6 concern re: legitimate BYT-target questions).
 
 Logs a real experiment to LangSmith (dataset "guardrail-llm-judge-v1") and writes a
-local JSON report under eval/results/. No DB/Chroma dependency — cases are static text,
+local JSON report under eval/results/. No DB/vector-store dependency — cases are static text,
 same as the pytest file this reuses.
 
 Run (from repo root):
