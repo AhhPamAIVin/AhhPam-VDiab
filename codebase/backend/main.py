@@ -2,6 +2,7 @@ import logging
 import threading
 from contextlib import asynccontextmanager
 
+import openai
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
@@ -96,6 +97,18 @@ app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["
 
 
 logger = logging.getLogger(__name__)
+
+
+@app.exception_handler(openai.APIError)
+async def llm_provider_error_handler(request: Request, exc: openai.APIError) -> JSONResponse:
+    """The LLM provider failing (quota exhausted, rate limit, outage, timeout)
+    is a temporary unavailability, not a server bug — verified live: an
+    exhausted proxy quota (403) surfaced to the patient's chat as a bare 500."""
+    logger.warning("LLM provider error on %s %s: %s", request.method, request.url.path, type(exc).__name__)
+    return JSONResponse(
+        status_code=503,
+        content={"detail": "Trợ lý AI tạm thời không khả dụng. Vui lòng thử lại sau ít phút."},
+    )
 
 
 @app.exception_handler(Exception)

@@ -96,6 +96,33 @@ def test_danger_reading_creates_urgent_notification(session: Session, patient_us
     assert "bác sĩ" in alerts[0].message
 
 
+def test_failed_alert_still_saves_and_returns_the_reading(
+    session: Session, patient_user: User, doctor_user: User, care_plan: CarePlanTarget, monkeypatch
+):
+    """Live dev DB: the notification INSERT failed (enum value missing), and
+    the except branch then touched `record.id` on the broken session —
+    turning "a notification failure must not fail the request" into a 500.
+    Here the INSERT fails at flush too (NOT NULL), leaving the session in the
+    same needs-rollback state."""
+    import codebase.backend.health.service as health_service
+
+    def failing_alert(session, **kwargs):
+        session.add(Notification(patient_id=None, notification_type=NotificationType.GLUCOSE_ALERT, title="x",
+                                 message="x", slot_key="x", slot_date=datetime.now(UTC).date(),
+                                 scheduled_for=datetime.now(UTC)))
+        session.flush()
+
+    monkeypatch.setattr(health_service, "create_glucose_alert_notification", failing_alert)
+    _seed_history(session, patient_user.id, doctor_user.id)
+    record = create_glucose_record(
+        session, patient_id=patient_user.id, value=300, unit="mg/dL", measured_at=datetime.now(UTC),
+        note=None, created_by=doctor_user.id, meal_context=MealContext.FASTING,
+    )
+    assert record.id is not None
+    assert record.threshold_status == "DANGER"
+    assert session.get(GlucoseRecord, record.id) is not None
+
+
 def test_daily_cap_stops_new_watch_alerts(session: Session, patient_user: User, doctor_user: User, care_plan: CarePlanTarget):
     _seed_history(session, patient_user.id, doctor_user.id, base_value=100)
     today = datetime.now(UTC)
