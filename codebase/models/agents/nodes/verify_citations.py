@@ -39,6 +39,7 @@ from __future__ import annotations
 import json
 import logging
 
+from codebase.models.agents.json_output import strip_code_fence
 from codebase.models.agents.nodes.synthesize_qa import (
     UNCONFIRMED_GROUNDING_LIMITATION,
     _chunks_matching_ids,
@@ -82,16 +83,6 @@ Nếu không đoạn nào thực sự được dùng, trả về {{"used_chunk_i
 thật trong danh sách trên — không tự tạo chunk_id mới."""
 
 
-def _strip_code_fence(text: str) -> str:
-    text = text.strip()
-    if not text.startswith("```"):
-        return text
-    text = text.strip("`")
-    if "\n" in text:
-        first_line, rest = text.split("\n", 1)
-        if first_line.strip().lower() in {"json", ""}:
-            text = rest
-    return text.strip()
 
 
 def _parse_used_chunk_ids(content: str) -> set[str] | None:
@@ -99,7 +90,7 @@ def _parse_used_chunk_ids(content: str) -> set[str] | None:
     supposed to produce — malformed JSON, wrong top-level type, a
     used_chunk_ids that isn't a list. Never raises."""
     try:
-        parsed = json.loads(_strip_code_fence(content))
+        parsed = json.loads(strip_code_fence(content))
     except (json.JSONDecodeError, TypeError):
         return None
     if not isinstance(parsed, dict):

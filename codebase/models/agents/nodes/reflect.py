@@ -60,6 +60,7 @@ from sqlmodel import Session, select
 from codebase.backend.agent.models import ChatSession
 from codebase.backend.db import engine
 from codebase.models.agents.checkpoint import checkpointer
+from codebase.models.agents.json_output import strip_code_fence
 from codebase.models.agents.nodes.upsert_insight import upsert_insight
 from codebase.models.agents.prompts.reflect import (
     REFLECT_PROPOSE_APPOINTMENT_TEMPLATE,
@@ -92,14 +93,6 @@ def _format_metrics_block(metrics: dict) -> str:
     return json.dumps(metrics, ensure_ascii=False, indent=2, default=str)
 
 
-def _strip_code_fence(text: str) -> str:
-    stripped = text.strip()
-    if not stripped.startswith("```"):
-        return stripped
-    stripped = stripped.strip("`")
-    if stripped.lower().startswith("json"):
-        stripped = stripped[4:]
-    return stripped.strip()
 
 
 def _parse_candidates(raw_text: str) -> list[dict[str, Any]]:
@@ -111,7 +104,7 @@ def _parse_candidates(raw_text: str) -> list[dict[str, Any]]:
     found nothing usable this run" (empty list), not a crash. This is the
     same "silence over fabrication" posture the prompt itself asks the
     model to take (prompts/reflect.py's _JSON_SHAPE_INSTRUCTIONS)."""
-    text = _strip_code_fence(raw_text)
+    text = strip_code_fence(raw_text)
     if not text:
         return []
     try:

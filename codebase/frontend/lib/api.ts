@@ -8,6 +8,7 @@ export interface ApiUser {
   is_active: boolean;
   must_change_password: boolean;
   ai_memory_consent: boolean;
+  meal_photo_ai_consent: boolean;
   created_at: string;
 }
 
@@ -97,8 +98,22 @@ export interface MealRecord {
   meal_time: string;
   description: string;
   note: string | null;
+  // Older meals keep their portion inside `note` ("Khẩu phần: ... · ...").
+  portion: string | null;
+  input_source: MealInputSource | null;
   created_by: string;
   created_at: string;
+}
+
+export type MealInputSource = "text" | "photo" | "voice";
+
+// POST /health/meals/photo-analysis — a draft for the meal form. Nothing is
+// saved by the call, the photo included.
+export interface MealPhotoAnalysis {
+  recognized: boolean;
+  description: string | null;
+  portion: string | null;
+  items: { name: string; quantity: number | null; unit: string | null }[];
 }
 
 export type NotificationType =
@@ -629,11 +644,22 @@ export const api = {
     meal_time: string;
     description: string;
     note?: string | null;
+    portion?: string | null;
+    input_source?: MealInputSource;
   }) =>
     apiRequest<MealRecord>("/health/meals", {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  analyzeMealPhoto: (file: File, hint?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (hint) form.append("hint", hint);
+    return apiRequest<MealPhotoAnalysis>("/health/meals/photo-analysis", {
+      method: "POST",
+      body: form,
+    });
+  },
   notifications: (status?: NotificationStatus, onDate?: string) => {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
@@ -870,7 +896,7 @@ export const api = {
     apiRequest<ChatSessionMessagesResponse>(
       `/agent/sessions/${encodeURIComponent(sessionId)}/messages`,
     ),
-  updateMe: (data: { ai_memory_consent: boolean }) =>
+  updateMe: (data: { ai_memory_consent?: boolean; meal_photo_ai_consent?: boolean }) =>
     apiRequest<ApiUser>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),

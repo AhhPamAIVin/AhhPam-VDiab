@@ -39,11 +39,13 @@ def update_current_user(
     current_user: User = Depends(require_roles(UserRole.PATIENT)),
     session: Session = Depends(get_session),
 ) -> User:
-    """Self-service profile settings — currently just `ai_memory_consent`
-    (see PatientInsight source_kind="chat", insights/scheduler.py). Patient-
+    """Self-service consent settings — `ai_memory_consent` (see
+    PatientInsight source_kind="chat", insights/scheduler.py) and
+    `meal_photo_ai_consent` (POST /health/meals/photo-analysis). Patient-
     only: this is the patient's own consent to grant, not something a doctor
     or admin sets on their behalf."""
-    current_user.ai_memory_consent = request.ai_memory_consent
+    for field, value in request.model_dump(exclude_none=True).items():
+        setattr(current_user, field, value)
     session.add(current_user)
     session.commit()
     session.refresh(current_user)

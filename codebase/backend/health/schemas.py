@@ -4,7 +4,7 @@ from uuid import UUID
 from pydantic import ValidationInfo, field_validator
 from sqlmodel import Field, SQLModel
 
-from codebase.backend.health.models import DoctorWatchLabel, MealContext, MealType, MeasurementSource
+from codebase.backend.health.models import DoctorWatchLabel, MealContext, MealInputSource, MealType, MeasurementSource
 from codebase.backend.time_utils import UtcDatetime
 
 GLUCOSE_UNITS = ("mg/dL", "mmol/L")
@@ -115,6 +115,9 @@ class MealRecordCreate(SQLModel):
     meal_time: datetime
     description: str = Field(min_length=1, max_length=1000)
     note: str | None = Field(default=None, max_length=500)
+    portion: str | None = Field(default=None, max_length=100)
+    # PHOTO when the form was prefilled by POST /meals/photo-analysis.
+    input_source: MealInputSource = Field(default=MealInputSource.TEXT)
 
 
 class MealRecordPublic(SQLModel):
@@ -124,8 +127,26 @@ class MealRecordPublic(SQLModel):
     meal_time: UtcDatetime
     description: str
     note: str | None
+    portion: str | None = None
+    input_source: MealInputSource | None = None
     created_by: UUID
     created_at: UtcDatetime
+
+
+class MealPhotoItemPublic(SQLModel):
+    name: str
+    quantity: float | None
+    unit: str | None
+
+
+class MealPhotoAnalysisPublic(SQLModel):
+    """Draft for the meal form — nothing is saved, the photo included.
+    `recognized=false` means no food was found in the photo."""
+
+    recognized: bool
+    description: str | None
+    portion: str | None
+    items: list[MealPhotoItemPublic]
 
 
 class ActivityRecordCreate(SQLModel):

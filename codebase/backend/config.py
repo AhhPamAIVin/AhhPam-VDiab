@@ -38,6 +38,13 @@ class Settings(BaseSettings):
     # "verify_citations=gpt-4.1-nano". Nodes not listed use model_name.
     llm_node_models: str = ""
 
+    # Meal photo recognition (Epic 1) — POST /health/meals/photo-analysis
+    # sends the photo to the vision model (MODEL_NAME, or LLM_NODE_MODELS
+    # "recognize_meal_photo=...") after the patient's own consent, and never
+    # stores it. false turns the feature off for everyone.
+    meal_photo_analysis_enabled: bool = True
+    meal_photo_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1)
+
     # Database
     db_host: str = "localhost"
     db_port: int = Field(default=5533, ge=1, le=65535)

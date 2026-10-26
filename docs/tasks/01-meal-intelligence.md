@@ -1,6 +1,6 @@
 # Epic 1 — Meal Intelligence: agent phân tích bữa ăn
 
-**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Chưa bắt đầu
+**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Đang làm — 1.1 và 1.6 xong (ảnh không được lưu)
 
 ## Mục tiêu
 
@@ -32,20 +32,28 @@ dạng app giảm cân, tích hợp CGM.
 ## Task
 
 ### 1.1 Tầng dữ liệu
-- [ ] `MealRecord`: thêm `portion: str | None` (≤100) và `image_path: str | None` — nullable để
-      `_add_missing_columns` tự thêm cột.
-- [ ] Bảng mới `meal_analyses`: `id`, `meal_id` (FK unique), `patient_id`, `items` (JSON:
+> **Quyết định 2026-10-27: không lưu ảnh bữa ăn.** Ảnh chỉ dùng để AI điền sẵn form, rồi bị bỏ; DB chỉ giữ
+> dữ liệu dạng chữ bệnh nhân đã xác nhận. Lý do: không giữ PHI dạng ảnh trên server (hết câu hỏi retention
+> ảnh ở Epic 6), không cần volume/dọn file; các tính năng sau (1.4, Epic 2, Epic 4) chỉ cần món + khẩu
+> phần. Cái giá: không phân tích lại được từ ảnh, bác sĩ không xem được ảnh, eval nhận diện ảnh phải dùng bộ
+> ảnh riêng. Upload/xem ảnh theo thiết kế cũ đã bỏ; phần nhận diện kéo lên làm cùng 1.1 (xem 1.6).
+
+- [x] `MealRecord`: thêm `portion: str | None` (≤100) — nullable để `_add_missing_columns` tự thêm cột.
+      ~~`image_path`~~ thay bằng `input_source` (`text|photo|voice`, NULL với bữa ăn trước Epic 1).
+      *Denylist chất cấm chạy cả trên `portion` (không thêm lời gọi LLM). Bữa ăn cũ vẫn giữ khẩu phần trong
+      `note` dạng "Khẩu phần: …" — không migrate.*
+- [x] Bảng mới `meal_analyses`: `id`, `meal_id` (FK unique), `patient_id`, `items` (JSON:
       `[{name, matched_food_id, quantity, unit, grams, carbs_g, kcal, gi_level, match_confidence}]`),
       `total_carbs_g`, `total_kcal`, `carb_load` (`low|medium|high|unknown`), `source`
       (`text|photo|voice`), `status` (`draft|confirmed|edited`), `model_version`, `nutrition_db_version`,
       `created_at`, `updated_at`.
-- [ ] Upload ảnh: `POST /api/v1/health/meals/{id}/image` (multipart, ≤10MB, chỉ image/*), lưu vào
-      volume (vd `data/uploads/meals/<patient_id>/<uuid>.jpg`); `GET` ảnh **có kiểm quyền** (ảnh là PHI,
-      không serve static công khai). Thêm volume vào `docker-compose.yml`.
-- [ ] Frontend `meals-page.tsx` + `lib/api.ts`: gửi `portion` riêng, upload ảnh sau khi tạo bữa ăn,
-      bỏ cơ chế ảnh tạm.
-- **AC:** tạo bữa ăn có ảnh → reload trang vẫn thấy ảnh; bệnh nhân A không xem được ảnh của B
-  (test 403); DB cũ khởi động lại không lỗi và có cột mới.
+      *Model `MealAnalysis` trong `health/models.py`; `source` dùng chung enum `MealInputSource` với
+      `MealRecord.input_source`. Chưa có endpoint — thuộc 1.3.*
+- [x] ~~Upload ảnh `POST /health/meals/{id}/image` + `GET` có kiểm quyền + volume~~ — bỏ theo quyết định trên.
+- [x] Frontend `meals-page.tsx` + `lib/api.ts`: gửi `portion` riêng, bỏ cơ chế ảnh tạm.
+      *Ảnh chỉ còn là preview cục bộ (object URL) trong `components/meal-photo-prefill.tsx`.*
+- **AC:** ~~reload vẫn thấy ảnh / test 403 ảnh~~ (không còn ảnh để xem); DB cũ khởi động lại không lỗi và có
+  cột mới. *Test: `tests/test_backend/test_meal_photo.py::test_old_database_gains_new_meal_columns`.*
 
 ### 1.2 Bảng tra dinh dưỡng món Việt
 - [ ] `data/nutrition/vn_foods.csv`: `food_id, name_vi, aliases, default_unit, grams_per_unit,
@@ -91,11 +99,22 @@ dạng app giảm cân, tích hợp CGM.
 - [ ] Bác sĩ (`patient-detail-page.tsx`): tab/section bữa ăn + bảng tương quan; đưa vào bản in báo cáo.
 - **AC:** không dùng chỉ màu để biểu thị mức (PRD NFR); hiển thị tốt ở 360px.
 
-### 1.6 Nhận diện món từ ảnh (sau 1.1–1.5)
-- [ ] Node `recognize_from_photo` dùng vision model (`gpt-4o-mini` hỗ trợ ảnh) → danh sách món ứng viên
+### 1.6 Nhận diện món từ ảnh (làm cùng 1.1 — ảnh không được lưu)
+- [x] Node `recognize_from_photo` dùng vision model (`gpt-4o-mini` hỗ trợ ảnh) → danh sách món ứng viên
       → đi tiếp `lookup_nutrition`; **luôn là draft**, bệnh nhân phải xác nhận.
-- [ ] Consent: ảnh gửi sang OpenAI — cần câu đồng ý rõ ràng lần đầu dùng; tắt được bằng config.
+      *`codebase/models/agents/nodes/meal/recognize_from_photo.py` — hàm async thuần (không đọc HTTP/chat
+      state) để agent đa chức năng dùng lại làm tool/node. LLM chỉ trả `[{name, quantity, unit}]`; code
+      kiểm từng món, món sai dạng bị loại chứ không sửa, số dinh dưỡng từ model bị bỏ. Ảnh gửi `detail=low`,
+      không log, không gửi Langfuse (`get_llm(trace=False)`). Endpoint `POST /health/meals/photo-analysis`
+      (chỉ bệnh nhân, dùng chung rate limit `/agent/*`) trả draft, **không lưu gì** — bữa ăn chỉ được tạo
+      khi bệnh nhân bấm lưu form (`input_source=photo`). Nối `lookup_nutrition` khi có 1.2/1.3.
+      Đã gọi thật qua proxy hiện tại với ảnh không phải đồ ăn: 2.4s, `is_food=false` đúng định dạng;
+      chưa đo độ chính xác nhận diện món Việt (cần bộ ảnh — xem 1.9).*
+- [x] Consent: ảnh gửi sang OpenAI — cần câu đồng ý rõ ràng lần đầu dùng; tắt được bằng config.
+      *`User.meal_photo_ai_consent` (bệnh nhân tự bật/tắt qua `PATCH /auth/me`, hỏi ở lần chọn ảnh đầu tiên,
+      có nút tắt trên trang bữa ăn); `MEAL_PHOTO_ANALYSIS_ENABLED=false` tắt cho mọi người (503).*
 - **AC:** ảnh không phải đồ ăn → trả "không nhận diện được", không tạo item.
+  *Test: `tests/test_backend/test_meal_photo.py`, `tests/test_models/test_meal_photo_recognition.py`.*
 
 ### 1.7 Ghi bữa ăn bằng giọng nói
 - [ ] Nối STT (`codebase/stt-service`) → text → parser bữa ăn trong `record_actions.py` → confirm →
@@ -116,11 +135,11 @@ dạng app giảm cân, tích hợp CGM.
 - [ ] Target `make eval-meal-analysis` trong `Makefile`.
 
 ## Definition of Done
-- Toàn bộ task 1.1–1.5, 1.8, 1.9 xong; 1.6–1.7 có thể tách release sau.
+- Toàn bộ task 1.1–1.5, 1.8, 1.9 xong; 1.7 có thể tách release sau (1.6 đã làm cùng 1.1).
 - Pytest xanh, eval meal đạt ngưỡng đã chốt, guardrail case mới 100%.
 - README/ARCHITECTURE cập nhật luồng phân tích bữa ăn.
 
 ## Câu hỏi mở
 - Ngưỡng `carb_load` low/medium/high theo nguồn nào (VADE/ADA)? — cần bác sĩ duyệt.
 - Có cho bệnh nhân thấy số kcal không, hay chỉ carb? (tránh hành vi ăn kiêng cực đoan ở người già)
-- Lưu ảnh bao lâu? (liên quan chính sách retention ở Epic 6)
+- ~~Lưu ảnh bao lâu?~~ — không lưu ảnh (quyết định 2026-10-27, xem 1.1).
