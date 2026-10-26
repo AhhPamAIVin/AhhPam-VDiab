@@ -53,6 +53,12 @@ class Settings(BaseSettings):
     admin_seed_password: str = ""
     admin_seed_name: str = "System Admin"
 
+    # Rate limits (codebase/backend/security/rate_limit.py), requests per
+    # minute; 0 disables one limit, rate_limit_enabled=false disables both.
+    rate_limit_enabled: bool = True
+    rate_limit_login_per_minute: int = Field(default=5, ge=0)
+    rate_limit_agent_per_minute: int = Field(default=20, ge=0)
+
     # Vector Store — Qdrant server at qdrant_url (see docker-compose.yml,
     # `make db-up`). qdrant_location=":memory:" runs an in-process store with
     # no server (tests). See codebase/models/rag/vector_store.py.

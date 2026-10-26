@@ -36,7 +36,7 @@ jobs:
           exit 1
 
       - name: Lint with ruff
-        run: ruff check codebase/ tests/
+        run: ruff check codebase/ tests/ scripts/ eval/
 
       - name: Run tests
         run: pytest tests/ -v --tb=short
@@ -44,6 +44,70 @@ jobs:
           APP_ENV: test
           OPENAI_API_KEY: test-key
           JWT_SECRET_KEY: test-secret-key-for-ci-only-do-not-use-in-production
+
+      # Rule engine (real create_glucose_record path), input validation and
+      # deterministic intent routing on production code — no LLM, no network.
+      # Fails only when a module passes fewer cases than eval/baseline.json.
+      - name: Deterministic eval (regression gate)
+        run: python eval/run_eval.py --baseline eval/baseline.json --output eval/results/ci-latest.json
+        env:
+          APP_ENV: test
+          OPENAI_API_KEY: test-key
+          JWT_SECRET_KEY: test-secret-key-for-ci-only-do-not-use-in-production
+          QDRANT_LOCATION: ":memory:"
+
+      - name: Upload eval report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval/results/ci-latest.json
+          if-no-files-found: ignore
+
+  # The test suite runs on SQLite; native enum types and index drift only
+  # exist on Postgres, which is where the startup schema repair in db.py
+  # matters. GitHub-hosted runner for the service container.
+  backend-postgres-schema:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: diab_ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install dependencies
+        run: |
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Schema bootstrap and drift repair on Postgres
+        run: python -m scripts.check_schema_bootstrap
+        env:
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          DB_NAME: diab_ci
+          JWT_SECRET_KEY: test-secret-key-for-ci-only-do-not-use-in-production
+          QDRANT_LOCATION: ":memory:"
 
   frontend:
     runs-on: self-hosted

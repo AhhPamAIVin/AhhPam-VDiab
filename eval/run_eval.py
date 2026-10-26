@@ -32,6 +32,11 @@ def main() -> int:
     parser.add_argument("--output", type=Path, default=ROOT / "eval" / "results" / "latest.json")
     parser.add_argument("--strict", action="store_true", help="Fail on executed failures or missing required capability")
     parser.add_argument("--retrieval", action="store_true", help="Run real embeddings/vector-store retrieval evaluation")
+    parser.add_argument(
+        "--baseline",
+        type=Path,
+        help="JSON of {module: minimum passed count}; exit 1 if any module passes fewer (regression gate for CI)",
+    )
     args = parser.parse_args()
 
     datasets = load_all()
@@ -42,15 +47,20 @@ def main() -> int:
     }
     if args.retrieval:
         from eval.harness.retrieval import evaluate_retrieval
+        from eval.harness.retrieval_tier2 import evaluate_retrieval_tier2
 
-        try:
-            evaluations["retrieval"] = evaluate_retrieval(datasets["ai"])
-        except Exception as exc:  # external embedding/vector services are optional in the fast suite
-            evaluations["retrieval"] = {
-                "kind": "retrieval_eval",
-                "status": "ERROR",
-                "error": f"{type(exc).__name__}: {exc}",
-            }
+        for name, run in (
+            ("retrieval", lambda: evaluate_retrieval(datasets["ai"])),
+            ("retrieval_tier2", lambda: evaluate_retrieval_tier2(datasets["retrieval_tier2"])),
+        ):
+            try:
+                evaluations[name] = run()
+            except Exception as exc:  # embedding model / vector store are optional in the fast suite
+                evaluations[name] = {
+                    "kind": "retrieval_eval",
+                    "status": "ERROR",
+                    "error": f"{type(exc).__name__}: {exc}",
+                }
 
     report = {
         "schema_version": "2.0",
@@ -62,6 +72,18 @@ def main() -> int:
     }
     _write_report(report, args.output)
     print(json.dumps(report, ensure_ascii=False, indent=2))
+
+    if args.baseline:
+        baseline = json.loads(args.baseline.read_text(encoding="utf-8"))
+        regressions = [
+            f"{module}: {evaluations.get(module, {}).get('passed', 0)} passed < baseline {minimum}"
+            for module, minimum in baseline.items()
+            if not module.startswith("_") and evaluations.get(module, {}).get("passed", 0) < minimum
+        ]
+        for line in regressions:
+            print(f"REGRESSION {line}", file=sys.stderr)
+        if regressions:
+            return 1
 
     failed = sum(value.get("failed", 0) for value in evaluations.values())
     missing = sum(value.get("not_implemented", 0) for value in evaluations.values())

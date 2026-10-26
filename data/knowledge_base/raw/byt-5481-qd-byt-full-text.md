@@ -1,3 +1,5 @@
+# Quyết định 5481/QĐ-BYT (30/12/2020) - Hướng dẫn chẩn đoán và điều trị đái tháo đường típ 2
+
 --- Trang 1 ---
 BỘ Y TẾ 
  

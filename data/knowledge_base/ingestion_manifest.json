@@ -1,7 +1,7 @@
 {
   "corpus_version": "2.0.0",
   "chunker_version": "2.0.0",
-  "generated_at_utc": "2026-10-26T09:48:54.652414Z",
+  "generated_at_utc": "2026-10-26T12:38:33.818471Z",
   "embedding_model": "BAAI/bge-m3",
   "embedding_dimensions": 1024,
   "collection": "knowledge_base__bge-m3",
@@ -21,8 +21,8 @@
   "tier2_documents": {
     "files": 45,
     "chunks": 1093,
-    "chunks_embedded_this_run": 371,
-    "unchanged_files": 41,
+    "chunks_embedded_this_run": 147,
+    "unchanged_files": 44,
     "tokens": {
       "min": 16,
       "median": 301,
@@ -250,9 +250,9 @@
         "running_header_lines_dropped": 3,
         "syllables_repaired": 1668,
         "tokens": {
-          "min": 98,
-          "median": 373,
-          "max": 639
+          "min": 112,
+          "median": 387,
+          "max": 653
         },
         "doc_type": "national_guideline"
       },
@@ -803,7 +803,7 @@
     }
   },
   "total_chunks": 1146,
-  "corpus_content_hash": "352daab6bb4539d9fe99ae85c261af7516d52493eddfd3ca967f8d068691d4a0",
+  "corpus_content_hash": "e620e2dac604fb8ce4ce8fb625ca7bd0da193a028c54e3957870cb37edabb678",
   "warnings": [
     "1 sources.csv row(s) skipped: no local_file (citation-only); 2 row(s) skipped: notes flag a failed crawl",
     "PDF-extracted tables are reconstructed from line order under 'Bảng N:' captions, not verified against the source PDFs page by page — spot-check byt-5481's Bảng 4/5 before relying on them."

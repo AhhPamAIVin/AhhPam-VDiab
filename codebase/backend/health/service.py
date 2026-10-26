@@ -18,6 +18,7 @@ from codebase.backend.health.models import (
     MealType,
     MeasurementSource,
 )
+from codebase.backend.health.schemas import MG_DL_PER_MMOL_L
 from codebase.backend.health.threshold_service import evaluate_glucose_reading
 from codebase.backend.notifications.models import NotificationType
 from codebase.backend.notifications.service import auto_complete_pending, create_glucose_alert_notification
@@ -60,6 +61,14 @@ def create_glucose_record(
     symptoms: str | None = None,
     source_pending_action_id: UUID | None = None,
 ) -> GlucoseRecord:
+    # Everything downstream — the DANGER gate, the ML WATCH band, averages
+    # shown as "mg/dL" — compares raw `value` against mg/dL numbers. A reading
+    # entered in mmol/L (the API and the chat parser both accept it) used to
+    # be stored as-is, so a normal 5.8 mmol/L fasting value was compared as
+    # 5.8 mg/dL and raised a false DANGER alert (caught by the rule-engine eval).
+    if unit == "mmol/L":
+        value = round(value * MG_DL_PER_MMOL_L, 1)
+        unit = "mg/dL"
     record = GlucoseRecord(
         patient_id=patient_id,
         value=value,
