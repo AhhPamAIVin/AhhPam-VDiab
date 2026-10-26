@@ -1,0 +1,6 @@
+{
+  "_comment": "Minimum passed cases per deterministic eval module (eval/run_eval.py --baseline). CI fails if a change lowers one. Raise a number when a fix makes more cases pass; known failures (rule_engine 3 meal-context cases, intents 7 label mismatches) are tracked in docs/tasks/05-ai-performance-quality.md.",
+  "rule_engine": 12,
+  "input_validation": 9,
+  "deterministic_intents": 30
+}

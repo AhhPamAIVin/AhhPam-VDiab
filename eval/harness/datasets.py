@@ -19,6 +19,7 @@ def load_all() -> dict[str, list[dict[str, Any]]]:
         "rules": load_cases("rule_engine_cases.json"),
         "validation": load_cases("data_validation_cases.json"),
         "summary": load_cases("ai_summary_cases.json"),
+        "retrieval_tier2": load_cases("retrieval_tier2_cases.json"),
     }
 
 

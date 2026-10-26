@@ -9,17 +9,21 @@ from eval.harness.retrieval import _title_matches
 def test_golden_dataset_integrity_is_measured_not_called_product_accuracy():
     report = audit_datasets(load_all())
     assert report["kind"] == "dataset_integrity"
-    assert report["total_cases"] == 76
+    assert report["total_cases"] == 100  # 76 + 24 tier-2 retrieval cases
     assert report["unique_ids"] is True
     assert report["issues"] == []
 
 
 @pytest.mark.unit
-def test_missing_rule_engine_is_reported_not_reimplemented_in_eval():
+def test_rule_engine_eval_executes_the_real_write_path():
+    """Each case goes through create_glucose_record (unit normalization,
+    threshold evaluation, alert creation) — nothing re-implemented in eval.
+    The three failures are the known product gap: one care-plan target band
+    instead of meal-context-specific targets (fasting 80-130, bedtime >= 90)."""
     report = evaluate_rule_engine(load_all()["rules"])
-    assert report["executed"] == 0
-    assert report["not_implemented"] == 15
-    assert report["passed"] == 0
+    assert report["executed"] == 15
+    assert report["not_implemented"] == 0
+    assert {d["id"] for d in report["details"] if not d["passed"]} == {"TC-RULE-008", "TC-RULE-012", "TC-RULE-014"}
 
 
 @pytest.mark.unit

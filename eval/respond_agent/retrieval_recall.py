@@ -236,15 +236,16 @@ async def main_async(args: argparse.Namespace) -> None:
     print(f"Loaded {len(rows)} eligible sources.csv row(s) from {SOURCES_CSV_PATH}")
     questions = await ensure_questions(rows, regenerate=args.regenerate_questions)
 
-    client = Client()
-    ensure_dataset(client, rows, questions)
+    if not args.local:
+        client = Client()
+        ensure_dataset(client, rows, questions)
 
-    client.evaluate(
-        partial(_target, k=args.k),
-        data=DATASET_NAME,
-        evaluators=[_exact_chunk_hit, _ragas_context_recall],
-        experiment_prefix="retrieval-recall",
-    )
+        client.evaluate(
+            partial(_target, k=args.k),
+            data=DATASET_NAME,
+            evaluators=[_exact_chunk_hit, _ragas_context_recall],
+            experiment_prefix="retrieval-recall",
+        )
 
     report_path = (
         Path(args.report) if args.report else REPORT_DIR / f"retrieval_recall_{int(datetime.now(UTC).timestamp())}.json"
@@ -257,6 +258,11 @@ def main() -> None:
     parser.add_argument("--k", type=int, default=6)
     parser.add_argument("--regenerate-questions", action="store_true")
     parser.add_argument("--report", default=None, help="optional path to write a JSON report")
+    parser.add_argument(
+        "--local",
+        action="store_true",
+        help="skip the LangSmith experiment upload; only write the local JSON report (cached questions, no LLM call)",
+    )
     args = parser.parse_args()
     asyncio.run(main_async(args))
 

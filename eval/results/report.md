@@ -11,7 +11,17 @@ Bằng chứng có thể tái tạo hiện tại nằm ở:
 - [`coverage.xml`](coverage.xml): coverage line/branch dạng máy đọc được;
 - [`../../docs/evaluation/EVALUATION_EVIDENCE.md`](../../docs/evaluation/EVALUATION_EVIDENCE.md): báo cáo tổng hợp (sinh lại bằng `make eval-report`).
 
-Baseline xác minh gần nhất (2026-08-27, sau khi refactor `plan_response` — xem
+Đo lại 2026-10-26, sau khi chuyển RAG sang Qdrant + BAAI/bge-m3 + chunking v2
+(bảng trong README dùng đúng các số này):
+
+- 603 test pass, 0 fail;
+- F2 rule engine giờ chạy luồng ghi thật (`create_glucose_record`: quy đổi đơn vị, đánh giá ngưỡng, tạo cảnh báo) trên DB in-memory: **12/15**. 3 case fail (TC-RULE-008/012/014) cần mục tiêu theo bối cảnh bữa ăn mà care plan hiện chưa có. Eval này cũng phát hiện lỗi chỉ số mmol/L bị so như mg/dL (báo động NGUY HIỂM giả), đã sửa;
+- retrieval recall 53 fact card (k=6): exact-hit **0.830**, trước đó 0.679 với Chroma + OpenAI embedding (cùng bộ câu hỏi) — `retrieval_recall_bge-m3.json`;
+- retrieval tier 2, 24 câu hỏi trên tài liệu dài (nhãn theo file nguồn + cụm bằng chứng, không phụ thuộc chunk_id): hit@1 0.375, hit@3 0.917, hit@10 1.000, MRR 0.642;
+- retrieval theo nguồn, 15 kịch bản AI: case-hit 0.733, source-recall 0.857, MRR 0.787 (trước đó bộ chấm chỉ so tiêu đề nên tính nhầm các bài đúng nguồn VADE / BV Nội tiết TW là trượt);
+- các mục còn lại bên dưới chưa đo lại (golden scenarios, guardrail judge, trajectory, faithfulness, coverage, E2E).
+
+Baseline xác minh trước đó (2026-08-27, sau khi refactor `plan_response` — xem
 `docs/AI_Eval_Metrics_Plan.md` §2.4 để biết toàn bộ kết quả chạy lại và những
 gì đã thay đổi; §2.4 cuối và §2.5 ghi lại 3 việc làm thêm cùng ngày: fix
 regression personal-data faithfulness, chạy `run_agent_e2e.py` lần đầu để có

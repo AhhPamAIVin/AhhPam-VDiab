@@ -15,8 +15,18 @@ def _normalize(value: str) -> str:
 
 
 def _title_matches(expected: str, actual: str) -> bool:
-    left, right = _normalize(expected), _normalize(actual)
-    return left in right or right in left
+    left = _normalize(expected)
+    return any(left in part or (part and part in left) for part in map(_normalize, actual.split(" | ")))
+
+
+def _organizations(chunk_ids: list[str | None]) -> dict[str, str]:
+    from codebase.models.rag.ingest import get_collection
+
+    ids = [cid for cid in chunk_ids if cid]
+    if not ids:
+        return {}
+    got = get_collection().get(ids=ids, include=["metadatas"])
+    return {cid: (meta or {}).get("organization") or "" for cid, meta in zip(got["ids"], got["metadatas"], strict=True)}
 
 
 def evaluate_retrieval(cases: list[dict[str, Any]], *, k: int = _RETRIEVAL_K) -> dict[str, Any]:
@@ -29,7 +39,14 @@ def evaluate_retrieval(cases: list[dict[str, Any]], *, k: int = _RETRIEVAL_K) ->
         if not behavior.get("must_cite_sources") or not required:
             continue
         chunks = search_approved_knowledge(case["prompt"], k=k)
-        titles = [str(chunk.get("title") or "") for chunk in chunks]
+        # Labels name either a document ("Quyết định 5481/QĐ-BYT") or its
+        # publisher ("Hội Nội tiết & Đái tháo đường Việt Nam (VADE)"), so match
+        # against both. Title-only matching scored the right Bệnh viện Nội tiết
+        # TW / VADE articles as misses.
+        organizations = _organizations([chunk.get("chunk_id") for chunk in chunks])
+        titles = [
+            f"{chunk.get('title') or ''} | {organizations.get(chunk.get('chunk_id'), '')}" for chunk in chunks
+        ]
         ranks: dict[str, int | None] = {}
         for expected in required:
             rank = next((index for index, title in enumerate(titles, 1) if _title_matches(expected, title)), None)

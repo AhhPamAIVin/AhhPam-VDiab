@@ -202,22 +202,25 @@ dataset không được tính là `PASS` nếu production code chưa được th
 
 ### Kết quả baseline gần nhất
 
-Cập nhật 2026-08-27, sau khi refactor `plan_response` (chi tiết đầy đủ và các
-finding ở [docs/AI_Eval_Metrics_Plan.md](docs/AI_Eval_Metrics_Plan.md) §2.4).
+Cập nhật 2026-10-26, sau khi chuyển RAG sang Qdrant + BAAI/bge-m3 + chunking v2.
+Các dòng ghi "2026-08-27" chưa đo lại sau lần đổi này (chi tiết lần đo đó ở
+[docs/AI_Eval_Metrics_Plan.md](docs/AI_Eval_Metrics_Plan.md) §2.4). Số liệu giống
+hệt [eval/results/report.md](eval/results/report.md).
 
 | Hạng mục | Kết quả | Trạng thái |
 |---|---:|:---:|
-| Pytest | **462 passed, 0 failed** | ✅ |
-| Line coverage | **90.2%** | ✅ Vượt gate 60% |
-| Branch coverage | **73.2%** | ✅ |
+| Pytest | **603 passed, 0 failed** | ✅ |
+| Line / branch coverage | **90.2% / 73.2%** (2026-08-27) | ✅ Vượt gate 60% — chưa đo lại |
 | Golden validation qua schema thật | **9/9 executed** | ✅ |
-| Deterministic intent routing | **30/37 cases** | ⚠️ Tăng từ 26/37, còn 7 mismatch |
-| F2 production rule engine | **0/15 executed** | ❌ Chưa triển khai, không tính pass |
-| Retrieval recall (`eval/respond_agent/retrieval_recall.py`) | **0.679** exact-hit, **0.679** Ragas context-recall | ✅ |
-| Guardrail vs. LLM judge (`eval/respond_agent/guardrail_judge.py`) | **1.000** guardrail-vs-expected, **0.812** judge-vs-expected | ✅ |
-| Agent trajectory/routing (`eval/respond_agent/trajectory.py`) | **10/10** | ✅ |
-| Golden scenarios, 30 case thật (`eval/respond_agent/golden_scenarios.py`) | intent **0.767**, citation **0.467**, key-facts **0.686** | ⚠️ Giảm so với trước refactor, vẫn an toàn về nội dung — xem §2.4 |
-| Personal-data faithfulness (`eval/respond_agent/personal_data_faithfulness.py`) | **3/4** | ❌ Regression từ 4/4 — agent nói sai là không biết bác sĩ điều trị, chưa fix |
+| Deterministic intent routing | **30/37 cases** | ⚠️ Còn 7 mismatch |
+| F2 rule engine — chạy luồng ghi thật (`create_glucose_record`) | **12/15** | ⚠️ 3 case cần mục tiêu theo bối cảnh bữa ăn (đói 80–130, trước ngủ ≥ 90); care plan hiện chỉ có 1 dải mục tiêu |
+| Retrieval recall, 53 fact card (`eval/respond_agent/retrieval_recall.py`, k=6) | **0.830** exact-hit (trước: 0.679 với Chroma + OpenAI) | ✅ |
+| Retrieval tier 2, 24 câu hỏi trên tài liệu dài (`eval/harness/retrieval_tier2.py`, k=10) | hit@1 **0.375**, hit@3 **0.917**, hit@10 **1.000**, MRR **0.642** | ✅ |
+| Retrieval theo nguồn, 15 kịch bản AI (`eval/harness/retrieval.py`, k=10) | case-hit **0.733**, source-recall **0.857**, MRR **0.787** | ⚠️ |
+| Guardrail vs. LLM judge (`eval/respond_agent/guardrail_judge.py`) | **1.000** / **0.812** (2026-08-27) | ✅ |
+| Agent trajectory/routing (`eval/respond_agent/trajectory.py`) | **10/10** (2026-08-27) | ✅ |
+| Golden scenarios, 30 case thật (`eval/respond_agent/golden_scenarios.py`) | intent **0.767**, citation **0.467**, key-facts **0.686** (2026-08-27) | ⚠️ Chưa đo lại sau đổi RAG |
+| Personal-data faithfulness (`eval/respond_agent/personal_data_faithfulness.py`) | **4/4** (2026-08-27) | ✅ Regression 3/4 đã fix — xem §2.4 |
 | WATCH classifier gate (`eval/watch_classifier/`) | **46/46** pytest + **28/28** threshold | ✅ |
 | Agent E2E / RAGAS runner độc lập | On-demand | ⏳ Cần server đang chạy + token, chưa chạy trong môi trường này |
 | Dataset provenance/reviewer metadata | **0%** | ⚠️ Cần bổ sung người duyệt và nguồn |

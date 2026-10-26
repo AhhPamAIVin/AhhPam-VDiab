@@ -59,10 +59,14 @@
 - **AC:** citation ≥ 0.7, intent ≥ 34/37 (mục tiêu đề xuất — chốt lại).
 
 ### 5.6 Sửa eval harness
-- [ ] `evaluate_rule_engine` gọi thật `threshold_service` / luồng glucose alert với 15 case trong
+- [x] `evaluate_rule_engine` gọi thật `threshold_service` / luồng glucose alert với 15 case trong
       `eval/data/rule_engine_cases.json` thay vì hard-code `NOT_IMPLEMENTED`.
+      *12/15 qua `create_glucose_record`. 3 case cần mục tiêu theo bối cảnh bữa ăn mà care plan chưa có.
+      Eval này phát hiện lỗi mmol/L bị so như mg/dL (đã sửa).*
 - [ ] Runner cho AI Summary golden (`eval/data/ai_summary_cases.json`, 8 case — hiện chỉ có schema).
-- [ ] Đồng bộ bảng baseline trong README với `eval/results/report.md`.
+- [x] Đồng bộ bảng baseline trong README với `eval/results/report.md`.
+- [x] Thêm: eval retrieval tier 2 (`eval/harness/retrieval_tier2.py`, 24 câu, nhãn theo file + cụm bằng chứng),
+      cổng regression trong CI (`eval/baseline.json`).
 - **AC:** `make eval` phản ánh đúng trạng thái code; README và report khớp số.
 
 ### 5.7 Chuyển vector store từ Chroma sang Qdrant
