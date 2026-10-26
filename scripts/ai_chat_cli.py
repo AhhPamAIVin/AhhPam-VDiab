@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import asyncio
 import json
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from uuid import uuid4
 
@@ -98,7 +98,7 @@ def _tools_used(result: dict) -> dict:
 
 def _log_turn(*, role: str, user_full_name: str, patient_full_name: str, command: str, message: str, result: dict) -> None:
     entry = {
-        "ts": datetime.now(timezone.utc).isoformat(),
+        "ts": datetime.now(UTC).isoformat(),
         "role": role,
         "user": user_full_name,
         "patient": patient_full_name,
