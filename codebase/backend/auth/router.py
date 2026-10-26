@@ -13,11 +13,12 @@ from codebase.backend.auth.schemas import (
     UserPublic,
 )
 from codebase.backend.db import get_session
+from codebase.backend.security.rate_limit import limit_login
 
 router = APIRouter()
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=TokenResponse, dependencies=[Depends(limit_login)])
 def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),

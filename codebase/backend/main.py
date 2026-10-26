@@ -3,7 +3,7 @@ import threading
 from contextlib import asynccontextmanager
 
 import openai
-from fastapi import FastAPI, Request
+from fastapi import Depends, FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -28,6 +28,7 @@ from codebase.backend.notifications.router import router as notifications_router
 from codebase.backend.notifications.scheduler import shutdown_scheduler, start_scheduler
 from codebase.backend.notifications.zalo_link_listener import start_zalo_link_listener, stop_zalo_link_listener
 from codebase.backend.patients.router import router as patients_router
+from codebase.backend.security.rate_limit import limit_agent
 from codebase.backend.security.sql_injection_guard import SQLInjectionGuardMiddleware
 from codebase.models.tracing import flush_tracing
 
@@ -90,7 +91,7 @@ app.include_router(insights_router, prefix="/api/v1/doctor", tags=["insights"])
 app.include_router(appointments_router, prefix="/api/v1/appointments", tags=["appointments"])
 app.include_router(health_router, prefix="/api/v1/health", tags=["health"])
 app.include_router(medications_router, prefix="/api/v1/medications", tags=["medications"])
-app.include_router(agent_router, prefix="/api/v1/agent", tags=["agent"])
+app.include_router(agent_router, prefix="/api/v1/agent", tags=["agent"], dependencies=[Depends(limit_agent)])
 app.include_router(summary_metrics_router, prefix="/api/v1/agent", tags=["agent"])
 app.include_router(chat_suggestions_router, prefix="/api/v1/agent", tags=["agent"])
 app.include_router(notifications_router, prefix="/api/v1/notifications", tags=["notifications"])

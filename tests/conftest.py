@@ -9,6 +9,9 @@ os.environ["LANGFUSE_PUBLIC_KEY"] = ""
 os.environ["LANGFUSE_SECRET_KEY"] = ""
 # In-process Qdrant: no server needed, nothing written to a real collection.
 os.environ["QDRANT_LOCATION"] = ":memory:"
+# Every test logs in again; per-IP login limits would trip across tests.
+# tests/test_backend/test_rate_limit.py turns them back on for itself.
+os.environ["RATE_LIMIT_ENABLED"] = "false"
 
 import pytest
 import pytest_asyncio

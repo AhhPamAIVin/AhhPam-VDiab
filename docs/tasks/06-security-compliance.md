@@ -36,9 +36,11 @@
 - **AC:** test — thử `UPDATE` audit row bị DB từ chối; mỗi hành động trong danh sách sinh đúng 1 event.
 
 ### 6.2 Rate limiting
-- [ ] Middleware/thư viện (vd `slowapi`) theo user (JWT) và IP: `/auth/login` chặt (vd 5/phút/IP),
+- [x] Middleware/thư viện (vd `slowapi`) theo user (JWT) và IP: `/auth/login` chặt (vd 5/phút/IP),
       `/agent/*` theo user (vd 20/phút), còn lại nới.
-- [ ] Trả `429` + `Retry-After`; frontend hiển thị thông báo tiếng Việt.
+      *`codebase/backend/security/rate_limit.py`: sliding window trong tiến trình, không thêm thư viện;
+      mỗi worker đếm riêng (nhiều worker → cần store dùng chung).*
+- [x] Trả `429` + `Retry-After`; frontend hiển thị thông báo tiếng Việt.
 - **AC:** test vượt ngưỡng → 429; giới hạn cấu hình được qua env.
 
 ### 6.3 Backup & restore
