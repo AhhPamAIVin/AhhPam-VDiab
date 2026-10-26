@@ -14,10 +14,12 @@ def _node_model_overrides(raw: str) -> dict[str, str]:
     return overrides
 
 
-def get_llm(node: str | None = None) -> ChatOpenAI:
+def get_llm(node: str | None = None, *, trace: bool = True) -> ChatOpenAI:
     """`node` picks a per-node model from LLM_NODE_MODELS when one is set,
     otherwise MODEL_NAME — so a light classification step can run on a smaller
-    model without changing the answer-writing nodes."""
+    model without changing the answer-writing nodes. trace=False keeps the
+    call out of Langfuse (meal photos: the patient consented to the model
+    provider seeing it, not to it being kept in our traces)."""
     settings = get_settings()
     model = _node_model_overrides(settings.llm_node_models).get(node or "", settings.model_name)
     return ChatOpenAI(
@@ -25,5 +27,5 @@ def get_llm(node: str | None = None) -> ChatOpenAI:
         api_key=settings.openai_api_key,
         base_url=settings.openai_base_url or None,
         temperature=settings.llm_temperature,
-        callbacks=tracing_callbacks(),
+        callbacks=tracing_callbacks() if trace else [],
     )

@@ -14,6 +14,7 @@ from codebase.backend.health.models import (
     DoctorWatchReview,
     GlucoseRecord,
     MealContext,
+    MealInputSource,
     MealRecord,
     MealType,
     MeasurementSource,
@@ -253,6 +254,8 @@ def create_meal_record(
     description: str,
     note: str | None,
     created_by: UUID,
+    portion: str | None = None,
+    input_source: MealInputSource = MealInputSource.TEXT,
     source_pending_action_id: UUID | None = None,
 ) -> MealRecord:
     record = MealRecord(
@@ -261,6 +264,8 @@ def create_meal_record(
         meal_time=meal_time,
         description=description,
         note=note,
+        portion=portion,
+        input_source=input_source,
         created_by=created_by,
         source_pending_action_id=source_pending_action_id,
     )

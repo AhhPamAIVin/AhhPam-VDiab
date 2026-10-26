@@ -20,11 +20,15 @@ class UserPublic(SQLModel):
     is_active: bool
     must_change_password: bool
     ai_memory_consent: bool
+    meal_photo_ai_consent: bool = False
     created_at: UtcDatetime
 
 
 class UpdateMeRequest(SQLModel):
-    ai_memory_consent: bool
+    """Partial update: a field left out keeps its current value."""
+
+    ai_memory_consent: bool | None = None
+    meal_photo_ai_consent: bool | None = None
 
 
 class UserCreate(SQLModel):

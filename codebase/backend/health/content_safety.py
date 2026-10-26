@@ -42,6 +42,7 @@ from __future__ import annotations
 import json
 import logging
 
+from codebase.models.agents.json_output import strip_code_fence
 from codebase.models.agents.prompts.safety_patterns import normalize_for_pattern_match
 from codebase.models.llm import get_llm
 
@@ -92,22 +93,12 @@ def find_unsafe_substance_term(text: str) -> str | None:
     return None
 
 
-def _strip_code_fence(text: str) -> str:
-    text = text.strip()
-    if not text.startswith("```"):
-        return text
-    text = text.strip("`")
-    if "\n" in text:
-        first_line, rest = text.split("\n", 1)
-        if first_line.strip().lower() in {"json", ""}:
-            text = rest
-    return text.strip()
 
 
 def _parse_bool_field(content: str, field: str) -> bool | None:
     """None means unparseable — caller must fail open, never raise."""
     try:
-        parsed = json.loads(_strip_code_fence(content))
+        parsed = json.loads(strip_code_fence(content))
     except (json.JSONDecodeError, TypeError):
         return None
     if not isinstance(parsed, dict):

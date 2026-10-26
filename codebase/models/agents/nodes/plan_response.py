@@ -65,6 +65,7 @@ import re
 
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 
+from codebase.models.agents.json_output import strip_code_fence
 from codebase.models.agents.prompts.safety_patterns import normalize_for_pattern_match
 from codebase.models.agents.state import AgentState
 from codebase.models.llm import get_llm
@@ -191,16 +192,6 @@ QUY TẮC:
 """
 
 
-def _strip_code_fence(text: str) -> str:
-    text = text.strip()
-    if not text.startswith("```"):
-        return text
-    text = text.strip("`")
-    if "\n" in text:
-        first_line, rest = text.split("\n", 1)
-        if first_line.strip().lower() in {"json", ""}:
-            text = rest
-    return text.strip()
 
 
 def _parse_plan(content: str) -> dict | None:
@@ -208,7 +199,7 @@ def _parse_plan(content: str) -> dict | None:
     supposed to produce — malformed JSON or wrong top-level type. Never
     raises."""
     try:
-        parsed = json.loads(_strip_code_fence(content))
+        parsed = json.loads(strip_code_fence(content))
     except (json.JSONDecodeError, TypeError):
         return None
     return parsed if isinstance(parsed, dict) else None

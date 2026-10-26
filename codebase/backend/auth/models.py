@@ -33,5 +33,10 @@ class User(SQLModel, table=True):
     # refuses to add a NOT NULL column without one — same precedent as
     # insights/models.py's InsightStatus column.
     ai_memory_consent: bool = Field(default=False, sa_column=Column(Boolean, nullable=False, server_default="false"))
+    # Patient's own consent to send meal photos to the external vision model
+    # (Epic 1); asked on first use, revocable from the meals page.
+    meal_photo_ai_consent: bool = Field(
+        default=False, sa_column=Column(Boolean, nullable=False, server_default="false")
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

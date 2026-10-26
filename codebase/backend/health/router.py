@@ -1,14 +1,19 @@
 from datetime import UTC, datetime, timedelta
 from uuid import UUID
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Query, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, Query, UploadFile, status
 from sqlmodel import Session
 
 from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
+from codebase.backend.config import get_settings
 from codebase.backend.db import get_session
-from codebase.backend.health import service
-from codebase.backend.health.content_safety import is_unsafe_activity_type, is_unsafe_meal_description
+from codebase.backend.health import meal_photo, service
+from codebase.backend.health.content_safety import (
+    find_unsafe_substance_term,
+    is_unsafe_activity_type,
+    is_unsafe_meal_description,
+)
 from codebase.backend.health.models import (
     ActivityRecord,
     BloodPressureRecord,
@@ -25,11 +30,15 @@ from codebase.backend.health.schemas import (
     DoctorWatchReviewPublic,
     GlucoseRecordCreate,
     GlucoseRecordPublic,
+    MealPhotoAnalysisPublic,
+    MealPhotoItemPublic,
     MealRecordCreate,
     MealRecordPublic,
 )
 from codebase.backend.patients.access import ensure_patient_access
+from codebase.backend.security.rate_limit import limit_agent
 from codebase.backend.summaries.service import refresh_patient_summaries
+from codebase.models.agents.nodes.meal.recognize_from_photo import MealPhotoRecognitionError, recognize_from_photo
 
 router = APIRouter()
 
@@ -184,8 +193,12 @@ def list_blood_pressure(
     return service.list_blood_pressure_records(session, target_patient_id, start_date=start_date, end_date=end_date)
 
 
-async def _validate_meal_description(description: str) -> None:
-    if await is_unsafe_meal_description(description):
+async def _validate_meal_description(description: str, portion: str | None = None) -> None:
+    # The portion is a quantity ("1 bát"), so only the literal denylist runs
+    # on it — no second LLM call per meal.
+    if await is_unsafe_meal_description(description) or (
+        portion and find_unsafe_substance_term(portion) is not None
+    ):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=(
@@ -203,7 +216,7 @@ async def create_meal(
     session: Session = Depends(get_session),
 ) -> MealRecord:
     ensure_patient_access(session, current_user, request.patient_id)
-    await _validate_meal_description(request.description)
+    await _validate_meal_description(request.description, request.portion)
     record = service.create_meal_record(
         session,
         patient_id=request.patient_id,
@@ -211,10 +224,62 @@ async def create_meal(
         meal_time=request.meal_time,
         description=request.description,
         note=request.note,
+        portion=request.portion,
+        input_source=request.input_source,
         created_by=current_user.id,
     )
     background_tasks.add_task(refresh_patient_summaries, patient_id=request.patient_id)
     return record
+
+
+@router.post(
+    "/meals/photo-analysis",
+    response_model=MealPhotoAnalysisPublic,
+    dependencies=[Depends(limit_agent)],
+)
+async def analyze_meal_photo(
+    file: UploadFile = File(...),
+    hint: str | None = Form(default=None, max_length=1000),
+    current_user: User = Depends(require_roles(UserRole.PATIENT)),
+) -> MealPhotoAnalysisPublic:
+    """Prefill the meal form from a photo. The photo goes to the vision model
+    once and is then dropped — nothing is stored, and the draft only becomes
+    a MealRecord when the patient saves the form (input_source=photo).
+
+    Patient-only: the consent to send the photo out is the patient's own.
+    Shares the per-user /agent/* rate limit, since every call is an LLM call."""
+    if not get_settings().meal_photo_analysis_enabled:
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Tính năng phân tích ảnh đang tắt.")
+    if not current_user.meal_photo_ai_consent:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Bạn cần đồng ý gửi ảnh cho AI phân tích trước khi dùng tính năng này.",
+        )
+    try:
+        image, media_type = await meal_photo.read_photo(file)
+    except meal_photo.UnsupportedImageError:
+        raise HTTPException(
+            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
+            detail="Chỉ nhận ảnh JPG, PNG hoặc WebP.",
+        ) from None
+    except meal_photo.ImageTooLargeError:
+        raise HTTPException(
+            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
+            detail="Ảnh không được vượt quá 10MB.",
+        ) from None
+    try:
+        recognition = await recognize_from_photo(image, media_type, hint=hint)
+    except MealPhotoRecognitionError:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail="Chưa phân tích được ảnh lúc này. Bạn có thể nhập món ăn bằng tay.",
+        ) from None
+    return MealPhotoAnalysisPublic(
+        recognized=recognition.is_food,
+        description=recognition.description,
+        portion=recognition.portion,
+        items=[MealPhotoItemPublic(**item.model_dump()) for item in recognition.items],
+    )
 
 
 @router.get("/meals", response_model=list[MealRecordPublic])

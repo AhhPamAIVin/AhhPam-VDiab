@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlmodel import Column, Field, SQLModel
+from sqlmodel import JSON, Column, Field, SQLModel
 from sqlmodel import Enum as SAEnum
 
 
@@ -122,6 +122,12 @@ class BloodPressureRecord(SQLModel, table=True):
     created_at: datetime = Field(default_factory=datetime.utcnow)
 
 
+class MealInputSource(StrEnum):
+    TEXT = "text"
+    PHOTO = "photo"
+    VOICE = "voice"
+
+
 class MealRecord(SQLModel, table=True):
     __tablename__ = "meal_records"
 
@@ -131,11 +137,62 @@ class MealRecord(SQLModel, table=True):
     meal_time: datetime
     description: str = Field(max_length=1000)
     note: str | None = Field(default=None, max_length=500)
+    # Epic 1.1. Rows logged before this existed carry the portion inside
+    # `note` as "Khẩu phần: ... · ..." (the old frontend's workaround).
+    portion: str | None = Field(default=None, max_length=100)
+    # How the patient entered the meal. A photo is only read by the vision
+    # model to prefill the form and is never stored (POST /meals/photo-analysis);
+    # this flag is all that remains of it. NULL on rows from before Epic 1.
+    input_source: MealInputSource | None = Field(
+        default=None, sa_column=Column(SAEnum(MealInputSource, name="meal_input_source"), nullable=True)
+    )
     created_by: UUID = Field(foreign_key="users.id")
     source_pending_action_id: UUID | None = Field(
         default=None, foreign_key="pending_record_actions.id", unique=True
     )
     created_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class CarbLoad(StrEnum):
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    # At least one item has no nutrition match, so the total is a lower bound.
+    UNKNOWN = "unknown"
+
+
+class MealAnalysisStatus(StrEnum):
+    DRAFT = "draft"
+    CONFIRMED = "confirmed"
+    EDITED = "edited"
+
+
+class MealAnalysis(SQLModel, table=True):
+    """Structured breakdown of one MealRecord (Epic 1). The LLM only splits
+    the text into items; every number comes from the nutrition table
+    (codebase/models/agents/tools/nutrition_tools.py), and an item with no
+    match keeps carbs_g/kcal null rather than a guess."""
+
+    __tablename__ = "meal_analyses"
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    meal_id: UUID = Field(foreign_key="meal_records.id", unique=True)
+    patient_id: UUID = Field(foreign_key="users.id", index=True)
+    # [{name, matched_food_id, quantity, unit, grams, carbs_g, kcal, gi_level, match_confidence}]
+    items: list[dict] = Field(default_factory=list, sa_column=Column(JSON, nullable=False))
+    total_carbs_g: float | None = Field(default=None)
+    total_kcal: float | None = Field(default=None)
+    carb_load: CarbLoad = Field(sa_column=Column(SAEnum(CarbLoad, name="carb_load"), nullable=False))
+    source: MealInputSource = Field(
+        sa_column=Column(SAEnum(MealInputSource, name="meal_input_source"), nullable=False)
+    )
+    status: MealAnalysisStatus = Field(
+        sa_column=Column(SAEnum(MealAnalysisStatus, name="meal_analysis_status"), nullable=False)
+    )
+    model_version: str | None = Field(default=None, max_length=100)
+    nutrition_db_version: str | None = Field(default=None, max_length=50)
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)
 
 
 class ActivityRecord(SQLModel, table=True):
