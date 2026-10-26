@@ -81,6 +81,7 @@ def create_glucose_record(
         notification_type=NotificationType.GLUCOSE_REMINDER,
         on_date=_reminder_local_date(record.measured_at),
     )
+    record_id = record.id  # plain value for the failure logs below
 
     # Threshold evaluation is best-effort enrichment, not the primary action
     # here — a bug or missing model in this newer path must never stop a
@@ -105,8 +106,8 @@ def create_glucose_record(
         session.commit()
         session.refresh(record)
     except Exception:
-        logger.exception("threshold evaluation failed for glucose record %s — leaving it unevaluated", record.id)
         session.rollback()
+        logger.exception("threshold evaluation failed for glucose record %s — leaving it unevaluated", record_id)
         return record
 
     # WATCH and DANGER both notify (NORMAL/UNAVAILABLE never do) — Giai doan
@@ -127,8 +128,12 @@ def create_glucose_record(
                     danger_high_mg_dl=evaluation.danger_high_mg_dl,
                 )
         except Exception:
-            logger.exception("glucose alert notification failed for record %s", record.id)
+            # Roll back first: after a failed flush the session refuses every
+            # query, including the attribute load `record.id` would trigger —
+            # logging it before the rollback turned this "must not fail the
+            # request" path into a 500 (verified live).
             session.rollback()
+            logger.exception("glucose alert notification failed for record %s", record_id)
 
     return record
 
