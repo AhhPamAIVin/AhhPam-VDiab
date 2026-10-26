@@ -1,13 +1,19 @@
+import logging
 from collections.abc import Generator
 
-from sqlalchemy import event, inspect, text
-from sqlalchemy.schema import CreateColumn
+from sqlalchemy import UniqueConstraint, event, inspect, text
+from sqlalchemy.exc import DBAPIError
+from sqlalchemy.schema import AddConstraint, CreateColumn
 from sqlmodel import Session, SQLModel, create_engine
 
 from codebase.backend.config import get_settings
 
+logger = logging.getLogger(__name__)
 settings = get_settings()
-engine = create_engine(settings.database_url, echo=False)
+# pool_pre_ping: a pooled connection the server closed (the idle-in-transaction
+# timeout below, or the pooler) is replaced at checkout instead of failing the
+# request that happens to draw it.
+engine = create_engine(settings.database_url, echo=False, pool_pre_ping=True)
 
 
 @event.listens_for(engine, "connect")
@@ -47,12 +53,103 @@ def create_db_and_tables() -> None:
     `metadata.create_all` alone only creates missing *tables* — it never
     alters a table that already exists, so a persisted dev/staging volume
     silently drifts out of sync the moment a column is added to a model
-    (see the glucose_records/meal_context incident). This closes that one
-    gap without pulling in a full migration tool: additive only (add
-    column), never drops/renames/alters existing columns.
+    (see the glucose_records/meal_context incident). This closes that gap
+    without pulling in a full migration tool — missing columns, missing
+    Postgres enum values, and index drift (see each helper) — additive or
+    relaxing only; never drops/renames/alters existing columns.
     """
     SQLModel.metadata.create_all(engine)
     _add_missing_columns()
+    _add_missing_enum_values()
+    _repair_indexes()
+
+
+def _repair_indexes() -> None:
+    """Index/constraint drift: create_all never alters an index that already
+    exists. Verified live: care_plan_targets kept the initial commit's UNIQUE
+    index on patient_id after the model moved to versioned rows (unique on
+    (patient_id, version)), so every second care-plan version for a patient
+    failed with a UniqueViolation (HTTP 500).
+
+    Only safe changes: an index the model no longer marks unique is recreated
+    non-unique (relaxing), and missing indexes / unique constraints are
+    created. Tightening an existing index, or a constraint the current data
+    violates, is logged and skipped — that needs a deliberate migration."""
+    inspector = inspect(engine)
+    existing_tables = set(inspector.get_table_names())
+    for table in SQLModel.metadata.sorted_tables:
+        if table.name not in existing_tables:
+            continue
+        db_indexes = {ix["name"]: ix for ix in inspector.get_indexes(table.name)}
+        db_uniques = {uc["name"] for uc in inspector.get_unique_constraints(table.name)} | {
+            name for name, ix in db_indexes.items() if ix.get("unique")
+        }
+        for index in table.indexes:
+            current = db_indexes.get(index.name)
+            try:
+                with engine.begin() as conn:
+                    if current is None:
+                        index.create(conn)
+                    elif bool(current.get("unique")) and not index.unique:
+                        conn.execute(text(f'DROP INDEX IF EXISTS "{index.name}"'))
+                        index.create(conn)
+                        logger.warning("relaxed index %s.%s from UNIQUE to non-unique", table.name, index.name)
+                    elif index.unique and not current.get("unique"):
+                        logger.warning("index %s.%s should be UNIQUE — needs a migration", table.name, index.name)
+            except Exception:
+                logger.exception("could not repair index %s.%s", table.name, index.name)
+        for constraint in table.constraints:
+            if not isinstance(constraint, UniqueConstraint) or not constraint.name or constraint.name in db_uniques:
+                continue
+            try:
+                with engine.begin() as conn:
+                    conn.execute(AddConstraint(constraint))
+            except Exception:
+                logger.exception("could not add unique constraint %s.%s", table.name, constraint.name)
+
+
+def missing_enum_values(existing: dict[str, set[str]]) -> dict[str, list[str]]:
+    """Enum type name -> labels the models declare but the database type
+    lacks. `existing` maps each database enum type to its current labels."""
+    missing: dict[str, list[str]] = {}
+    for table in SQLModel.metadata.sorted_tables:
+        for column in table.columns:
+            enum_type = column.type
+            name = getattr(enum_type, "name", None)
+            labels = getattr(enum_type, "enums", None)
+            if not name or not labels or name not in existing:
+                continue  # not a native enum, or created complete by create_all just now
+            for label in labels:
+                if label not in existing[name] and label not in missing.setdefault(name, []):
+                    missing[name].append(label)
+    return {name: labels for name, labels in missing.items() if labels}
+
+
+def _add_missing_enum_values() -> None:
+    """Same drift as _add_missing_columns, for Postgres ENUM types: create_all
+    never alters an existing type, so a value added to a Python enum later
+    (NotificationType.GLUCOSE_ALERT) is rejected by an older database —
+    verified live: every WATCH/DANGER glucose alert failed with "invalid input
+    value for enum notification_type". Additive only (ADD VALUE IF NOT EXISTS)."""
+    if engine.dialect.name != "postgresql":
+        return
+    with engine.connect() as conn:
+        rows = conn.execute(
+            text("SELECT t.typname, e.enumlabel FROM pg_type t JOIN pg_enum e ON e.enumtypid = t.oid")
+        ).all()
+    existing: dict[str, set[str]] = {}
+    for type_name, label in rows:
+        existing.setdefault(type_name, set()).add(label)
+    to_add = missing_enum_values(existing)
+    if not to_add:
+        return
+    # ALTER TYPE ... ADD VALUE outside a transaction block: a value added
+    # inside a transaction can't be used until it commits anyway.
+    with engine.connect().execution_options(isolation_level="AUTOCOMMIT") as conn:
+        for type_name, labels in to_add.items():
+            for label in labels:
+                escaped = label.replace("'", "''")
+                conn.execute(text(f"ALTER TYPE \"{type_name}\" ADD VALUE IF NOT EXISTS '{escaped}'"))
 
 
 def _add_missing_columns() -> None:
@@ -85,5 +182,28 @@ def _add_column(conn, table_name: str, column) -> None:
 
 
 def get_session() -> Generator[Session, None, None]:
-    with Session(engine) as session:
+    session = Session(engine)
+    try:
         yield session
+    finally:
+        _close_session(session)
+
+
+def _close_session(session: Session) -> None:
+    """FastAPI tears a yield dependency down only after the request's
+    BackgroundTasks finish, so a write endpoint that schedules
+    refresh_patient_summaries (6 sequential LLM calls) keeps this session's
+    connection idle-in-transaction well past the 30s server timeout set
+    above; Postgres kills it and the closing ROLLBACK raises. Verified live:
+    that exception escaped after the response was sent, uvicorn dropped the
+    keep-alive connection, and the client's *next* request failed with
+    "Server disconnected". The connection is already gone and nothing was
+    pending, so discard it and carry on."""
+    try:
+        session.close()
+    except DBAPIError as exc:
+        logger.warning("discarding a dead DB connection at session close: %s", exc.orig or exc)
+        try:
+            session.invalidate()
+        except Exception:
+            pass
