@@ -1,12 +1,11 @@
-"""Vector store — Qdrant, behind a small Chroma-shaped collection API.
+"""Vector store — Qdrant, behind a small collection API.
 
 Every caller (rag/ingest.py, knowledge_tools.py, insight_tools.py,
-upsert_insight.py) was written against Chroma's collection API: `get`,
-`upsert`, `delete`, `query` with Chroma-style `where` filters and
-`{"ids": [[...]], "distances": [[...]]}` result shapes. The project ran on
-Chroma first; QdrantCollection below implements exactly that subset on top of
-qdrant-client so those call sites did not have to change when Chroma was
-removed.
+upsert_insight.py) uses one collection interface: `get`, `upsert`, `delete`,
+`query` with `where` equality filters and `{"ids": [[...]], "distances": [[...]]}`
+result shapes. The interface predates the move to Qdrant (the project's first
+vector store had this API); QdrantCollection below implements exactly that
+subset on top of qdrant-client so the call sites did not change with the move.
 
     QDRANT_URL=http://localhost:6333     # server (`make db-up`)
     QDRANT_LOCATION=:memory:             # in-process, no server (tests)
@@ -40,16 +39,16 @@ class VectorSizeMismatchError(RuntimeError):
     similarities — re-run ingestion / re-index to fix."""
 
 
-_CLIENT: QdrantChromaClient | None = None
+_CLIENT: QdrantVectorClient | None = None
 
 
-def get_vector_client() -> QdrantChromaClient:
-    """One shared QdrantChromaClient per process, per settings. Shared because
+def get_vector_client() -> QdrantVectorClient:
+    """One shared QdrantVectorClient per process, per settings. Shared because
     an in-process `:memory:` store only exists inside the client that made it."""
     global _CLIENT
     if _CLIENT is None:
         settings = get_settings()
-        _CLIENT = QdrantChromaClient(
+        _CLIENT = QdrantVectorClient(
             url=settings.qdrant_url,
             api_key=settings.qdrant_api_key or None,
             location=settings.qdrant_location or None,
@@ -81,7 +80,7 @@ def _payload_metadata(payload: dict[str, Any]) -> dict[str, Any]:
     return {k: v for k, v in payload.items() if k not in (_ID_KEY, _DOCUMENT_KEY)}
 
 
-class QdrantChromaClient:
+class QdrantVectorClient:
     def __init__(self, url: str | None = None, api_key: str | None = None, location: str | None = None) -> None:
         from qdrant_client import QdrantClient
 
@@ -99,8 +98,8 @@ class QdrantChromaClient:
     ) -> QdrantCollection:
         # The collection itself is created lazily on first upsert: Qdrant needs
         # the vector size up front, which is only known once we have a vector.
-        # `metadata` is Chroma's collection-options argument, kept so call
-        # sites read the same; Qdrant collections are always cosine here.
+        # `metadata` is the old store's collection-options argument, kept so
+        # call sites read the same; Qdrant collections are always cosine here.
         return QdrantCollection(self._client, name, payload_indexes=payload_indexes)
 
     def delete_collection(self, name: str) -> None:
@@ -252,8 +251,8 @@ class QdrantCollection:
             hits = self._client.query_points(
                 self.name, query=list(vector), query_filter=query_filter, limit=n_results, with_payload=True
             ).points
-            # Chroma cosine space reports distance = 1 - cosine_similarity;
-            # Qdrant reports the similarity itself as the score.
+            # Callers expect cosine distance (1 - similarity); Qdrant reports
+            # the similarity itself as the score.
             result["ids"].append([(h.payload or {}).get(_ID_KEY, str(h.id)) for h in hits])
             result["metadatas"].append([_payload_metadata(h.payload or {}) for h in hits])
             result["documents"].append([(h.payload or {}).get(_DOCUMENT_KEY) for h in hits])

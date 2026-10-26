@@ -391,7 +391,7 @@ async def synthesize_summary(state: AgentState) -> dict:
     )
 
     try:
-        llm = get_llm()
+        llm = get_llm("synthesize_summary")
         result = await llm.ainvoke([SystemMessage(content=SYSTEM_PROMPT), HumanMessage(content=prompt)])
         response_text = (getattr(result, "content", None) or "").strip() or _fallback_response(
             trends, attention_points

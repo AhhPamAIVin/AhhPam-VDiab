@@ -61,9 +61,11 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 
+from codebase.models.agents.prompts.safety_patterns import normalize_for_pattern_match
 from codebase.models.agents.state import AgentState
 from codebase.models.llm import get_llm
 
@@ -248,13 +250,55 @@ def _canned_result(intent: str, canned_response: str) -> dict:
     }
 
 
+# Fast path (Epic 5.4): a few messages are unambiguous enough that the planner
+# LLM call (~1-2s) adds nothing. Every pattern must match the WHOLE message
+# after normalization, never a substring — the keyword net this node replaced
+# failed precisely by matching fragments of longer, different questions.
+# Short acknowledgements ("ok", "vâng", "có") are deliberately absent: after an
+# assistant question they mean "yes, go on" and need the history-aware LLM.
+_FAST_PATH_TRAILING_RE = re.compile(r"[\s.,!?~…:;)(\-]+$")
+_FAST_PATH_SOCIAL: dict[str, set[str]] = {
+    "greeting": {"chào", "xin chào", "chào bạn", "xin chào bạn", "chào trợ lý", "hello", "alo"},
+    "thanks": {"cảm ơn", "cám ơn", "cảm ơn bạn", "cám ơn bạn", "cảm ơn nhiều", "cảm ơn bạn nhiều", "thanks", "thank you"},
+    "farewell": {"tạm biệt", "tạm biệt bạn", "chào tạm biệt", "bye", "bye bye"},
+}
+_FAST_PATH_PERSONAL_DATA_RE = re.compile(
+    r"(?:chỉ số |mức )?đường huyết (?:của (?:tôi|mình|em) )?"
+    r"(?:hôm nay|hôm qua|tuần này|tuần qua|tuần trước|\d+ ngày qua)"
+    r"(?: (?:thế nào|ra sao|bao nhiêu|là bao nhiêu))?"
+    r"|(?:tôi|mình|em) đang (?:dùng|uống|sử dụng) (?:những )?thuốc gì"
+)
+
+
+def _fast_path_plan(message: str) -> dict | None:
+    normalized = _FAST_PATH_TRAILING_RE.sub("", normalize_for_pattern_match(message).strip())
+    for subtype, phrases in _FAST_PATH_SOCIAL.items():
+        if normalized in phrases:
+            return _canned_result("SOCIAL", _SOCIAL_RESPONSES[subtype])
+    if _FAST_PATH_PERSONAL_DATA_RE.fullmatch(normalized):
+        return {
+            "intent": "QA",
+            "needs_health_data": True,
+            "skip_knowledge_retrieval": True,
+            "knowledge_query": None,
+            "canned_response": None,
+            "handoff": False,
+            "answered_directly": False,
+            "response": None,
+        }
+    return None
+
+
 async def plan_response(state: AgentState) -> dict:
     message = state.get("message", "") or ""
+    fast_plan = _fast_path_plan(message)
+    if fast_plan is not None:
+        return fast_plan
     history = _history_block((state.get("messages") or [])[:-1])
     role_label = _ROLE_LABEL_VI.get(state.get("user_role") or "", state.get("user_role") or "không xác định")
 
     try:
-        llm = get_llm()
+        llm = get_llm("plan_response")
         result = await llm.ainvoke(
             [
                 {"role": "system", "content": _SYSTEM_PROMPT},

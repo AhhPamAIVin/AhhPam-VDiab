@@ -76,7 +76,7 @@ def _fake_llm(monkeypatch, *, on_call=None):
                 on_call()
             return type("R", (), {"content": "Bản tóm tắt."})()
 
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM())
 
 
 # ---------------------------------------------------------------------------

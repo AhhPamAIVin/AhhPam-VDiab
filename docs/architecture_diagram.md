@@ -31,7 +31,7 @@ flowchart TB
 
     subgraph Data["Data Layer"]
         PG[("PostgreSQL<br/>system of record")]
-        Chroma[("ChromaDB<br/>guideline chunks — chỉ nguồn Đã duyệt")]
+        VectorDB[("Qdrant<br/>guideline chunks — chỉ nguồn Đã duyệt<br/>+ patient insights")]
     end
 
     subgraph External["External Services"]
@@ -55,11 +55,11 @@ flowchart TB
     Appt -->|trigger tổng hợp trước tái khám| Agent
 
     KB <--> PG
-    KB -->|ingest chunk khi trạng thái = Đã duyệt| Chroma
+    KB -->|ingest chunk khi trạng thái = Đã duyệt| VectorDB
 
     Agent --> Tools
     Tools <--> PG
-    Tools --> Chroma
+    Tools --> VectorDB
     Agent <--> LLM
     Agent -.->|trace mọi câu hỏi/tool call| LangSmith
     Agent -.-> Clients
@@ -120,7 +120,7 @@ sequenceDiagram
     participant Agent as AI Agent
     participant Tools as Tool Registry
     participant DB as PostgreSQL
-    participant VS as ChromaDB
+    participant VS as Qdrant
     participant LLM as LLM
 
     U->>Agent: "Tuần này đường huyết của tôi thay đổi thế nào?"
@@ -184,7 +184,7 @@ sequenceDiagram
 | Agent orchestration | LangGraph | Tool-calling loop + guardrail in/out, dùng chung Consultation + Summary |
 | LLM | OpenAI API | Sinh câu trả lời/tóm tắt, chỉ dựa trên dữ liệu Tool trả về |
 | Database | PostgreSQL | System of record: users, health records, care plans, alerts, ai_review_flags, notifications, appointments, audit logs |
-| Vector Store | ChromaDB (embedded) | RAG trên guideline Đã duyệt (`data/knowledge_base/raw/`) cho F3 |
+| Vector Store | Qdrant (service Docker) + embedding BAAI/bge-m3 chạy local | RAG trên guideline Đã duyệt (`data/knowledge_base/raw/`) cho F3; insight dài hạn của bệnh nhân |
 | Tracing | LangSmith | AI Logs + debug grounding/guardrail |
 | Auth | JWT | RBAC theo role, scope kiểm tra ở API + Tool layer |
 

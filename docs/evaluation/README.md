@@ -18,8 +18,8 @@ required capability is missing or an executed golden case fails.
 
 ## Slow/on-demand evaluation
 
-Retrieval requires the real embeddings configuration and an ingested Chroma
-collection:
+Retrieval requires the local embedding model (BAAI/bge-m3, cached after the
+first download) and an ingested Qdrant collection (`make db-up && make ingest`):
 
 ```bash
 python eval/run_eval.py --retrieval --output eval/results/latest-retrieval.json

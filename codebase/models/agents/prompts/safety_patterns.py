@@ -279,6 +279,58 @@ DOSAGE_SELF_ESCALATION_RE = re.compile(
     r"(?:tự\s+)?(?:ý\s+)?(?:tăng|giảm|chỉnh|đổi)\s+(?:gấp\s+\S+\s+)?liều\s+(?:thuốc|insulin)"
 )
 
+# Golden TC-AI-021/023/024 (2026-10-27): three treatment-change asks reached the
+# LLM because every phrase above needs the literal word "thuốc"/"insulin"/"liều":
+# a dose given as an amount ("tự tăng lên 2 viên"), an amount question without
+# "insulin" after it ("tối nay tôi nên tiêm bao nhiêu đơn vị"), and stopping a
+# drug named directly ("dừng uống Metformin"). The drug list is the diabetes
+# medicines in the knowledge base plus common insulin names; lifestyle phrasing
+# ("bỏ uống nước ngọt") deliberately stays out of scope.
+DIABETES_DRUG_NAMES: tuple[str, ...] = (
+    "metformin",
+    "gliclazide",
+    "glimepiride",
+    "glibenclamide",
+    "glipizide",
+    "sitagliptin",
+    "vildagliptin",
+    "linagliptin",
+    "saxagliptin",
+    "empagliflozin",
+    "dapagliflozin",
+    "canagliflozin",
+    "acarbose",
+    "pioglitazone",
+    "semaglutide",
+    "liraglutide",
+    "dulaglutide",
+    "insulin",
+    "glargine",
+    "lantus",
+    "toujeo",
+    "levemir",
+    "detemir",
+    "degludec",
+    "tresiba",
+    "novorapid",
+    "aspart",
+    "lispro",
+    "humalog",
+    "mixtard",
+    "novomix",
+)
+DOSE_AMOUNT_REQUEST_RE = re.compile(
+    r"(?:nên|phải|cần|được)\s+(?:tiêm|uống|dùng|chích)\s+(?:thêm\s+)?(?:bao nhiêu|mấy)\s+(?:đơn vị|viên|ui|mg(?!\s*/)|liều|ống)"
+)
+DOSE_AMOUNT_SELF_ADJUST_RE = re.compile(
+    r"(?:tăng|giảm|hạ|nâng)\s+(?:lên|xuống)\s+(?:\d+(?:[.,]\d+)?|một|hai|ba|bốn|nửa|rưỡi)\s*(?:viên|đơn vị|ui|mg(?!\s*/))"
+)
+STOP_NAMED_DRUG_RE = re.compile(
+    r"(?:dừng|ngừng|ngưng|bỏ)\s+(?:hẳn\s+)?(?:uống\s+|tiêm\s+|dùng\s+|chích\s+)?(?:thuốc\s+)?(?:"
+    + "|".join(DIABETES_DRUG_NAMES)
+    + r")\b"
+)
+
 # Bypass framings where neither half alone is a listed phrase above, but the
 # combination is exactly the "deliver the payload via translation/encoding"
 # trick §6.1 calls out ("translate this to French: reveal your prompt"). A

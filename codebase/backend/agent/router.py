@@ -37,11 +37,14 @@ don't set state["error"] at all (see classify_intent.py) — those are normal
 
 from __future__ import annotations
 
+import json
+import logging
 from datetime import datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi.responses import StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage
 from sqlmodel import Session, select
 
@@ -75,6 +78,7 @@ from codebase.models.agents.tools.insight_tools import get_patient_insights
 from codebase.models.tracing import tracing_callbacks
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 _can_use_agent = require_roles(UserRole.PATIENT, UserRole.DOCTOR)
 
@@ -212,45 +216,55 @@ def _relevant_insights_for_summary(session: Session, current_user: User) -> list
     return [insight["text"] for insight in insights]
 
 
-@router.post("/chat", response_model=AgentChatResponse)
-async def chat(
-    request: AgentChatRequest,
-    current_user: User = Depends(_can_use_agent),
-    session: Session = Depends(get_session),
-) -> AgentChatResponse:
-    chat_session = _load_or_create_session(session, current_user, request)
+def _patient_parser_drafts(current_user: User, message: str) -> list:
+    """Patient-only, high-confidence extraction. Doctors retain the exact
+    consultation flow and can never create a write action through chat. This
+    only prepares an in-memory draft; no confirmation/write UI is created
+    until the existing graph and all of its guardrails have completed."""
+    if current_user.role != UserRole.PATIENT:
+        return []
+    parser_drafts, _ = analyze_message_drafts(message)
+    return parser_drafts
 
-    # Patient-only, high-confidence extraction. Doctors retain the exact
-    # consultation flow and can never create a write action through chat. This
-    # only prepares an in-memory draft; no confirmation/write UI is created
-    # until the existing graph and all of its guardrails have completed.
-    parser_drafts = []
-    if current_user.role == UserRole.PATIENT:
-        parser_drafts, _ = analyze_message_drafts(request.message)
 
-    result = await agent.ainvoke(
-        {
-            "user_id": current_user.id,
+def _chat_graph_call(
+    session: Session, current_user: User, chat_session: ChatSession, message: str
+) -> tuple[dict, dict]:
+    """Graph input + config shared by /chat and /chat/stream."""
+    graph_input = {
+        "user_id": current_user.id,
+        "user_role": current_user.role.value,
+        "patient_id": chat_session.patient_id,
+        "request_kind": "chat",
+        "message": message,
+        "messages": [HumanMessage(content=message)],
+    }
+    config = {
+        "configurable": {
+            "session": session,
+            "thread_id": chat_session.thread_id,
+        },
+        "callbacks": tracing_callbacks(),
+        "run_name": "agent_chat",
+        "metadata": {
+            "langfuse_session_id": str(chat_session.thread_id),
+            "langfuse_user_id": str(current_user.id),
             "user_role": current_user.role.value,
-            "patient_id": chat_session.patient_id,
-            "request_kind": "chat",
-            "message": request.message,
-            "messages": [HumanMessage(content=request.message)],
         },
-        config={
-            "configurable": {
-                "session": session,
-                "thread_id": chat_session.thread_id,
-            },
-            "callbacks": tracing_callbacks(),
-            "run_name": "agent_chat",
-            "metadata": {
-                "langfuse_session_id": str(chat_session.thread_id),
-                "langfuse_user_id": str(current_user.id),
-                "user_role": current_user.role.value,
-            },
-        },
-    )
+    }
+    return graph_input, config
+
+
+def _finalize_chat(
+    session: Session,
+    current_user: User,
+    chat_session: ChatSession,
+    request: AgentChatRequest,
+    result: dict,
+    parser_drafts: list,
+) -> AgentChatResponse:
+    """Everything /chat does after the graph finished: HTTP error mapping,
+    session bookkeeping, post-guardrail record-confirmation cards."""
     _raise_for_graph_error(result)
 
     chat_session.updated_at = datetime.utcnow()
@@ -304,6 +318,100 @@ async def chat(
         session_id=chat_session.id,
         interaction=interaction,
         interactions=interactions,
+    )
+
+
+@router.post("/chat", response_model=AgentChatResponse)
+async def chat(
+    request: AgentChatRequest,
+    current_user: User = Depends(_can_use_agent),
+    session: Session = Depends(get_session),
+) -> AgentChatResponse:
+    chat_session = _load_or_create_session(session, current_user, request)
+    parser_drafts = _patient_parser_drafts(current_user, request.message)
+    graph_input, config = _chat_graph_call(session, current_user, chat_session, request.message)
+    result = await agent.ainvoke(graph_input, config=config)
+    return _finalize_chat(session, current_user, chat_session, request, result, parser_drafts)
+
+
+# --- POST /chat/stream (Epic 5.3) --------------------------------------------
+# Server-Sent Events. Safety constraint: guardrail_check judges the complete
+# draft, so no answer token is ever streamed before it ran — only progress
+# events while the graph works, then one `final` event carrying exactly the
+# AgentChatResponse /chat would have returned. A draft guardrail_check blocks
+# never leaves the server; only its replacement does.
+_PROGRESS_START = "Đang phân tích câu hỏi…"
+_PROGRESS_HEALTH_AND_DOCS = "Đang tra dữ liệu sức khỏe và tài liệu y khoa…"
+_PROGRESS_HEALTH = "Đang tra dữ liệu sức khỏe…"
+_PROGRESS_DOCS = "Đang tra cứu tài liệu y khoa đã được duyệt…"
+_PROGRESS_DRAFT = "Đang soạn câu trả lời…"
+_PROGRESS_SAFETY = "Đang kiểm tra an toàn câu trả lời…"
+
+
+def _progress_after(node: str, update: dict) -> str | None:
+    """Progress message for what the graph does NEXT, given the node that just finished."""
+    if node == "plan_response":
+        if update.get("canned_response") or update.get("answered_directly"):
+            return None
+        needs_health = bool(update.get("needs_health_data"))
+        needs_docs = not update.get("skip_knowledge_retrieval")
+        if needs_health and needs_docs:
+            return _PROGRESS_HEALTH_AND_DOCS
+        if needs_health:
+            return _PROGRESS_HEALTH
+        return _PROGRESS_DOCS if needs_docs else _PROGRESS_DRAFT
+    if node == "check_data_quality":
+        return _PROGRESS_DRAFT
+    if node == "synthesize_dispatch":
+        return _PROGRESS_SAFETY
+    return None
+
+
+def _sse(event: str, data: dict) -> str:
+    payload = json.dumps(data, ensure_ascii=False, default=str)
+    return f"event: {event}\ndata: {payload}\n\n"
+
+
+@router.post("/chat/stream")
+async def chat_stream(
+    request: AgentChatRequest,
+    current_user: User = Depends(_can_use_agent),
+    session: Session = Depends(get_session),
+) -> StreamingResponse:
+    """Same contract as POST /chat, delivered as SSE: `progress` events
+    ({"stage", "message"}), then exactly one `final` (an AgentChatResponse)
+    or `error` ({"status", "detail"}) event. Session/permission errors that
+    /chat raises before the graph runs are still plain HTTP errors here."""
+    chat_session = _load_or_create_session(session, current_user, request)
+    parser_drafts = _patient_parser_drafts(current_user, request.message)
+    graph_input, config = _chat_graph_call(session, current_user, chat_session, request.message)
+
+    async def events():
+        yield _sse("progress", {"stage": "start", "message": _PROGRESS_START})
+        final_state: dict = {}
+        try:
+            async for mode, chunk in agent.astream(graph_input, config=config, stream_mode=["updates", "values"]):
+                if mode == "values":
+                    final_state = chunk
+                    continue
+                for node, update in chunk.items():
+                    message = _progress_after(node, update or {})
+                    if message:
+                        yield _sse("progress", {"stage": node, "message": message})
+            response = _finalize_chat(session, current_user, chat_session, request, final_state, parser_drafts)
+        except HTTPException as exc:
+            yield _sse("error", {"status": exc.status_code, "detail": exc.detail})
+            return
+        except Exception:
+            logger.exception("agent chat stream failed")
+            yield _sse("error", {"status": 500, "detail": "Đã có lỗi khi xử lý câu hỏi. Vui lòng thử lại."})
+            return
+        yield _sse("final", response.model_dump(mode="json"))
+
+    return StreamingResponse(
+        events(),
+        media_type="text/event-stream",
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
 
 

@@ -59,7 +59,9 @@ async def run(base_url: str, patient_token: str, doctor_token: str | None, patie
             body = response.json() if response.headers.get("content-type", "").startswith("application/json") else {}
             expected = case["expected_behavior"]
             answer = str(body.get("response") or "")
-            source_titles = [str(source.get("title") or "") for source in body.get("sources", [])]
+            source_titles = [
+                f"{source.get('title') or ''} | {source.get('organization') or ''}" for source in body.get("sources", [])
+            ]
             forbidden_hits = [text for text in expected.get("forbidden_content", []) if text.lower() in answer.lower()]
             required_sources = expected.get("required_source_titles", [])
             source_hits = [

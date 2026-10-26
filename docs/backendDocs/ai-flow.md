@@ -21,7 +21,7 @@ flowchart LR
     FE[Frontend] --> API[FastAPI Agent API]
     API --> RESP[Respond Agent - LangGraph]
     RESP --> PG[(PostgreSQL)]
-    RESP --> CHROMA[(ChromaDB)]
+    RESP --> QDRANT[(Qdrant)]
     RESP --> OPENAI[OpenAI]
 
     CRON[Weekly Scheduler] --> REFLECT[reflect function]
@@ -193,7 +193,7 @@ File: [`codebase/models/agents/nodes/retrieve_knowledge.py`](codebase/models/age
 
 Vai trò:
 
-- Tìm các đoạn guideline liên quan trong ChromaDB.
+- Tìm các đoạn guideline liên quan trong Qdrant (embedding BAAI/bge-m3 local).
 - Chỉ sử dụng knowledge source được chấp thuận.
 - Trả về nội dung và metadata citation như title, section, page và source URL.
 - Bỏ qua truy vấn nếu `skip_knowledge_retrieval=True`.
@@ -351,7 +351,7 @@ sequenceDiagram
     participant API as FastAPI router
     participant G as LangGraph
     participant DB as PostgreSQL
-    participant RAG as ChromaDB
+    participant RAG as Qdrant
     participant LLM as OpenAI
 
     User->>FE: Gửi câu hỏi
@@ -410,7 +410,7 @@ sequenceDiagram
     participant API as FastAPI router
     participant G as LangGraph
     participant DB as PostgreSQL
-    participant RAG as ChromaDB
+    participant RAG as Qdrant
     participant LLM as OpenAI
 
     User->>API: POST /api/v1/agent/summary
@@ -516,7 +516,7 @@ Tuy nhiên, **reflect graph này hiện không nằm trên live runtime path**. 
 | Glucose, meal, activity, medication | PostgreSQL |
 | Conversation checkpoint | PostgreSQL |
 | Patient insight | PostgreSQL |
-| Guideline chunks và embedding | ChromaDB |
+| Guideline chunks và embedding | Qdrant (`knowledge_base__bge-m3`, `patient_insights__bge-m3`) |
 | Sinh câu trả lời/summary/insight | OpenAI API |
 | Prompt | `codebase/models/agents/prompts/` |
 | Điều phối | LangGraph |
@@ -566,7 +566,7 @@ Vì state được checkpoint qua nhiều lượt chat, node phải chủ độn
 
 - Đọc dữ liệu thật từ PostgreSQL.
 - Tính metric có tính xác định.
-- Tìm knowledge được duyệt trong ChromaDB.
+- Tìm knowledge được duyệt trong Qdrant.
 - Đọc/ghi insight theo interface giới hạn.
 
 ### LLM chịu trách nhiệm
@@ -583,7 +583,7 @@ LLM không được tự truy vấn raw SQL, tự tạo dữ liệu bệnh nhân
 Không. Luồng AI hiện tại gọi tool Python trực tiếp:
 
 ```text
-LangGraph node → Python tool → PostgreSQL/ChromaDB
+LangGraph node → Python tool → PostgreSQL/Qdrant
 ```
 
 Folder `codebase/mcp/` hiện chưa tham gia runtime. Nếu sau này triển khai MCP, luồng có thể đổi thành:

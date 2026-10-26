@@ -214,6 +214,7 @@ kê đơn, chỉnh liều và xử trí cấp cứu.
 ĐỊNH DẠNG OUTPUT BẮT BUỘC — chỉ trả về một JSON object hợp lệ, không dùng markdown/code fence:
 {{
   "answer": "Nội dung trả lời tiếng Việt theo toàn bộ quy tắc trên",
+  "used_chunk_ids": ["chunk_id của từng đoạn tài liệu ở trên mà câu trả lời THỰC SỰ lấy nội dung cụ thể (số liệu, khuyến nghị, định nghĩa) làm căn cứ"],
   "record_candidates": [
     {{
       "record_type": "glucose|blood_pressure|meal|activity|medication_note",
@@ -230,4 +231,5 @@ measured_at, note); meal(meal_type, meal_time, description, note); activity(acti
 duration_minutes, activity_time, note); medication_note(medication_name, medication_id, \
 note_type, text, occurred_at). Có thể trả nhiều candidate nếu câu chứa nhiều bản ghi. \
 Nếu không có bản ghi rõ ràng, trả `record_candidates: []`.
+`used_chunk_ids` chỉ gồm chunk_id có thật trong danh sách đoạn tài liệu ở trên; một đoạn chỉ cùng chủ đề mà nội dung cụ thể của nó không có trong câu trả lời thì KHÔNG liệt kê. Trả `used_chunk_ids: []` nếu không dùng đoạn nào (ví dụ câu trả lời chỉ dựa trên dữ liệu cá nhân).
 """

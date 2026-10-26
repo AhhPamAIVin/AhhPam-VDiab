@@ -50,6 +50,7 @@ import json
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from unittest.mock import AsyncMock, patch
 from uuid import uuid4
 
@@ -102,14 +103,18 @@ class Case:
 
 
 _SHORT_CIRCUIT_NODES = ("resolve_context", "classify_intent", "respond")
+# retrieve_knowledge / fetch_data / summarize_history run as one parallel
+# superstep (graph.py, Epic 5.2), so their relative order in the update stream
+# is not fixed; _canonical_nodes() sorts each run of them before comparing.
+_PARALLEL_GATHER_NODES = frozenset({"retrieve_knowledge", "fetch_data", "summarize_history"})
 _FULL_QA_NODES = (
     "resolve_context",
     "classify_intent",
     "plan_response",
-    "retrieve_knowledge",
     "fetch_data",
-    "check_data_quality",
+    "retrieve_knowledge",
     "summarize_history",
+    "check_data_quality",
     "synthesize_dispatch",
     "verify_citations",
     "guardrail_check",
@@ -119,10 +124,10 @@ _RETRY_QA_NODES = (
     "resolve_context",
     "classify_intent",
     "plan_response",
-    "retrieve_knowledge",
     "fetch_data",
-    "check_data_quality",
+    "retrieve_knowledge",
     "summarize_history",
+    "check_data_quality",
     "synthesize_dispatch",
     "verify_citations",
     "guardrail_check",
@@ -262,10 +267,25 @@ def _target(inputs: dict) -> dict:
     return asyncio.run(run_case(case))
 
 
+def _canonical_nodes(nodes: list[str]) -> list[str]:
+    """Sort each contiguous run of parallel gather nodes; keep everything else in order."""
+    out: list[str] = []
+    run: list[str] = []
+    for node in [*nodes, None]:
+        if node in _PARALLEL_GATHER_NODES:
+            run.append(node)
+            continue
+        out.extend(sorted(run))
+        run = []
+        if node is not None:
+            out.append(node)
+    return out
+
+
 def _trajectory_matches_expected(run, example) -> dict:
     expected = (example.outputs or {}).get("expected_nodes") or []
     actual = (run.outputs or {}).get("actual_nodes") or []
-    return {"key": "trajectory_matches_expected", "score": int(list(actual) == list(expected))}
+    return {"key": "trajectory_matches_expected", "score": int(_canonical_nodes(actual) == _canonical_nodes(expected))}
 
 
 def _tool_calls_match_expected(run, example) -> dict:
@@ -278,6 +298,18 @@ def _no_llm_call_on_short_circuit(run, example) -> dict:
     if not (example.outputs or {}).get("expect_zero_llm_calls"):
         return {"key": "no_llm_call_on_short_circuit", "score": None}
     return {"key": "no_llm_call_on_short_circuit", "score": int((run.outputs or {}).get("llm_call_count") == 0)}
+
+
+def _example_outputs(c: Case) -> dict:
+    return {
+        "expected_nodes": list(c.expected_nodes),
+        "expected_search_called": c.expected_search_called,
+        "expect_zero_llm_calls": c.expect_zero_llm_calls,
+        **c.notes,
+    }
+
+
+_EVALUATORS = [_trajectory_matches_expected, _tool_calls_match_expected, _no_llm_call_on_short_circuit]
 
 
 def ensure_dataset(client: Client) -> None:
@@ -293,16 +325,7 @@ def ensure_dataset(client: Client) -> None:
         ),
     )
     examples = [
-        {
-            "inputs": {"case_id": c.case_id, "message": c.message},
-            "outputs": {
-                "expected_nodes": list(c.expected_nodes),
-                "expected_search_called": c.expected_search_called,
-                "expect_zero_llm_calls": c.expect_zero_llm_calls,
-                **c.notes,
-            },
-        }
-        for c in _CASES
+        {"inputs": {"case_id": c.case_id, "message": c.message}, "outputs": _example_outputs(c)} for c in _CASES
     ]
     client.create_examples(dataset_id=dataset.id, examples=examples)
     print(f"Created LangSmith dataset {DATASET_NAME!r} with {len(examples)} examples.")
@@ -310,10 +333,14 @@ def ensure_dataset(client: Client) -> None:
 
 def _row_to_report_entry(row: dict) -> dict:
     scores = {r.key: r.score for r in row["evaluation_results"]["results"]}
-    outputs = row["run"].outputs or {}
-    example_outputs = row["example"].outputs or {}
+    return _report_entry(
+        row["example"].inputs.get("case_id"), row["run"].outputs or {}, row["example"].outputs or {}, scores
+    )
+
+
+def _report_entry(case_id: str, outputs: dict, example_outputs: dict, scores: dict) -> dict:
     return {
-        "case_id": row["example"].inputs.get("case_id"),
+        "case_id": case_id,
         "expected_nodes": example_outputs.get("expected_nodes"),
         "actual_nodes": outputs.get("actual_nodes"),
         "expected_search_called": example_outputs.get("expected_search_called"),
@@ -353,28 +380,47 @@ def _write_report(report_path: Path, per_case: list[dict]) -> None:
     print(f"Wrote report to {report_path}")
 
 
+async def _run_local() -> list[dict]:
+    """Same cases and evaluators without LangSmith (sequential: each case
+    patches module-level LLM/search functions)."""
+    per_case = []
+    for case in _CASES:
+        outputs = await run_case(case)
+        run, example = SimpleNamespace(outputs=outputs), SimpleNamespace(outputs=_example_outputs(case))
+        scores = {}
+        for evaluator in _EVALUATORS:
+            result = evaluator(run, example)
+            scores[result["key"]] = result["score"]
+        per_case.append(_report_entry(case.case_id, outputs, example.outputs, scores))
+    return per_case
+
+
 async def main_async(args: argparse.Namespace) -> None:
+    report_path = (
+        Path(args.report) if args.report else REPORT_DIR / f"trajectory_{int(datetime.now(UTC).timestamp())}.json"
+    )
+    if args.local:
+        _write_report(report_path, await _run_local())
+        return
+
     client = Client()
     ensure_dataset(client)
 
     results = client.evaluate(
         _target,
         data=DATASET_NAME,
-        evaluators=[_trajectory_matches_expected, _tool_calls_match_expected, _no_llm_call_on_short_circuit],
+        evaluators=_EVALUATORS,
         experiment_prefix="agent-trajectory",
         max_concurrency=1,  # each case opens its own in-memory SQLite session/checkpointer
     )
 
-    per_case = [_row_to_report_entry(row) for row in results]
-    report_path = (
-        Path(args.report) if args.report else REPORT_DIR / f"trajectory_{int(datetime.now(UTC).timestamp())}.json"
-    )
-    _write_report(report_path, per_case)
+    _write_report(report_path, [_row_to_report_entry(row) for row in results])
 
 
 def main() -> None:
     parser = argparse.ArgumentParser(description="Agent trajectory/routing-correctness eval (LangSmith)")
     parser.add_argument("--report", default=None, help="optional path to write a JSON report")
+    parser.add_argument("--local", action="store_true", help="run and score locally, without LangSmith")
     args = parser.parse_args()
     asyncio.run(main_async(args))
 

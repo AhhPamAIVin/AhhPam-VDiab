@@ -28,6 +28,7 @@ class SourceCitation(BaseModel):
     page_ref: str | None = None
     source_url: str | None = None
     tier: str | None = None
+    organization: str | None = None
 
 
 class AgentChoiceOption(BaseModel):

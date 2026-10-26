@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden eval-watch-classifier eval-personal-data-faithfulness eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -227,14 +227,22 @@ eval-guardrail-judge:
 # Agent routing/trajectory correctness — which graph nodes and tools actually
 # fired vs. expected. LLM/RAG calls mocked throughout; no Qdrant/Postgres
 # dependency (checkpointer runs against an in-memory SQLite session).
+# --local scores without LangSmith (tracing moved to Langfuse); run the module
+# directly without --local to log a LangSmith experiment when a key is available.
 eval-trajectory:
-	python -m eval.respond_agent.trajectory $(EVAL_ARGS)
+	python -m eval.respond_agent.trajectory --local $(EVAL_ARGS)
 
 # Golden-dataset end-to-end quality — eval/data/ai_scenarios_30.json's 30 non-
 # jailbreak cases run through the REAL graph (real OpenAI + Qdrant calls, no
 # mocking), scored against each case's own expected_behavior fields.
 eval-golden-scenarios:
-	python -m eval.respond_agent.golden_scenarios $(EVAL_ARGS)
+	python -m eval.respond_agent.golden_scenarios --local $(EVAL_ARGS)
+
+# AI Summary golden (eval/data/ai_summary_cases.json, 8 cases) through the real
+# summary graph, reflect() and the permission gate; real LLM + local embeddings,
+# in-memory SQLite and Qdrant. Each expectation is PASS / FAIL / NOT_SUPPORTED.
+eval-ai-summary-golden:
+	python -m eval.respond_agent.ai_summary_golden $(EVAL_ARGS)
 
 # Offline eval/CI gate for the personalized-WATCH ML classifier surface
 # (data/NHANES/final/train_watch_model.py, train_threshold_regression.py,
@@ -257,4 +265,4 @@ eval-watch-classifier:
 eval-personal-data-faithfulness:
 	python -m eval.respond_agent.personal_data_faithfulness $(EVAL_ARGS)
 
-eval-all: eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness
+eval-all: eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden eval-watch-classifier eval-personal-data-faithfulness

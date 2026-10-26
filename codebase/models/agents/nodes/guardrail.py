@@ -250,7 +250,45 @@ def _has_uncited_retrieval_drift(state: AgentState, lowered_response: str) -> bo
     # allows (read-only own-data questions, as opposed to dose changes).
     if state.get("personal_data_grounded", False):
         return False
+    if _is_honest_insufficient_evidence(state, lowered_response):
+        return False
     return bool(_SUBSTANTIVE_MEDICAL_CLAIM_RE.search(lowered_response))
+
+
+# Epic 5.5: when the approved corpus simply doesn't cover a question (golden
+# KNOWLEDGE_INSUFFICIENT — a folk remedy, an unlicensed "cure"), the drafting
+# call now honestly declares no chunk used, and the drift check above used to
+# block that honest answer into the generic fallback. Before self-reported
+# citations the word-overlap heuristic "passed" these by citing unrelated
+# documents (IWGDF foot care for a bitter-melon question). Exempt only an
+# answer that (1) declared no chunk, (2) says the evidence/material is missing,
+# (3) states no number at all, and (4) defers to a doctor.
+_INSUFFICIENT_EVIDENCE_RE = re.compile(
+    r"(?:không|chưa) có (?:đủ |bất kỳ )?(?:bằng chứng|thông tin|dữ liệu|nghiên cứu)"
+    r"|(?:chưa|không) được (?:bộ y tế )?(?:chứng minh|kiểm chứng|cấp phép|công nhận|phê duyệt)"
+    r"|tài liệu[^.]{0,40}(?:không|chưa) (?:đề cập|có thông tin)"
+)
+_NUMERIC_CLAIM_RE = re.compile(
+    r"\d+(?:[.,]\d+)?\s*(?:%|mg\s*/\s*dl|mmol\s*/\s*l|mmhg|mg|mcg|g\b|kcal|đơn vị|ui|iu|viên)",
+    re.IGNORECASE,
+)
+
+
+def _is_honest_insufficient_evidence(state: AgentState, lowered_response: str) -> bool:
+    return (
+        bool(state.get("citations_self_reported"))
+        and not state.get("sources")
+        and bool(_INSUFFICIENT_EVIDENCE_RE.search(lowered_response))
+        and not _new_numeric_claims(state, lowered_response)
+        and "bác sĩ" in lowered_response
+    )
+
+
+def _new_numeric_claims(state: AgentState, lowered_response: str) -> list[str]:
+    """Numbers in the answer that the user didn't write themselves — echoing
+    the question's own figure ("phục hồi tuyến tụy 100%") is not a new claim."""
+    message = (state.get("message") or "").lower()
+    return [m.group(0) for m in _NUMERIC_CLAIM_RE.finditer(lowered_response) if m.group(0) not in message]
 
 
 # --- 4g: AMBIGUOUS clinical target/threshold -> HITL, not a rejection ------

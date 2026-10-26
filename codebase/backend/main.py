@@ -42,9 +42,20 @@ def _warm_up_embeddings() -> None:
         logging.getLogger(__name__).exception("embedding model warm-up failed")
 
 
+def check_production_settings(settings) -> None:
+    """Refuse to start a production backend against an unauthenticated Qdrant:
+    the patient_insights collection holds patient data (Epic 5.7 / 6.4)."""
+    if settings.app_env == "production" and not settings.qdrant_location and not settings.qdrant_api_key:
+        raise RuntimeError(
+            "QDRANT_API_KEY must be set when APP_ENV=production (and the Qdrant server started with "
+            "QDRANT__SERVICE__API_KEY) — see docs/OPERATIONS_RUNBOOK.md."
+        )
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
+    check_production_settings(settings)
     print(f"Starting {settings.app_name} in {settings.app_env} mode")
     create_db_and_tables()
     if settings.app_env != "test":

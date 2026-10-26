@@ -32,11 +32,12 @@ eval/
 │   ├── rule_engine_cases.json    # 15 kịch bản phân loại ngưỡng Rule Engine
 │   ├── data_validation_cases.json# 15 kịch bản xác thực dữ liệu đầu vào
 │   └── ai_summary_cases.json     # 8 kịch bản Tóm tắt, Phân luồng & Bộ nhớ Insight
-├── respond_agent/                # LangSmith + Ragas: chất lượng RAG/agent (gọi LLM thật)
+├── respond_agent/                # chất lượng RAG/agent (gọi LLM thật); --local = chấm cục bộ, không cần LangSmith
 │   ├── retrieval_recall.py       # Retrieval recall của RAG (exact-hit@k + Ragas context-recall)
 │   ├── guardrail_judge.py        # So sánh guardrail.py với một LLM judge an toàn độc lập
 │   ├── trajectory.py             # Đánh giá routing/trajectory của agent
 │   ├── golden_scenarios.py       # 30 kịch bản trong data/ai_scenarios_30.json, chạy qua graph thật
+│   ├── ai_summary_golden.py      # 8 case data/ai_summary_cases.json qua summary graph, reflect(), cổng phân quyền
 │   └── personal_data_faithfulness.py  # LLM có báo cáo đúng dữ liệu thật của bệnh nhân seed hay không
 ├── watch_classifier/              # CI gate cho classifier WATCH cá nhân hóa (pytest/sklearn thuần)
 │   └── gate.py
@@ -66,6 +67,11 @@ python eval/run_eval.py --strict --output eval/results/latest.json
 
 Slow retrieval, real-agent, RAGAS, coverage, traceability, and clinician-review
 instructions are documented in [`../docs/evaluation/README.md`](../docs/evaluation/README.md).
+
+Các runner gọi LLM thật (xem `Makefile`, mục `eval-*`) mặc định chấm cục bộ (`--local`) và ghi JSON
+vào `eval/results/`. `make eval-ai-summary-golden` ghi mỗi kỳ vọng của `ai_summary_cases.json` là PASS,
+FAIL hoặc NOT_SUPPORTED (sản phẩm chưa có tính năng tạo ra output đó — không bao giờ tính là pass);
+TC-SUM-004 (thứ tự ưu tiên trên dashboard bác sĩ) là SKIPPED vì logic nằm ở frontend.
 
 ### 3.2. Chạy cùng hệ thống Backend Unit & Integration Tests
 ```bash

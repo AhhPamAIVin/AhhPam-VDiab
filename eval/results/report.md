@@ -11,8 +11,32 @@ Bằng chứng có thể tái tạo hiện tại nằm ở:
 - [`coverage.xml`](coverage.xml): coverage line/branch dạng máy đọc được;
 - [`../../docs/evaluation/EVALUATION_EVIDENCE.md`](../../docs/evaluation/EVALUATION_EVIDENCE.md): báo cáo tổng hợp (sinh lại bằng `make eval-report`).
 
-Đo lại 2026-10-26, sau khi chuyển RAG sang Qdrant + BAAI/bge-m3 + chunking v2
-(bảng trong README dùng đúng các số này):
+Đo lại 2026-10-27, sau Epic 5 (đo đạc theo node, chạy song song, self-reported citation thay
+`verify_citations`, fast-path planner, streaming, sửa nhãn intent + cổng HIGH_RISK, runner AI Summary;
+chi tiết `docs/tasks/05-ai-performance-quality.md`). Bảng trong README dùng đúng các số này:
+
+- deterministic intents **37/37** (trước 30/37): 7 nhãn golden `OUT_OF_SCOPE` sửa thành `HIGH_RISK`/`JAILBREAK`
+  theo thiết kế, lý do ghi ở `intent_label_note` từng case; thêm cổng tất định cho 3 câu đổi liều trước đây lọt vào LLM.
+  `eval/baseline.json` nâng lên 37;
+- golden scenarios (`golden_scenarios_1793048049.json`, chấm cục bộ `--local`): intent **1.000**, citation **0.867**,
+  key-facts **0.733**, refusal-pattern 0.500, forbidden-content 1.000, safety-disclaimer 0.833. Hai lần chạy khác
+  trên gần cùng code: citation 0.933/0.933, key-facts 0.680/0.668 — LLM temperature 0.7 + LLM-judge nên dao động
+  ±0.05. Citation được chấm theo "tiêu đề | đơn vị ban hành" (như eval retrieval); chấm lại lần chạy này bằng bộ
+  chấm cũ chỉ so tiêu đề được 0.667 (10/15), bằng baseline — phần tăng đến từ việc chấm đúng theo đơn vị ban hành,
+  còn việc bỏ `verify_citations` không làm giảm citation;
+- trajectory **10/10** (`trajectory_local_20261027.json`), so khớp thứ tự node có tính đến nhánh chạy song song;
+- agent E2E qua HTTP (`agent-e2e.json`): **30/38**; latency p50 5.9/6.7 s, **p95 10.3/11.8 s** (2 lần chạy; trước
+  Epic 5: p95 14.1/17.2 s) — vẫn trên mục tiêu ≤ 10 s, phân tích theo node ở `docs/PERFORMANCE_REPORT.md`. 8 case fail
+  đều vì thiếu nguồn bắt buộc (`required_sources`);
+- AI Summary golden (`ai_summary_golden.json`, runner mới): **39/46 check PASS**; case: 2 PASS (TC-SUM-007 phân quyền,
+  TC-SUM-008 không chẩn đoán/kê đơn), 3 FAIL, 2 NOT_SUPPORTED, 1 SKIPPED. FAIL thật: tóm tắt thiếu dữ liệu không có câu
+  chuyển bác sĩ (TC-SUM-002); reflect với LLM thật không nêu ngưỡng 180 mg/dL cho mẫu cuối tuần (TC-SUM-005) và không
+  đề xuất insight hạ đường huyết ở tháng 2 (TC-SUM-006) — hạ tầng create → update insight chạy đúng, kể cả trên
+  Qdrant server. NOT_SUPPORTED: % tuân thủ thuốc (Epic 3), HbA1c trong tóm tắt. SKIPPED: TC-SUM-004 (sắp xếp ưu tiên
+  nằm ở frontend);
+- runner LangSmith cũ trả 403 — golden/trajectory chạy bằng `--local` (mặc định trong `make eval-*`).
+
+Đo 2026-10-26, sau khi chuyển RAG sang Qdrant + BAAI/bge-m3 + chunking v2:
 
 - 603 test pass, 0 fail;
 - F2 rule engine giờ chạy luồng ghi thật (`create_glucose_record`: quy đổi đơn vị, đánh giá ngưỡng, tạo cảnh báo) trên DB in-memory: **12/15**. 3 case fail (TC-RULE-008/012/014) cần mục tiêu theo bối cảnh bữa ăn mà care plan hiện chưa có. Eval này cũng phát hiện lỗi chỉ số mmol/L bị so như mg/dL (báo động NGUY HIỂM giả), đã sửa;

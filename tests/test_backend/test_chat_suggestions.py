@@ -71,7 +71,7 @@ async def test_chat_suggestions_parses_json_array(client: AsyncClient, session: 
 @pytest.mark.asyncio
 async def test_chat_suggestions_strips_markdown_fence(client: AsyncClient, session: Session, monkeypatch):
     monkeypatch.setattr(
-        chat_suggestions_mod, "get_llm", lambda: _FakeLLM('```json\n["Câu hỏi 1", "Câu hỏi 2"]\n```')
+        chat_suggestions_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM('```json\n["Câu hỏi 1", "Câu hỏi 2"]\n```')
     )
     patient = _make_user(session, email="suggest-fence@diab.example.com", role=UserRole.PATIENT)
     token = await _login(client, patient.email)
@@ -90,7 +90,7 @@ async def test_chat_suggestions_strips_markdown_fence(client: AsyncClient, sessi
 async def test_chat_suggestions_malformed_llm_output_degrades_to_empty(
     client: AsyncClient, session: Session, monkeypatch
 ):
-    monkeypatch.setattr(chat_suggestions_mod, "get_llm", lambda: _FakeLLM("not json at all"))
+    monkeypatch.setattr(chat_suggestions_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM("not json at all"))
     patient = _make_user(session, email="suggest-broken@diab.example.com", role=UserRole.PATIENT)
     token = await _login(client, patient.email)
 

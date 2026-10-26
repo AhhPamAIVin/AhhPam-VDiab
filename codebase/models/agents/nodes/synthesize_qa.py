@@ -18,6 +18,14 @@ overlap clears a threshold — this catches both "model ignored everything
 retrieved" (empty sources despite non-empty retrieved_chunks, the drift
 guardrail_check watches for, §6.4) and "model claimed a source it didn't
 really use" (self-report alone can't catch that; text grounding can).
+
+Since Epic 5.4 the drafting call also returns `used_chunk_ids`, and when it
+does, only chunks that are BOTH declared there and pass the overlap check are
+cited: the declaration removes topically-similar chunks the overlap heuristic
+lets through (the over-inclusion verify_citations.py was added to fix), the
+overlap check still rejects a declared chunk whose content isn't in the
+answer. That made verify_citations.py's separate LLM pass redundant on the
+normal path (`citations_self_reported`), saving one LLM round trip per turn.
 """
 
 from __future__ import annotations
@@ -65,6 +73,38 @@ def _parse_qa_output(raw: str) -> tuple[str, list[dict]]:
     if not isinstance(candidates, list):
         candidates = []
     return payload["answer"].strip(), [item for item in candidates if isinstance(item, dict)]
+
+
+def _parse_used_chunk_ids(raw: str) -> set[str] | None:
+    """The drafting call's own `used_chunk_ids`, or None when the output has no
+    such list (plain-text fallback, older envelope) — then the caller keeps the
+    overlap-only citations and verify_citations.py still runs."""
+    candidate_json = raw.strip()
+    if candidate_json.startswith("```"):
+        candidate_json = re.sub(r"^```(?:json)?\s*|\s*```$", "", candidate_json, flags=re.I)
+    try:
+        payload = json.loads(candidate_json)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    used = payload.get("used_chunk_ids") if isinstance(payload, dict) else None
+    if not isinstance(used, list):
+        return None
+    return {str(cid) for cid in used if isinstance(cid, (str, int))}
+
+
+def _chunk_id_key(chunk_id: str) -> str:
+    """Comparable form of a chunk id as a model writes it back: drop a copied
+    `chunk_id=` label and whitespace, and compare only the content hash after
+    the tier prefix — verified live, the model sometimes echoes
+    "chunk_id=t2-1a35..." or mistypes the prefix ("t6-1cfe..." for "t2-1cfe...")."""
+    cleaned = chunk_id.strip().strip("\"'[]").removeprefix("chunk_id=").strip()
+    return cleaned.split("-", 1)[1] if "-" in cleaned else cleaned
+
+
+def _chunks_matching_ids(declared: set[str], chunks: list[RetrievedChunk]) -> list[RetrievedChunk]:
+    """Retrieved chunks the declared ids refer to; ids we never sent match nothing."""
+    keys = {_chunk_id_key(cid) for cid in declared}
+    return [c for c in chunks if _chunk_id_key(str(c.get("chunk_id", ""))) in keys]
 
 
 def _time_context_block() -> str:
@@ -463,6 +503,7 @@ def _to_citation(chunk: RetrievedChunk) -> SourceCitation:
         "page_ref": chunk.get("page_ref"),
         "source_url": chunk.get("source_url"),
         "tier": chunk.get("trust_tier"),
+        "organization": chunk.get("organization"),
     }
 
 
@@ -520,7 +561,7 @@ async def synthesize_qa(state: AgentState) -> dict:
     # if the thread has grown long.
     history = _history_as_llm_messages((state.get("messages") or [])[:-1])
 
-    llm = get_llm()
+    llm = get_llm("synthesize_qa")
     result = await llm.ainvoke(
         [
             {"role": "system", "content": SYSTEM_PROMPT},
@@ -531,7 +572,16 @@ async def synthesize_qa(state: AgentState) -> dict:
     raw_response = (getattr(result, "content", None) or str(result) or "").strip()
     response_text, record_candidates = _parse_qa_output(raw_response)
 
-    grounded = _grounded_chunks(response_text, ordered_chunks)
+    # Citations: a chunk is cited only when the model declared it in
+    # used_chunk_ids AND the word-overlap check confirms the answer really
+    # contains its content — self-report narrows over-inclusion, the overlap
+    # check rejects a claimed-but-unused chunk. Only ids we actually sent count.
+    used_chunk_ids = _parse_used_chunk_ids(raw_response)
+    citations_self_reported = used_chunk_ids is not None
+    candidate_chunks = (
+        _chunks_matching_ids(used_chunk_ids, ordered_chunks) if citations_self_reported else ordered_chunks
+    )
+    grounded = _grounded_chunks(response_text, candidate_chunks)
     sources = _dedupe_citations([_to_citation(c) for c in grounded])
     data_used = list(dict.fromkeys(c.get("title", "") for c in grounded if c.get("title")))
     tool_results = state.get("tool_results")
@@ -552,4 +602,5 @@ async def synthesize_qa(state: AgentState) -> dict:
         "data_used": data_used,
         "limitations": limitations,
         "personal_data_grounded": personal_data_grounded,
+        "citations_self_reported": citations_self_reported,
     }

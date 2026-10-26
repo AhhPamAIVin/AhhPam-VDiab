@@ -283,6 +283,7 @@ export interface AgentSourceCitation {
   page_ref: string | null;
   source_url: string | null;
   tier: string | null;
+  organization?: string | null;
 }
 
 export interface AgentChoiceOption {
@@ -414,6 +415,20 @@ function errorMessage(payload: unknown, fallback: string) {
   return fallback;
 }
 
+async function throwForResponse(response: Response): Promise<never> {
+  let payload: unknown;
+  try {
+    payload = await response.json();
+  } catch {
+    payload = null;
+  }
+  if (response.status === 401)
+    window.dispatchEvent(new Event("vdiab:unauthorized"));
+  throw new Error(
+    errorMessage(payload, `Yêu cầu thất bại (${response.status})`),
+  );
+}
+
 export async function apiRequest<T>(
   path: string,
   init: RequestInit = {},
@@ -429,21 +444,63 @@ export async function apiRequest<T>(
     headers.set("Content-Type", "application/json");
   }
   const response = await fetch(`${API_BASE}${path}`, { ...init, headers });
-  if (!response.ok) {
-    let payload: unknown;
-    try {
-      payload = await response.json();
-    } catch {
-      payload = null;
-    }
-    if (response.status === 401)
-      window.dispatchEvent(new Event("vdiab:unauthorized"));
-    throw new Error(
-      errorMessage(payload, `Yêu cầu thất bại (${response.status})`),
-    );
-  }
+  if (!response.ok) await throwForResponse(response);
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+// POST /agent/chat/stream (SSE): `progress` events while the agent works, then
+// one `final` event with the same AgentChatResponse /agent/chat returns, or an
+// `error` event. The answer only arrives after the server's safety check ran.
+async function agentChatStream(
+  body: { message: string; patient_id: string | null; session_id: string | null },
+  onProgress?: (message: string) => void,
+): Promise<AgentChatResponse> {
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    Accept: "text/event-stream",
+  });
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(`${API_BASE}/agent/chat/stream`, {
+    method: "POST",
+    headers,
+    body: JSON.stringify(body),
+  });
+  if (!response.ok) await throwForResponse(response);
+  if (!response.body) throw new Error("Trình duyệt không hỗ trợ nhận dữ liệu dạng luồng.");
+
+  const reader = response.body.pipeThrough(new TextDecoderStream()).getReader();
+  let buffer = "";
+  for (;;) {
+    const { value, done } = await reader.read();
+    if (value) buffer += value.replace(/\r\n/g, "\n");
+    let separator = buffer.indexOf("\n\n");
+    while (separator !== -1) {
+      const block = buffer.slice(0, separator);
+      buffer = buffer.slice(separator + 2);
+      separator = buffer.indexOf("\n\n");
+      let event = "message";
+      let data = "";
+      for (const line of block.split("\n")) {
+        if (line.startsWith("event:")) event = line.slice(6).trim();
+        else if (line.startsWith("data:")) data += line.slice(5).trim();
+      }
+      if (!data) continue;
+      const payload: unknown = JSON.parse(data);
+      if (event === "progress") {
+        onProgress?.((payload as { message: string }).message);
+      } else if (event === "final") {
+        return payload as AgentChatResponse;
+      } else if (event === "error") {
+        if ((payload as { status?: number }).status === 401)
+          window.dispatchEvent(new Event("vdiab:unauthorized"));
+        throw new Error(errorMessage(payload, "Không thể kết nối trợ lý AI."));
+      }
+    }
+    if (done) break;
+  }
+  throw new Error("Kết nối tới trợ lý AI bị gián đoạn. Vui lòng thử lại.");
 }
 
 export async function loginRequest(email: string, password: string) {
@@ -759,6 +816,16 @@ export const api = {
         session_id: sessionId || null,
       }),
     }),
+  agentChatStream: (
+    message: string,
+    patientId?: string,
+    sessionId?: string,
+    onProgress?: (message: string) => void,
+  ) =>
+    agentChatStream(
+      { message, patient_id: patientId || null, session_id: sessionId || null },
+      onProgress,
+    ),
   agentRecordAction: (
     actionId: string,
     data:

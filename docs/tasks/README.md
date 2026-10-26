@@ -9,8 +9,8 @@ Mỗi epic một file. Mỗi task có checklist, file dự kiến sửa và acce
 | 2 | Báo cáo tuần cho bệnh nhân | [02-patient-weekly-report.md](02-patient-weekly-report.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Chưa bắt đầu |
 | 3 | Tuân thủ thuốc & nhắc nhở thông minh | [03-medication-adherence.md](03-medication-adherence.md) | P2 | M | — | Chưa bắt đầu |
 | 4 | Brief tái khám cho bác sĩ | [04-doctor-previsit-brief.md](04-doctor-previsit-brief.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Chưa bắt đầu |
-| 5 | Hiệu năng & chất lượng AI | [05-ai-performance-quality.md](05-ai-performance-quality.md) | P1 (song song) | M | — | Chưa bắt đầu |
-| 6 | Nền tảng bảo mật & tuân thủ | [06-security-compliance.md](06-security-compliance.md) | P0 trước dữ liệu thật | M | — | Chưa bắt đầu |
+| 5 | Hiệu năng & chất lượng AI | [05-ai-performance-quality.md](05-ai-performance-quality.md) | P1 (song song) | M | — | Gần xong — mọi task đã làm; p95 10.3–11.8s chưa đạt ≤ 10s |
+| 6 | Nền tảng bảo mật & tuân thủ | [06-security-compliance.md](06-security-compliance.md) | P0 trước dữ liệu thật | M | — | Đang làm — 6.2 xong |
 | 7 | Người thân hỗ trợ (caregiver) | [07-caregiver-access.md](07-caregiver-access.md) | P3 | L | 6 (audit log) | Chưa bắt đầu |
 
 ## Thứ tự đề xuất
