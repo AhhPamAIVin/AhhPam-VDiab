@@ -139,6 +139,11 @@ async def generate_and_store_snapshot(
     config = {"configurable": {"session": session}}
     state.update(await fetch_data(state, config))
     state.update(await check_data_quality(state))
+    # End the read transaction before the LLM calls below: otherwise this
+    # connection sits idle-in-transaction for their whole duration and the
+    # 30s server timeout (db.py) kills it — verified live, the write at the
+    # end then failed with "could not receive data from server".
+    session.commit()
     state.update(await synthesize_summary(state))
     state.update(await guardrail_check(state))
     if state.get("error") == "guardrail_failed":
@@ -222,6 +227,10 @@ async def refresh_patient_summaries(patient_id: UUID) -> None:
                         session, patient_id=patient_id, role=role.value, period_days=period_days
                     )
                 except Exception:
+                    # Without this a failed window leaves the session needing
+                    # a rollback and every later window fails too
+                    # (PendingRollbackError) — verified live.
+                    session.rollback()
                     logger.exception(
                         "summaries: failed to refresh patient_id=%s role=%s period_days=%s",
                         patient_id,
