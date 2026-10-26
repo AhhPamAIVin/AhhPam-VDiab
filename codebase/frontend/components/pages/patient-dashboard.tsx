@@ -81,7 +81,7 @@ function PersonalizedGlucoseBand({
 }
 
 interface PatientDashboardProps {
-  onNavigate?: (page: any) => void
+  onNavigate?: (page: string) => void
   onOpenAI?: () => void
 }
 

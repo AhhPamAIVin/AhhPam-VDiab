@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { weightData7Days } from "@/lib/mock-data";
-import { StatusBadge } from "@/components/ui/status-badge";
+import { StatusBadge, type StatusType } from "@/components/ui/status-badge";
 import { Pagination } from "@/components/ui/pagination";
 import {
   Plus,
@@ -469,7 +469,7 @@ export function HealthMonitoring() {
                         {row.note || "—"}
                       </td>
                       <td className="px-4 py-3">
-                        <StatusBadge status={row.status as any} />
+                        <StatusBadge status={row.status as StatusType} />
                       </td>
                     </tr>
                   ))}
@@ -493,7 +493,7 @@ export function HealthMonitoring() {
                         mg/dL
                       </span>
                       <StatusBadge
-                        status={row.status as any}
+                        status={row.status as StatusType}
                         className="ml-auto"
                       />
                     </div>
