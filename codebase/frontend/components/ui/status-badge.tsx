@@ -2,7 +2,7 @@
 
 import { cn } from '@/lib/utils'
 
-type StatusType = 'normal' | 'high' | 'low' | 'critical' | 'good' | 'caution' | 'active' | 'locked' | 'warning' | 'info'
+export type StatusType = 'normal' | 'high' | 'low' | 'critical' | 'good' | 'caution' | 'active' | 'locked' | 'warning' | 'info'
 
 const statusConfig: Record<StatusType, { label: string; className: string }> = {
   normal:   { label: 'Bình thường', className: 'bg-[#DFF7F3] text-[#2D9D97]' },

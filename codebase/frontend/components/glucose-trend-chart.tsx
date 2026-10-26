@@ -177,7 +177,7 @@ function statusLabel(status: ThresholdStatus): string | null {
 const DOT_RADIUS = 4.5; // 1.5x the original r=3
 
 function makeThresholdDot(baseFill: string) {
-  return (props: { cx?: number; cy?: number; payload?: Record<string, unknown> }) => {
+  return function ThresholdDot(props: { cx?: number; cy?: number; payload?: Record<string, unknown> }) {
     const { cx, cy, payload } = props;
     if (cx == null || cy == null) return <g />;
     const flag = statusFlagColor((payload?.status as ThresholdStatus) ?? null);
