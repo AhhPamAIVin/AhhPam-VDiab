@@ -1,6 +1,6 @@
-"""QdrantCollection (codebase/models/rag/vector_store.py) must behave like the
-subset of Chroma's collection API that ingest.py / knowledge_tools.py /
-insight_tools.py rely on. Runs against qdrant-client's in-process `:memory:`
+"""QdrantCollection (codebase/models/rag/vector_store.py) must implement the
+collection API (get/upsert/delete/query with `where` filters) that ingest.py /
+knowledge_tools.py / insight_tools.py rely on. Runs against qdrant-client's in-process `:memory:`
 mode — no Qdrant server, no network.
 """
 

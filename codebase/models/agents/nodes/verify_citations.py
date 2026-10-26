@@ -27,6 +27,11 @@ node (LLM error, unparseable output) must never block or alter the answer
 itself — it's a strictly-additive precision pass on the sources list, so on
 failure this returns {} and leaves whatever synthesize_qa.py already computed
 in place, same as if this node were never wired into the graph at all.
+
+Epic 5.4: skipped when synthesize_qa.py already got a parseable
+`used_chunk_ids` from its own drafting call (`citations_self_reported`) — the
+same narrowing, without a second ~2.7s LLM round trip. It still runs whenever
+that output is missing or malformed.
 """
 
 from __future__ import annotations
@@ -36,6 +41,7 @@ import logging
 
 from codebase.models.agents.nodes.synthesize_qa import (
     UNCONFIRMED_GROUNDING_LIMITATION,
+    _chunks_matching_ids,
     _dedupe_citations,
     _format_chunks_block,
     _tier_rank,
@@ -111,6 +117,11 @@ async def verify_citations(state: AgentState) -> dict:
     error so it can only tighten citations, never break the answer."""
     if state.get("intent") != "QA":
         return {}
+    if state.get("citations_self_reported"):
+        # synthesize_qa.py already narrowed sources to chunks the drafting call
+        # declared and the overlap check confirmed — a second LLM pass here
+        # cost ~2.7s p50 per QA turn (Epic 5.1 measurement) for the same job.
+        return {}
 
     retrieved_chunks = state.get("retrieved_chunks") or []
     response_text = state.get("response") or ""
@@ -123,7 +134,7 @@ async def verify_citations(state: AgentState) -> dict:
     prompt = _USER_TEMPLATE.format(response=response_text, chunks_block=_format_chunks_block(ordered_chunks))
 
     try:
-        llm = get_llm()
+        llm = get_llm("verify_citations")
         result = await llm.ainvoke(
             [
                 {"role": "system", "content": _SYSTEM_PROMPT},
@@ -142,7 +153,7 @@ async def verify_citations(state: AgentState) -> dict:
 
     # Defensive against a hallucinated chunk_id that was never actually sent
     # — only ever narrows to chunks we ourselves retrieved this turn.
-    used_chunks = [c for c in ordered_chunks if c.get("chunk_id") in used_chunk_ids]
+    used_chunks = _chunks_matching_ids(used_chunk_ids, ordered_chunks)
 
     sources = _dedupe_citations([_to_citation(c) for c in used_chunks])
     data_used = list(dict.fromkeys(c.get("title", "") for c in used_chunks if c.get("title")))

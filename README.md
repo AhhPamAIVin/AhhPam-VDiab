@@ -13,7 +13,7 @@ Evidence index (snapshot 2026-09-02): [Business model](docs/BUSINESS_MODEL.md), 
 | AI Agent | LangGraph + LangChain, OpenAI (`gpt-4o-mini`) |
 | Backend | FastAPI + SQLModel, chạy trên Uvicorn |
 | Database | PostgreSQL 16 (Docker) |
-| Vector Store | ChromaDB (embedded, persist qua volume) |
+| Vector Store | Qdrant (service Docker, volume `diab_qdrant`) + embedding `BAAI/bge-m3` chạy local |
 | Auth | JWT (PyJWT + bcrypt) |
 | Frontend | Next.js 16 (App Router) + React 19, Tailwind v4 + antd — xem [codebase/frontend/](codebase/frontend/) |
 | DevOps | Docker + GitHub Actions |
@@ -44,13 +44,12 @@ Modular monolith: 1 FastAPI backend + 1 Next.js SPA (UI theo vai trò Patient/Do
 │   │   └── security/      #   SQL-injection guard middleware
 │   ├── models/
 │   │   ├── agents/        # LangGraph graph.py, state, nodes/, tools/
-│   │   └── rag/           # ingest.py, chunking.py, vector_store.py — nạp data/knowledge_base/ vào Qdrant/Chroma
+│   │   └── rag/           # ingest.py, chunking.py, vector_store.py, embeddings.py — nạp data/knowledge_base/ vào Qdrant
 │   └── frontend/          # Next.js App Router SPA
 │       ├── app/            #   route theo vai trò: (app)/dashboard, doctor, admin, ai, health, medication...
 │       ├── components/     #   components/pages/* (1 page-component/route) + components/ui/* (shadcn)
 │       └── lib/api.ts      #   API client gọi backend qua NEXT_PUBLIC_API_URL
 ├── data/
-│   ├── chroma/             # Chroma vector index (gitignored, tự sinh từ ingest.py)
 │   └── knowledge_base/     # Guideline ADA/Bộ Y tế/Dược thư QG — nguồn RAG duy nhất
 ├── eval/                   # Golden dataset (76 case) + eval runner — xem eval/README.md
 ├── scripts/                # setup.sh, bootstrap_db, seed_admin, migrate_nhanes_demo_data, ai_chat_cli
@@ -82,7 +81,7 @@ make langfuse-up
 
 # 5. Nạp nội dung DB: schema + admin + dữ liệu demo NHANES + ngưỡng care plan
 #    + panel demo cho bác sĩ + RAG knowledge base vào Qdrant. Idempotent.
-make bootstrap                   # BOOTSTRAP_ARGS="--skip-rag" để bỏ bước gọi OpenAI embeddings
+make bootstrap                   # BOOTSTRAP_ARGS="--skip-rag" để bỏ bước ingest RAG (embed local bằng bge-m3)
 #    Làm mới hoàn toàn từ đầu (xoá volume Postgres): make db-reset-migrate rồi make bootstrap
 
 # 6. Chạy backend (http://localhost:8100, Swagger tại /docs)
@@ -94,18 +93,20 @@ cd codebase/frontend && npm run dev
 
 Kiểm tra nhanh: `curl http://localhost:8100/health` → `{"status":"ok","env":"development"}`.
 
-### Vector store: Qdrant hoặc Chroma
+### Vector store: Qdrant + BAAI/bge-m3
 
-`VECTOR_STORE=qdrant` (mặc định trong `.env.example`) dùng Qdrant server từ `docker-compose.yml`;
-`VECTOR_STORE=chroma` dùng Chroma nhúng, lưu ở `data/chroma/` (gitignored). Cả hai được build lại từ
-`data/knowledge_base/` (guideline ADA, Bộ Y tế, Dược thư QG) bằng:
+RAG và insight bệnh nhân nằm trên Qdrant server từ `docker-compose.yml` (`make db-up`, dashboard
+http://localhost:6333/dashboard). Embedding chạy **cục bộ** bằng `BAAI/bge-m3` (tải ~2.3 GB lần đầu,
+sau đó chạy offline; không gửi văn bản ra ngoài). Nạp lại từ `data/knowledge_base/` (guideline ADA,
+Bộ Y tế, Dược thư QG) và từ Postgres:
 
 ```bash
-python -m codebase.models.rag.ingest
+make ingest              # corpus -> collection knowledge_base__bge-m3
+make reindex-insights    # PatientInsight ACTIVE -> patient_insights__bge-m3
 ```
 
-Idempotent, ghi lại `data/knowledge_base/ingestion_manifest.json` sau mỗi lần chạy. Đổi `VECTOR_STORE`
-thì chạy lại ingest cho store mới. Adapter: `codebase/models/rag/vector_store.py`.
+Cả hai idempotent; ingest ghi lại `data/knowledge_base/ingestion_manifest.json`. Tên collection gắn tên
+model, nên đổi `EMBEDDING_MODEL` thì chạy lại cả hai lệnh. Adapter: `codebase/models/rag/vector_store.py`.
 
 ### Langfuse (tracing)
 
@@ -132,24 +133,24 @@ Copy từ `.env.example` sang `.env` (không commit `.env`). Nguồn sự thật
 
 | Biến | Bắt buộc | Mặc định | Mô tả |
 |---|:---:|---|---|
-| `OPENAI_API_KEY` | ✅ | — | LLM (`gpt-4o-mini`) + embedding cho ChromaDB. Không set thì AI Agent và `make ai-chat` không chạy được. |
+| `OPENAI_API_KEY` (hoặc `AI_API_KEY`) / `AI_API_URL` | ✅ | — / api.openai.com | LLM (`gpt-4o-mini`) qua API tương thích OpenAI. Embedding không dùng key này. Không set thì AI Agent và `make ai-chat` không chạy được. |
 | `JWT_SECRET_KEY` | ✅ | — | Ký JWT. Sinh bằng `python -c "import secrets; print(secrets.token_hex(32))"`. |
 | `MODEL_NAME` | | `gpt-4o-mini` | Model OpenAI dùng cho Agent. |
 | `LLM_TEMPERATURE` | | `0.7` | Temperature LLM (0–2). |
+| `LLM_NODE_MODELS` | | — | Model riêng theo node, vd `verify_citations=gpt-4.1-nano`. Node không liệt kê dùng `MODEL_NAME`. |
 | `DB_HOST` / `DB_PORT` | | `localhost` / `5533` | Postgres. `5533` (không phải `5432`) để tránh đụng Postgres native trên máy host — `docker-compose.yml` map `${DB_PORT}:5432`. |
 | `DB_USER` / `DB_PASSWORD` / `DB_NAME` | | `postgres` / `postgres` / `diab` | Thông tin kết nối Postgres. |
 | `DB_SSLMODE` | | `disable` | SSL mode cho psycopg2. |
 | `ACCESS_TOKEN_EXPIRE_MINUTES` | | `60` | Thời hạn access token. |
 | `ADMIN_SEED_EMAIL` / `ADMIN_SEED_PASSWORD` / `ADMIN_SEED_NAME` | | — | Tài khoản Admin đầu tiên, dùng bởi `make seed-admin`. |
-| `VECTOR_STORE` | | `chroma` (code) / `qdrant` (`.env.example`) | Backend vector store cho RAG + patient insights. |
-| `QDRANT_URL` / `QDRANT_API_KEY` | | `http://localhost:6333` / — | Qdrant server (khi `VECTOR_STORE=qdrant`). |
-| `CHROMA_PERSIST_DIR` | | `./data/chroma` | Nơi persist Chroma vector index (khi `VECTOR_STORE=chroma`). |
+| `QDRANT_URL` / `QDRANT_API_KEY` | | `http://localhost:6333` / — | Qdrant server cho RAG + patient insights. `QDRANT_API_KEY` **bắt buộc** khi `APP_ENV=production` (backend từ chối khởi động nếu thiếu). |
+| `EMBEDDING_MODEL` / `EMBEDDING_DEVICE` | | `BAAI/bge-m3` / `auto` | Model embedding local (sentence-transformers) và thiết bị (`cpu`/`cuda`/`mps`). |
 | `APP_ENV` | | `development` | `development` \| `production` \| `test`. |
 | `APP_PORT` / `APP_HOST` | | `8100` / `0.0.0.0` | Cổng/host Uvicorn (`make run` cũng hard-code `--port 8100`, sửa cả hai nếu đổi). |
 | `CORS_ORIGINS` | | `http://localhost:3100` | Danh sách origin được phép, phân tách bởi dấu phẩy — phải khớp cổng frontend thật sự chạy. |
 | `LOG_LEVEL` | | `INFO` | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`. |
 | `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST` | | — / — / `http://localhost:3300` | Langfuse — trace mọi lượt gọi Agent/LLM. Để trống key = tắt. |
-| `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` / `LANGCHAIN_TRACING_V2` | | — | LangSmith (legacy) — chỉ còn dùng cho `eval/` (datasets/experiments). |
+| `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` / `LANGCHAIN_TRACING_V2` | | — | LangSmith (legacy) — chỉ khi chạy eval không có `--local`; các target `make eval-*` mặc định chấm cục bộ. |
 
 > Docker Compose override: khi chạy `make up` (backend trong container), `docker-compose.yml` tự ghi đè `DB_HOST=db` / `DB_PORT=5432` để backend nối tới service `db` trong cùng network thay vì `localhost` — không cần sửa `.env` cho việc này.
 
@@ -202,27 +203,29 @@ dataset không được tính là `PASS` nếu production code chưa được th
 
 ### Kết quả baseline gần nhất
 
-Cập nhật 2026-10-26, sau khi chuyển RAG sang Qdrant + BAAI/bge-m3 + chunking v2.
-Các dòng ghi "2026-08-27" chưa đo lại sau lần đổi này (chi tiết lần đo đó ở
-[docs/AI_Eval_Metrics_Plan.md](docs/AI_Eval_Metrics_Plan.md) §2.4). Số liệu giống
-hệt [eval/results/report.md](eval/results/report.md).
+Cập nhật 2026-10-27, sau Epic 5 (hiệu năng & chất lượng AI) và việc chuyển RAG sang Qdrant +
+BAAI/bge-m3 + chunking v2. Các dòng ghi "2026-08-27" chưa đo lại (chi tiết lần đo đó ở
+[docs/AI_Eval_Metrics_Plan.md](docs/AI_Eval_Metrics_Plan.md) §2.4). Số liệu giống hệt
+[eval/results/report.md](eval/results/report.md); latency ở [docs/PERFORMANCE_REPORT.md](docs/PERFORMANCE_REPORT.md).
 
 | Hạng mục | Kết quả | Trạng thái |
 |---|---:|:---:|
-| Pytest | **603 passed, 0 failed** | ✅ |
+| Pytest | **633 passed, 0 failed** | ✅ |
 | Line / branch coverage | **90.2% / 73.2%** (2026-08-27) | ✅ Vượt gate 60% — chưa đo lại |
 | Golden validation qua schema thật | **9/9 executed** | ✅ |
-| Deterministic intent routing | **30/37 cases** | ⚠️ Còn 7 mismatch |
+| Deterministic intent routing | **37/37 cases** (safety recall 1.0, false positive 0) | ✅ 7 nhãn golden sửa có ghi lý do |
 | F2 rule engine — chạy luồng ghi thật (`create_glucose_record`) | **12/15** | ⚠️ 3 case cần mục tiêu theo bối cảnh bữa ăn (đói 80–130, trước ngủ ≥ 90); care plan hiện chỉ có 1 dải mục tiêu |
 | Retrieval recall, 53 fact card (`eval/respond_agent/retrieval_recall.py`, k=6) | **0.830** exact-hit (trước: 0.679 với Chroma + OpenAI) | ✅ |
 | Retrieval tier 2, 24 câu hỏi trên tài liệu dài (`eval/harness/retrieval_tier2.py`, k=10) | hit@1 **0.375**, hit@3 **0.917**, hit@10 **1.000**, MRR **0.642** | ✅ |
 | Retrieval theo nguồn, 15 kịch bản AI (`eval/harness/retrieval.py`, k=10) | case-hit **0.733**, source-recall **0.857**, MRR **0.787** | ⚠️ |
 | Guardrail vs. LLM judge (`eval/respond_agent/guardrail_judge.py`) | **1.000** / **0.812** (2026-08-27) | ✅ |
-| Agent trajectory/routing (`eval/respond_agent/trajectory.py`) | **10/10** (2026-08-27) | ✅ |
-| Golden scenarios, 30 case thật (`eval/respond_agent/golden_scenarios.py`) | intent **0.767**, citation **0.467**, key-facts **0.686** (2026-08-27) | ⚠️ Chưa đo lại sau đổi RAG |
+| Agent trajectory/routing (`eval/respond_agent/trajectory.py`) | **10/10** | ✅ |
+| Golden scenarios, 30 case thật (`eval/respond_agent/golden_scenarios.py`) | intent **1.000**, citation **0.867** (0.87–0.93 qua 3 lần chạy), key-facts **0.733**, forbidden-content **1.000** (trước: 0.767 / 0.467 / 0.686) | ✅ |
+| AI Summary golden, 8 case (`eval/respond_agent/ai_summary_golden.py`) | **39/46 check PASS**; case 2 PASS · 3 FAIL · 2 NOT_SUPPORTED · 1 SKIPPED | ⚠️ FAIL thật: tóm tắt thiếu dữ liệu chưa chuyển bác sĩ; reflect chưa nêu ngưỡng/không thấy hạ đường huyết |
 | Personal-data faithfulness (`eval/respond_agent/personal_data_faithfulness.py`) | **4/4** (2026-08-27) | ✅ Regression 3/4 đã fix — xem §2.4 |
 | WATCH classifier gate (`eval/watch_classifier/`) | **46/46** pytest + **28/28** threshold | ✅ |
-| Agent E2E / RAGAS runner độc lập | On-demand | ⏳ Cần server đang chạy + token, chưa chạy trong môi trường này |
+| Agent E2E qua HTTP (`eval/run_agent_e2e.py`, 2 lần chạy) | **30/38**; p50 5.9–6.7 s, **p95 10.3–11.8 s** (trước: 14.1–17.2 s) | ⚠️ p95 còn trên mục tiêu ≤ 10 s |
+| RAGAS runner độc lập | On-demand | ⏳ Chưa chạy trong môi trường này |
 | Dataset provenance/reviewer metadata | **0%** | ⚠️ Cần bổ sung người duyệt và nguồn |
 
 Quy trình evaluation, raw artifacts và traceability:
@@ -241,19 +244,20 @@ make eval               # deterministic golden evaluation; strict gate
 make eval-retrieval     # retrieval recall@k, hit-rate, MRR (on-demand)
 make eval-report        # sinh Evaluation Evidence + traceability + review sheet
 
-# Eval cho respond-agent/RAG (LangSmith + Ragas, gọi LLM thật) — xem eval/README.md
+# Eval cho respond-agent/RAG (gọi LLM thật, chấm cục bộ) — xem eval/README.md
 # và docs/AI_Eval_Metrics_Plan.md
 make eval-retrieval-recall
 make eval-guardrail-judge
 make eval-trajectory
 make eval-golden-scenarios
+make eval-ai-summary-golden
 make eval-personal-data-faithfulness
 make eval-watch-classifier   # WATCH ML classifier gate, plain pytest/sklearn, không LLM
 make eval-all                # tất cả eval-* phía trên
 ```
 
-`make eval` hiện cố ý trả exit code khác 0 vì F2 rule engine chưa có production
-implementation và 7 intent case chưa khớp golden labels. Đây là release gate
+`make eval` hiện cố ý trả exit code khác 0 vì 3 case F2 rule engine cần mục tiêu theo
+bối cảnh bữa ăn mà care plan chưa có. Đây là release gate
 thật, không phải lỗi của eval runner. Agent E2E và RAGAS runner độc lập chạy
 riêng theo hướng dẫn trong [docs/evaluation/README.md](docs/evaluation/README.md)
 để tránh tốn LLM token trong CI thông thường.

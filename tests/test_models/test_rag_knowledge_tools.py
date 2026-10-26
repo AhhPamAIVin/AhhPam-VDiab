@@ -72,9 +72,9 @@ class _FixedEmbeddingsClient:
 @pytest.fixture
 def ephemeral_collection():
     """A fresh, isolated in-memory Qdrant collection per test."""
-    from codebase.models.rag.vector_store import QdrantChromaClient
+    from codebase.models.rag.vector_store import QdrantVectorClient
 
-    return QdrantChromaClient(location=":memory:").get_or_create_collection(f"test-{uuid.uuid4().hex}")
+    return QdrantVectorClient(location=":memory:").get_or_create_collection(f"test-{uuid.uuid4().hex}")
 
 
 def _vector_with_similarity(similarity: float) -> list[float]:

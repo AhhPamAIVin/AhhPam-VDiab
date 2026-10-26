@@ -16,7 +16,16 @@ Dừng tác vụ import/backfill không thiết yếu; đo filesystem và volume
 
 ## LLM timeout/rate limit
 
-Xác nhận provider status, latency và error class; giữ rule-based alerts hoạt động; thông báo AI tạm không khả dụng; không retry vô hạn. Kiểm tra token/cost và LangSmith nếu đã bật. Không làm yếu guardrail để khôi phục nhanh.
+Xác nhận provider status, latency và error class; giữ rule-based alerts hoạt động; thông báo AI tạm không khả dụng; không retry vô hạn. Kiểm tra token/cost và Langfuse nếu đã bật. Không làm yếu guardrail để khôi phục nhanh.
+
+Log `agent_node_timing node=… duration_ms=… intent=…` (logger `codebase.models.agents.timing`, không chứa nội dung câu hỏi/trả lời) cho biết node nào chậm. Mỗi lượt QA bình thường gọi LLM 2 lần nối tiếp (`plan_response` → `synthesize_dispatch`); proxy hiện tại tốn ~1.1–1.4 s mỗi lần gọi kể cả request rỗng, nên latency tăng đồng loạt ở các node LLM thường là do provider. `LLM_NODE_MODELS` cho phép đổi model riêng một node, nhưng đo 2026-10-27 qua proxy hiện tại model nhỏ hơn (`gpt-4.1-nano`) không nhanh hơn `gpt-4o-mini`.
+
+## Vector store (Qdrant) / embedding
+
+- Qdrant là service riêng (`docker compose ps qdrant`), healthcheck gọi `/readyz`; backend chỉ khởi động khi Qdrant healthy. Dữ liệu ở volume `diab_qdrant` — không xóa volume để "sửa" lỗi; collection dựng lại được bằng `make ingest` (corpus) và `make reindex-insights` (insight từ Postgres, nguồn sự thật).
+- Môi trường không phải local: đặt cùng một khóa cho Qdrant server (`QDRANT__SERVICE__API_KEY`, qua docker-compose override hoặc biến môi trường của service) và cho backend (`QDRANT_API_KEY`). Backend với `APP_ENV=production` từ chối khởi động nếu thiếu `QDRANT_API_KEY`, vì `patient_insights__bge-m3` chứa dữ liệu bệnh nhân. Không publish cổng 6333/6334 ra internet.
+- Embedding `BAAI/bge-m3` chạy trong tiến trình backend: cần ~2.3 GB đĩa cho cache `HF_HOME` và ~3 GB RAM cho backend lúc chạy (xem `Dockerfile`); model nạp ~12 s lúc startup (warm-up chạy nền). Log lỗi "embedding model warm-up failed" → kiểm tra cache/mạng tải model; khi chưa nạp xong, request RAG đầu tiên sẽ chậm chứ không sai.
+- Lỗi "embedding model/dimension mismatch" nghĩa là collection được tạo bằng model khác `EMBEDDING_MODEL` hiện tại: chạy lại ingest + reindex cho model mới, không sửa metadata bằng tay.
 
 ## Scheduler không chạy
 

@@ -18,7 +18,7 @@ import pytest
 
 from codebase.models.rag import ingest
 from codebase.models.rag.ingest import RAW_DIR, run_ingestion, write_manifest
-from codebase.models.rag.vector_store import QdrantChromaClient, VectorSizeMismatchError
+from codebase.models.rag.vector_store import QdrantVectorClient, VectorSizeMismatchError
 
 FAKE_MODEL = "test/fake-embedder"
 
@@ -50,7 +50,7 @@ class FakeEmbeddingsClient:
 @pytest.fixture
 def ephemeral_collection():
     """A fresh in-memory Qdrant collection per test (own client, so isolated)."""
-    client = QdrantChromaClient(location=":memory:")
+    client = QdrantVectorClient(location=":memory:")
     return client.get_or_create_collection(f"test-{uuid.uuid4().hex}", payload_indexes=ingest.PAYLOAD_INDEXES)
 
 

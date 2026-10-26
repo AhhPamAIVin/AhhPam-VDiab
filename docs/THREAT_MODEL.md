@@ -2,7 +2,7 @@
 
 ## Dữ liệu và trust boundary
 
-Browser/mobile → public reverse proxy (ngoài repo) → Next.js/FastAPI → PostgreSQL/Chroma; agent gọi OpenAI và có thể gửi trace sang LangSmith; Zalo là kênh ngoài tùy cấu hình. Dữ liệu nhạy cảm gồm account, assignment, health records, medication, clinical notes, chat/summary và notification.
+Browser/mobile → public reverse proxy (ngoài repo) → Next.js/FastAPI → PostgreSQL/Qdrant; agent gọi LLM API tương thích OpenAI (câu hỏi, dữ liệu sức khỏe cần cho câu trả lời) và có thể gửi trace sang Langfuse tự host; embedding chạy local bằng BAAI/bge-m3 nên văn bản tài liệu và insight bệnh nhân không rời hệ thống để embed (trước Epic 5.8 insight được gửi sang OpenAI embeddings); Qdrant ở môi trường không phải local phải bật `QDRANT_API_KEY` vì collection `patient_insights` chứa dữ liệu bệnh nhân; Zalo là kênh ngoài tùy cấu hình. Dữ liệu nhạy cảm gồm account, assignment, health records, medication, clinical notes, chat/summary và notification.
 
 | Threat | Control hiện có | Evidence | Residual risk |
 |---|---|---|---|

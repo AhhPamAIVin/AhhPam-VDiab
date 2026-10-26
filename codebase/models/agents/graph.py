@@ -30,6 +30,7 @@ from codebase.models.agents.nodes.synthesize_summary import synthesize_summary
 from codebase.models.agents.nodes.upsert_insight import upsert_insight_node
 from codebase.models.agents.nodes.verify_citations import verify_citations
 from codebase.models.agents.state import AgentState, ReflectState
+from codebase.models.agents.timing import timed_node
 
 # classify_intent.py now only ever produces these two "must never reach the
 # LLM" intents (Layer 1/2, deterministic) plus SUMMARY/QA — see that node's
@@ -48,20 +49,28 @@ def _after_resolve_context(state: AgentState) -> str:
     return "respond" if state.get("error") else "classify_intent"
 
 
-def _after_classify_intent(state: AgentState) -> str:
+# The three gathering branches read disjoint inputs and write disjoint state
+# keys (retrieved_chunks / tool_results+date_range+data_completeness /
+# messages), so they run as one parallel fan-out and join at
+# synthesize_dispatch (Epic 5.2). Each node already no-ops when its intent or
+# plan doesn't need it, so the fan-out is the same for SUMMARY and QA.
+_GATHER_BRANCHES = ["retrieve_knowledge", "fetch_data", "summarize_history"]
+
+
+def _after_classify_intent(state: AgentState) -> str | list[str]:
     if state.get("intent") in _SAFETY_SHORT_CIRCUIT_INTENTS:
         return "respond"
     if state.get("intent") == "SUMMARY":
-        return "retrieve_knowledge"
+        return _GATHER_BRANCHES
     return "plan_response"
 
 
-def _after_plan_response(state: AgentState) -> str:
+def _after_plan_response(state: AgentState) -> str | list[str]:
     if state.get("intent") in _PLAN_SHORT_CIRCUIT_INTENTS:
         return "respond"
     if state.get("answered_directly"):  # plan_response answered directly — no tool call needed
         return "guardrail_check"
-    return "retrieve_knowledge"
+    return _GATHER_BRANCHES
 
 
 async def synthesize_dispatch(state: AgentState) -> dict:
@@ -93,26 +102,29 @@ def _after_guardrail(state: AgentState) -> str:
 def build_graph() -> StateGraph:
     graph = StateGraph(AgentState)
 
-    graph.add_node("resolve_context", resolve_context)
-    graph.add_node("classify_intent", classify_intent)
-    graph.add_node("plan_response", plan_response)
-    graph.add_node("retrieve_knowledge", retrieve_knowledge)
-    graph.add_node("fetch_data", fetch_data)
-    graph.add_node("check_data_quality", check_data_quality)
-    graph.add_node("summarize_history", summarize_history)
-    graph.add_node("synthesize_dispatch", synthesize_dispatch)
-    graph.add_node("verify_citations", verify_citations)
-    graph.add_node("guardrail_check", guardrail_check)
-    graph.add_node("respond", respond)
+    # Every node is wrapped for per-node timing logs (Epic 5.1, timing.py).
+    for name, fn in (
+        ("resolve_context", resolve_context),
+        ("classify_intent", classify_intent),
+        ("plan_response", plan_response),
+        ("retrieve_knowledge", retrieve_knowledge),
+        ("fetch_data", fetch_data),
+        ("check_data_quality", check_data_quality),
+        ("summarize_history", summarize_history),
+        ("synthesize_dispatch", synthesize_dispatch),
+        ("verify_citations", verify_citations),
+        ("guardrail_check", guardrail_check),
+        ("respond", respond),
+    ):
+        graph.add_node(name, timed_node(name, fn))
 
     graph.set_entry_point("resolve_context")
     graph.add_conditional_edges("resolve_context", _after_resolve_context)
     graph.add_conditional_edges("classify_intent", _after_classify_intent)
     graph.add_conditional_edges("plan_response", _after_plan_response)
-    graph.add_edge("retrieve_knowledge", "fetch_data")
     graph.add_edge("fetch_data", "check_data_quality")
-    graph.add_edge("check_data_quality", "summarize_history")
-    graph.add_edge("summarize_history", "synthesize_dispatch")
+    # Join: synthesize_dispatch waits for all three branches to finish.
+    graph.add_edge(["retrieve_knowledge", "check_data_quality", "summarize_history"], "synthesize_dispatch")
     # verify_citations (AI Consultation workstream, QA-only — no-ops for
     # SUMMARY) re-checks synthesize_qa's citation list against the drafted
     # response with a dedicated LLM pass before guardrail_check's

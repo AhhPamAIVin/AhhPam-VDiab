@@ -4,7 +4,7 @@
 
 ## System Overview
 
-VDiab là một **modular monolith**: một FastAPI backend duy nhất phục vụ một React SPA có giao diện phân theo vai trò (**Patient / Doctor / Admin** — Caregiver không phải co-primary persona trong MVP, xem [Out of Scope](#out-of-scope-ràng-buộc-an-toàn--wont)). Một **AI Agent (LangGraph)** duy nhất phục vụ cả F3 — Trợ lý tư vấn lối sống (bệnh nhân) lẫn F4 — tổng hợp/tóm tắt cho bác sĩ; agent không được phép tự nhớ/suy đoán số liệu — mọi con số phải đi qua Tool Registry để đọc từ PostgreSQL, và mọi khuyến nghị y khoa phải trích dẫn từ ChromaDB (chỉ nguồn **Đã duyệt**, còn hiệu lực). **Rule Engine chạy đồng bộ trong Health API, không gọi LLM** — để cảnh báo ngưỡng vẫn hoạt động kể cả khi AI lỗi hoặc chậm. AI chỉ được phép tạo cờ **"Cần bác sĩ xem xét"** (`ai_review_flags`) — không bao giờ ghi vào bảng `alerts` do Rule Engine sở hữu, để giữ ranh giới an toàn giữa "ngưỡng y khoa do bác sĩ cấu hình" và "tổng hợp/gắn cờ do AI thực hiện". Kiến trúc cố tình giữ tối giản (không microservice, không message queue) vì quy mô team (4 người/6 tuần) và scope pilot (5–10 bệnh nhân, 1–2 bác sĩ, dữ liệu **thật** với consent — không còn là dữ liệu mô phỏng như bản thiết kế v0.1).
+VDiab là một **modular monolith**: một FastAPI backend duy nhất phục vụ một React SPA có giao diện phân theo vai trò (**Patient / Doctor / Admin** — Caregiver không phải co-primary persona trong MVP, xem [Out of Scope](#out-of-scope-ràng-buộc-an-toàn--wont)). Một **AI Agent (LangGraph)** duy nhất phục vụ cả F3 — Trợ lý tư vấn lối sống (bệnh nhân) lẫn F4 — tổng hợp/tóm tắt cho bác sĩ; agent không được phép tự nhớ/suy đoán số liệu — mọi con số phải đi qua Tool Registry để đọc từ PostgreSQL, và mọi khuyến nghị y khoa phải trích dẫn từ vector store Qdrant (chỉ nguồn **Đã duyệt**, còn hiệu lực). **Rule Engine chạy đồng bộ trong Health API, không gọi LLM** — để cảnh báo ngưỡng vẫn hoạt động kể cả khi AI lỗi hoặc chậm. AI chỉ được phép tạo cờ **"Cần bác sĩ xem xét"** (`ai_review_flags`) — không bao giờ ghi vào bảng `alerts` do Rule Engine sở hữu, để giữ ranh giới an toàn giữa "ngưỡng y khoa do bác sĩ cấu hình" và "tổng hợp/gắn cờ do AI thực hiện". Kiến trúc cố tình giữ tối giản (không microservice, không message queue) vì quy mô team (4 người/6 tuần) và scope pilot (5–10 bệnh nhân, 1–2 bác sĩ, dữ liệu **thật** với consent — không còn là dữ liệu mô phỏng như bản thiết kế v0.1).
 
 ## Architecture Diagram
 
@@ -35,7 +35,7 @@ flowchart TB
 
     subgraph Data["Data Layer"]
         PG[("PostgreSQL<br/>system of record")]
-        Chroma[("ChromaDB<br/>guideline chunks — chỉ nguồn Đã duyệt")]
+        VectorDB[("Qdrant<br/>guideline chunks — chỉ nguồn Đã duyệt<br/>+ patient insights")]
     end
 
     subgraph External["External Services"]
@@ -59,11 +59,11 @@ flowchart TB
     Appt -->|trigger tổng hợp trước tái khám| Agent
 
     KB <--> PG
-    KB -->|ingest chunk khi trạng thái = Đã duyệt| Chroma
+    KB -->|ingest chunk khi trạng thái = Đã duyệt| VectorDB
 
     Agent --> Tools
     Tools <--> PG
-    Tools --> Chroma
+    Tools --> VectorDB
     Agent <--> LLM
     Agent -.->|trace khi cấu hình env; runtime chưa đính kèm| LangSmith
     Agent -.-> Clients
@@ -120,7 +120,7 @@ Một service, chia module theo domain (không tách service riêng trong MVP):
   7. `respond` — trả lời + nguồn trích dẫn + khoảng thời gian dữ liệu; nhánh AI Summary (Doctor) có thể gọi `create_review_flag` khi phát hiện điểm cần bác sĩ xem xét; LangSmith chỉ trace khi cấu hình env, còn Audit là capability planned.
   8. `decline` — từ chối lịch sự, giải thích lý do (ngoài phạm vi / thiếu căn cứ / nguồn mâu thuẫn / yêu cầu đổi điều trị), không tạo review flag hay alert.
   9. `escalate_to_alert_flow` — hiển thị hướng dẫn hành động đã bác sĩ phê duyệt (nội dung tĩnh do Care Plan cấu hình, không phải LLM tự soạn) và gắn cờ dashboard bác sĩ, tái sử dụng cơ chế severity/Notification của F2 thay vì tự tạo phản hồi tự do.
-- **Tools:** `get_patient_profile`, `get_health_records(patient_id, range)`, `calculate_health_metrics(rows)`, `retrieve_guideline(query)` (RAG trên ChromaDB, lọc theo `knowledge_sources.status = Đã duyệt` và còn hiệu lực), `get_recent_alerts(patient_id)`, `create_review_flag(patient_id, reason, data_refs)` (**chỉ ghi vào `ai_review_flags`, không được tạo/sửa `alerts`** — Rule Engine là nguồn duy nhất tạo alert severity). Mỗi tool tự kiểm tra quyền truy cập (patient A không đọc được data patient B, kể cả gián tiếp qua AI) trước khi chạm DB.
+- **Tools:** `get_patient_profile`, `get_health_records(patient_id, range)`, `calculate_health_metrics(rows)`, `retrieve_guideline(query)` (RAG trên Qdrant, lọc theo `knowledge_sources.status = Đã duyệt` và còn hiệu lực), `get_recent_alerts(patient_id)`, `create_review_flag(patient_id, reason, data_refs)` (**chỉ ghi vào `ai_review_flags`, không được tạo/sửa `alerts`** — Rule Engine là nguồn duy nhất tạo alert severity). Mỗi tool tự kiểm tra quyền truy cập (patient A không đọc được data patient B, kể cả gián tiếp qua AI) trước khi chạm DB.
 - **Flow:** sơ đồ đầy đủ + sequence diagram grounding + luồng cảnh báo ở [docs/architecture_diagram.md](docs/architecture_diagram.md).
 
 ### 4. Database (PostgreSQL)
@@ -143,29 +143,31 @@ System of record duy nhất. Bảng chính (Alembic quản lý migration):
 | `notifications` | log thông báo đã gửi (kênh, người nhận, thời điểm) |
 | `appointments` | lịch tái khám |
 | `ai_reports` | bản tóm tắt trước tái khám do AI tổng hợp (mục tiêu, mức hoàn thành, xu hướng, HbA1c, cảnh báo liên quan, citations; phần thiếu ghi "Không đủ dữ liệu") |
-| `knowledge_sources` | metadata tài liệu nguồn: tên, tổ chức ban hành, phiên bản/năm, phạm vi áp dụng, trạng thái Đã duyệt/hết hiệu lực, người duyệt — ChromaDB chunk tham chiếu `knowledge_source_id` |
+| `knowledge_sources` | metadata tài liệu nguồn: tên, tổ chức ban hành, phiên bản/năm, phạm vi áp dụng, trạng thái Đã duyệt/hết hiệu lực, người duyệt — chunk trong vector store tham chiếu `knowledge_source_id` |
 | `audit_logs` | **Planned; bảng chưa được xác minh trong code hiện tại.** Thiết kế đích: append-only cho truy cập hồ sơ và truy vấn AI |
 
 - **Migrations:** Alembic.
 
-### 5. Vector Store (ChromaDB)
+### 5. Vector Store (Qdrant)
 
 - **Purpose:** RAG cho F3 (Trợ lý tư vấn lối sống có căn cứ) — nguồn duy nhất AI được phép dùng để trả lời câu hỏi kiến thức, không phải system-prompt tĩnh; chỉ ingest chunk từ tài liệu có `knowledge_sources.status = Đã duyệt`.
 - **Nguồn dữ liệu:** guideline ADA, Bộ Y tế Việt Nam, tài liệu bệnh viện/tổ chức quốc tế do bác sĩ phụ trách lựa chọn, thu thập tại `data/knowledge_base/raw/` — ingest theo chunk + metadata (tên tài liệu, tổ chức, phiên bản/năm, vị trí) để trả lời luôn kèm được nguồn và truy ngược tài liệu gốc.
-- **Embeddings:** OpenAI embedding model (cùng provider với LLM để giảm 1 dependency).
-- **Persist:** local volume (`CHROMA_PERSIST_DIR`), embedded trong backend container — không cần service Chroma riêng ở quy mô pilot.
+- **Embeddings:** `BAAI/bge-m3` chạy **cục bộ** trong tiến trình backend (sentence-transformers, 1024 chiều, cosine, đa ngôn ngữ có tiếng Việt) — nạp một lần và warm-up lúc startup; cache model qua `HF_HOME` (~2.3 GB). Không còn gửi văn bản (kể cả insight của bệnh nhân) ra ngoài để embed. Tên collection gắn tên model (`knowledge_base__bge-m3`, `patient_insights__bge-m3`) nên đổi model không đè dữ liệu cũ; query bằng model khác model của collection sẽ báo lỗi thay vì trả kết quả sai.
+- **Persist:** service Qdrant `v1.20.0` riêng trong Docker Compose (`make db-up`), volume bền `diab_qdrant`, healthcheck `/readyz` — backend chỉ khởi động khi Qdrant sẵn sàng. Môi trường không phải local bắt buộc `QDRANT_API_KEY` (collection `patient_insights` chứa dữ liệu bệnh nhân; backend từ chối khởi động ở `APP_ENV=production` nếu thiếu). Test chạy Qdrant in-process (`QDRANT_LOCATION=:memory:`), không cần server.
+- **Nạp dữ liệu:** `make ingest` (corpus → `knowledge_base__bge-m3`), `make reindex-insights` (embed lại mọi `PatientInsight` ACTIVE từ Postgres — Postgres là nguồn sự thật, idempotent).
 
 ### 6. External Services
 
 | Dịch vụ | Vai trò |
 | --- | --- |
-| OpenAI API | LLM cho AI Agent + embedding cho ChromaDB |
-| LangSmith | Trace mọi lượt gọi Agent/Tool — phục vụ AI Logs và debug grounding |
+| OpenAI-compatible LLM API | LLM cho AI Agent (mặc định `gpt-4o-mini`; model riêng theo node qua `LLM_NODE_MODELS`). Embedding **không** còn gọi API ngoài |
+| Langfuse (self-hosted) | Trace mọi lượt gọi Agent/Tool — phục vụ AI Logs và debug grounding (thay LangSmith) |
+| Hugging Face Hub | Chỉ để tải model `BAAI/bge-m3` lần đầu; sau khi đã cache, chạy offline |
 
 ## Data Flow
 
 1. **Bệnh nhân ghi nhận số đo:** SPA → Health API → validate → lưu PostgreSQL (ghi `health_record_edits` nếu là sửa) → Rule Engine so ngưỡng cá nhân hoá **có hiệu lực tại thời điểm đo** → gắn severity → nếu Cần chú ý/Nguy hiểm, gọi Notification ngay (không chờ chu kỳ định kỳ).
-2. **Hỏi đáp AI (Consultation F3 / Summary F4):** SPA → Auth xác thực role/patient_id → AI Agent → `safety_screen_in` (chặn đổi thuốc/chẩn đoán, hoặc chuyển sang luồng #3 nếu có dấu hiệu nguy hiểm) → Tool Registry đọc PostgreSQL (+ ChromaDB nếu là câu hỏi kiến thức) → LLM tổng hợp chỉ từ kết quả Tool → `safety_screen_out` (đủ căn cứ?) → trả lời kèm trích dẫn/khoảng thời gian dữ liệu. LangSmith trace phụ thuộc cấu hình; Audit log chưa triển khai. Nhánh Summary có thể tạo `ai_review_flags`.
+2. **Hỏi đáp AI (Consultation F3 / Summary F4):** SPA → Auth xác thực role/patient_id → AI Agent → `safety_screen_in` (chặn đổi thuốc/chẩn đoán, hoặc chuyển sang luồng #3 nếu có dấu hiệu nguy hiểm) → Tool Registry đọc PostgreSQL và Qdrant **song song** (câu hỏi kiến thức) → LLM tổng hợp chỉ từ kết quả Tool → `safety_screen_out` (đủ căn cứ?) → trả lời kèm trích dẫn/khoảng thời gian dữ liệu. `POST /agent/chat/stream` (SSE) gửi sự kiện tiến trình trong lúc chạy và chỉ gửi câu trả lời sau khi guardrail đã duyệt. Langfuse trace phụ thuộc cấu hình; Audit log chưa triển khai. Nhánh Summary có thể tạo `ai_review_flags`.
 3. **Cảnh báo ngưỡng:** Rule Engine gắn `severity = Cần chú ý` hoặc `Nguy hiểm` → Notification hiển thị ngay cho Patient (~2s, kèm hướng dẫn hành động đã bác sĩ phê duyệt) → song song, Notification **query `doctor_patient_assignments`** để resolve đúng bác sĩ phụ trách bệnh nhân đó và gắn cờ trên dashboard — **không** broadcast cho bác sĩ khác. Hệ thống không cam kết bác sĩ giám sát/phản hồi 24/7 và **không** tự động liên hệ 115/cấp cứu (Won't scope) — bác sĩ xem/ghi chú khi có thể, cập nhật trạng thái xử lý, Notification đẩy lại cho Patient khi có cập nhật.
 4. **Bác sĩ chuẩn bị tái khám:** Appointment Service kích hoạt trước lịch hẹn → AI Agent tổng hợp `ai_reports` (dùng lại luồng #2, không hỏi lại lịch sử) → Doctor xem trên Dashboard/trang chi tiết bệnh nhân.
 5. **(Could/Future, ngoài Must scope)** Dự báo xu hướng và xuất báo cáo PDF định kỳ — chỉ triển khai sau pilot nếu đủ dữ liệu và đánh giá an toàn (PRD §5).
@@ -176,7 +178,7 @@ Sequence diagram đầy đủ cho luồng #2 và #3: xem [docs/architecture_diag
 
 ![Deployment diagram](docs/diagrams/deployment.png)
 
-- **Hosting:** Docker Compose (backend + frontend + db) sau một reverse proxy (Caddy) lo TLS. ChromaDB chạy embedded trong container backend (persist qua volume), không cần service riêng ở quy mô pilot.
+- **Hosting:** Docker Compose (backend + frontend + db + qdrant) sau một reverse proxy (Caddy) lo TLS. Qdrant là service riêng với volume bền `diab_qdrant`; backend chờ healthcheck của cả db và qdrant.
 - **CI/CD:** [.github/workflows/ci.yml](.github/workflows/ci.yml) chạy ruff + pytest trên mọi push/PR vào `main`/`develop`. Chưa có workflow deploy tự động — deploy thủ công bằng `docker compose build` + `up -d --no-deps --wait` cho `backend`+`frontend` (không đụng `db`).
 - **Local / self-hosted parity:** [docker-compose.yml](docker-compose.yml) định nghĩa đủ 3 service (`backend` + `frontend` + `db` Postgres 16, đều có healthcheck).
 - Database (Postgres) chạy trong container trên cùng máy chủ, không phải managed service; Backup/restore (RPO ≤ 1h / RTO ≤ 4h, PRD §7) chưa có quy trình kiểm thử chính thức trên môi trường deploy hiện tại — gap cần chốt trước khi nhận dữ liệu bệnh nhân thật ngoài phạm vi pilot demo.
@@ -189,7 +191,7 @@ Modular monolith là lựa chọn đúng cho quy mô hiện tại (4 người/6 
 | --- | --- |
 | FastAPI backend (CPU/IO-bound tại 1 instance) | Stateless theo thiết kế (JWT, không session server-side) — chạy nhiều replica sau load balancer là thay đổi hạ tầng thuần tuý, không cần đổi code |
 | PostgreSQL (single instance) | Read replica cho các API đọc nhiều (dashboard, lịch sử) trước khi cân nhắc sharding theo `patient_id` |
-| ChromaDB embedded (1 volume, gắn với 1 backend instance) | Tách thành service riêng (Chroma server mode) hoặc chuyển sang vector DB managed (Qdrant/Pinecone) khi số lượng tài liệu/QPS RAG vượt quy mô "vài chục guideline" hiện tại — đã tách rõ qua Tool Registry nên đổi implementation không đụng vào Agent |
+| Qdrant single node + embedding chạy trên CPU của backend (`embed_query` p50 ~0.1s) | Qdrant cluster/managed khi corpus hoặc QPS RAG tăng; tách embedding ra service riêng (GPU) nếu nhiều replica backend cùng nạp model ~2.3 GB — đã tách qua Tool Registry nên đổi implementation không đụng vào Agent |
 | LLM calls (latency/cost tại p95 ≤ 10s) | Cache câu trả lời cho câu hỏi kiến thức lặp lại (không cache câu hỏi cá nhân hoá); batch/streaming response nếu p95 vượt ngưỡng |
 | Reminder/Notification cron (single-process scheduler) | Chuyển sang message queue (Celery/RQ) nếu số lượng bệnh nhân/reminder vượt quy mô một cron process xử lý kịp trong cửa sổ ≤ 2s |
 
@@ -218,7 +220,7 @@ Không triển khai bất kỳ mục nào ở trên trước khi có evidence t�
 | Không có Caregiver trong kiến trúc MVP | Bỏ role, bảng `caregiver_grants`, và luồng escort-to-hospital khỏi thiết kế hiện tại | PRD v0.4: Caregiver không phải co-primary persona, chỉ xem xét lại sau khi có evidence từ pilot (Could/Future) — giữ kiến trúc khớp phạm vi cam kết thay vì thiết kế trước cho tính năng chưa được chốt |
 | Không có Device Simulator | Bỏ khỏi kiến trúc; pilot dùng dữ liệu thật do bệnh nhân/bác sĩ nhập thủ công | PRD v0.4 không còn giả định "bệnh nhân mô phỏng" như v0.1; Input §4 chỉ liệt kê nhập thủ công |
 | Database | PostgreSQL | Dữ liệu quan hệ (users, health records, alerts) cần transaction + ràng buộc toàn vẹn rõ ràng |
-| Vector store | ChromaDB, embedded | Vài chục tài liệu guideline — không cần vector DB managed (Pinecone/Qdrant) ở quy mô này |
+| Vector store | Qdrant (self-hosted, Docker) + BAAI/bge-m3 local | Chuyển từ ChromaDB embedded + OpenAI embedding (Epic 5.7/5.8): recall@6 tăng 0.679 → 0.830 trên cùng bộ câu hỏi, insight bệnh nhân không còn gửi ra ngoài để embed, store tách khỏi tiến trình backend |
 | Auth | JWT | Chuẩn phổ biến, dễ áp RBAC theo scope claim trong token |
 | Không có Emergency Detector riêng | Gộp vào Rule Engine + `severity` field | Tránh thêm 1 service chỉ để phân loại — logic ngưỡng vốn đã nằm đúng chỗ khi ghi record |
 
@@ -244,7 +246,7 @@ Không triển khai bất kỳ mục nào ở trên trước khi có evidence t�
 | --- | --- |
 | F1 — Nhật ký sức khỏe theo kế hoạch | Health API + Rule Engine, Reminder/Notification, Frontend Patient View |
 | F2 — Theo dõi xu hướng và cảnh báo cá nhân hóa | Health API + Rule Engine (severity), `alerts`, Reminder/Notification, Frontend Dashboard |
-| F3 — Trợ lý tư vấn lối sống có căn cứ | AI Agent, Tool Registry (`retrieve_guideline`), ChromaDB, Knowledge Source Mgmt |
+| F3 — Trợ lý tư vấn lối sống có căn cứ | AI Agent, Tool Registry (`retrieve_guideline`), Qdrant, Knowledge Source Mgmt |
 | F4 — Theo dõi bệnh nhân giữa các kỳ tái khám | Care Plan Service, Appointment Service, AI Agent (`ai_reports`, `ai_review_flags`), Frontend Doctor View |
 | Should — Cá nhân hóa thời điểm nhắc nhở | Reminder/Notification (mở rộng sau MVP, cần dữ liệu sử dụng) |
 | Could — Dự báo xu hướng và xuất báo cáo PDF | AI Agent + Report/Export (ngoài Must scope, xem Data Flow #5) |
@@ -252,7 +254,7 @@ Không triển khai bất kỳ mục nào ở trên trước khi có evidence t�
 | §7 — Quyền riêng tư & tuân thủ | Auth & RBAC; Audit Log planned |
 | §7 — An toàn y khoa | Rule Engine (độc lập LLM), Agent guardrails (`safety_screen_in/out`) |
 | §7 — Độ tin cậy & truy vết | `health_record_edits`, `care_plan_history`; Audit Log planned |
-| §7 — Quản lý nguồn tri thức | Knowledge Source Mgmt, ChromaDB |
+| §7 — Quản lý nguồn tri thức | Knowledge Source Mgmt, Qdrant |
 
 ## Out of Scope (ràng buộc an toàn — Won't)
 

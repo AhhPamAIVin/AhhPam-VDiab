@@ -204,6 +204,8 @@ def _to_retrieved_chunk(chunk_id: str, text: str, metadata: dict[str, Any], scor
         "tier": tier,
         "score": score,
     }
+    if metadata.get("organization"):
+        chunk["organization"] = metadata["organization"]
     if tier == 1:
         chunk["title"] = metadata.get("document_title")
         chunk["section"] = metadata.get("category")

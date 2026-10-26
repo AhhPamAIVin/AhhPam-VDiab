@@ -1,5 +1,7 @@
 # AI Summary & Respond System — Design Doc
 
+> **Update 2026-10 (Epic 5.7/5.8):** the vector store is now Qdrant (`codebase/models/rag/vector_store.py`) and embeddings run locally with `BAAI/bge-m3` (1024-dim) — collections `knowledge_base__bge-m3` / `patient_insights__bge-m3`. Mentions of Chroma, `chroma_persist_dir` and `text-embedding-3-small` below describe the design as first written. Epic 5 also changed the respond graph: the gathering nodes run in parallel, `verify_citations` is skipped when the drafting call self-reports `used_chunk_ids`, and `POST /agent/chat/stream` streams progress events (see `docs/tasks/05-ai-performance-quality.md`).
+
 Covers the **AI Assistant** feature from [MVP_Diabetes_Health_Management_System.md](MVP_Diabetes_Health_Management_System.md) §4: **AI Summary** (tóm tắt sức khỏe cho Patient & Doctor) and **AI Respond** (Q&A / "AI Consultation"). One agent, two callers. Traces back to [PRD.md](PRD.md) §15–§33 (Agent Definition, Tools, Orchestration, Guardrails, Eval).
 
 **v2 of this doc.** Three requirements were added after v1 and change the architecture materially — v1 explicitly scoped *out* long-term memory and RAG as "not needed for MVP"; both are now required:

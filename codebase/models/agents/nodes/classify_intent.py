@@ -48,6 +48,8 @@ from codebase.models.agents.prompts.safety_patterns import (
     BYPASS_PAYLOAD_CUES,
     DECODE_CARRIER_CUES,
     DOSAGE_SELF_ESCALATION_RE,
+    DOSE_AMOUNT_REQUEST_RE,
+    DOSE_AMOUNT_SELF_ADJUST_RE,
     EMERGENCY_PATTERNS,
     ENCODED_PAYLOAD_TOKEN_RE,
     FAKE_DELIMITER_RE,
@@ -55,6 +57,7 @@ from codebase.models.agents.prompts.safety_patterns import (
     INSTRUCTION_OVERRIDE_RE,
     JAILBREAK_PATTERNS,
     PERSONA_ASSIGNMENT_RE,
+    STOP_NAMED_DRUG_RE,
     normalize_for_pattern_match,
 )
 from codebase.models.agents.state import AgentState
@@ -68,6 +71,35 @@ _HIGH_RISK_CANNED_RESPONSE = (
     "Mình không thể tư vấn về việc thay đổi thuốc, liều insulin, hoặc chẩn đoán. "
     "Vui lòng liên hệ trực tiếp với bác sĩ điều trị của bạn để được hỗ trợ đúng chuyên môn."
 )
+
+# Per-kind refusals (Epic 5.5): the single generic line above refused correctly
+# but left out the one safety reason each kind of ask needs (golden key-facts
+# coverage fell to 0.33 on these cases once they were routed here). Still fixed
+# strings — no LLM, no patient-specific numbers. Picked by _high_risk_response().
+_HIGH_RISK_DOSE_RESPONSE = (
+    "Mình không được phép kê đơn hoặc thay đổi liều lượng thuốc — liều thuốc uống và liều insulin "
+    "phải do bác sĩ trực tiếp quyết định. Tự tăng liều có thể gây hạ đường huyết nguy hiểm, tự giảm "
+    "liều có thể làm đường huyết tăng cao. Bạn hãy ghi lại các chỉ số đường huyết gần đây và cần trao "
+    "đổi trực tiếp với bác sĩ điều trị để được đánh giá và điều chỉnh phác đồ nếu cần."
+)
+_HIGH_RISK_STOP_RESPONSE = (
+    "Bạn không tự ý ngừng thuốc khi chưa hỏi bác sĩ nhé. Khi chỉ số đang tốt, thường là vì đường huyết "
+    "ổn định là nhờ tuân thủ điều trị — ngừng thuốc có thể khiến đường huyết tăng trở lại. Hãy mang "
+    "nhật ký đường huyết gần đây đến buổi tái khám để bác sĩ điều trị đánh giá có cần thay đổi phác đồ không."
+)
+_HIGH_RISK_PRESCRIPTION_RESPONSE = (
+    "Mình không thể kê đơn thuốc. Thuốc kê đơn bắt buộc phải có chỉ định của bác sĩ sau khi thăm khám, "
+    "vì cần đánh giá chỉ định, chống chỉ định và tương tác với các thuốc bạn đang dùng. Bạn hãy trao "
+    "đổi trực tiếp với bác sĩ điều trị về loại thuốc mình quan tâm."
+)
+_HIGH_RISK_DIAGNOSIS_RESPONSE = (
+    "Mình không thay thế bác sĩ trong chẩn đoán và kê đơn. Để biết chính xác tình trạng của mình, bạn "
+    "cần đến cơ sở y tế để được chẩn đoán chính thức dựa trên thăm khám và xét nghiệm. Mình có thể giúp "
+    "bạn ghi lại các chỉ số và câu hỏi để mang theo khi đi khám."
+)
+_PRESCRIPTION_CUES = ("kê đơn", "kê thuốc", "kê toa", "prescribe", "prescription")
+_DIAGNOSIS_CUES = ("chẩn đoán", "tôi có bị", "tôi bị bệnh gì", "có phải tôi", "cho thấy tôi bị", "có nghĩa là tôi bị",
+                   "do i have", "am i diabetic", "diagnose", "what disease", "does this mean i have")
 
 _EMERGENCY_CANNED_RESPONSE = (
     "Đây có thể là dấu hiệu của một tình huống cấp cứu y tế. Vui lòng gọi ngay 115 "
@@ -163,8 +195,32 @@ _SICK_DAY_CONTEXT_CUES: tuple[str, ...] = (
 
 
 def _is_sick_day_stop_medication_question(lowered: str) -> bool:
-    return any(p in lowered for p in _STOP_MEDICATION_PHRASES) and any(
-        c in lowered for c in _SICK_DAY_CONTEXT_CUES
+    is_stop = any(p in lowered for p in _STOP_MEDICATION_PHRASES) or bool(STOP_NAMED_DRUG_RE.search(lowered))
+    return is_stop and any(c in lowered for c in _SICK_DAY_CONTEXT_CUES)
+
+
+def _high_risk_response(lowered: str) -> str:
+    """Pick the per-kind refusal. Prescription and diagnosis asks are checked
+    first (a "kê đơn ... liều khởi đầu" ask is a prescription request); a stop
+    phrase next; anything else that reached HIGH_RISK is a dose change."""
+    if any(cue in lowered for cue in _PRESCRIPTION_CUES):
+        return _HIGH_RISK_PRESCRIPTION_RESPONSE
+    if any(cue in lowered for cue in _DIAGNOSIS_CUES):
+        return _HIGH_RISK_DIAGNOSIS_RESPONSE
+    if any(p in lowered for p in _STOP_MEDICATION_PHRASES) or STOP_NAMED_DRUG_RE.search(lowered):
+        return _HIGH_RISK_STOP_RESPONSE
+    if _is_treatment_change_request(lowered):
+        return _HIGH_RISK_DOSE_RESPONSE
+    return _HIGH_RISK_CANNED_RESPONSE
+
+
+def _is_treatment_change_request(lowered: str) -> bool:
+    return (
+        any(pattern in lowered for pattern in HIGH_RISK_PATTERNS)
+        or bool(DOSAGE_SELF_ESCALATION_RE.search(lowered))
+        or bool(DOSE_AMOUNT_REQUEST_RE.search(lowered))
+        or bool(DOSE_AMOUNT_SELF_ADJUST_RE.search(lowered))
+        or bool(STOP_NAMED_DRUG_RE.search(lowered))
     )
 
 
@@ -453,10 +509,10 @@ async def classify_intent(state: AgentState) -> dict:
     # doctor/emergency-service escalation rather than a routine chat reply.
     if any(pattern in lowered for pattern in EMERGENCY_PATTERNS):
         return {"intent": "HIGH_RISK", "canned_response": _EMERGENCY_CANNED_RESPONSE, "handoff": True}
-    if (any(pattern in lowered for pattern in HIGH_RISK_PATTERNS) or DOSAGE_SELF_ESCALATION_RE.search(lowered)) and (
+    if _is_treatment_change_request(lowered) and (
         not _is_sick_day_stop_medication_question(lowered) and not _is_non_decision_medical_question(lowered)
     ):
-        return {"intent": "HIGH_RISK", "canned_response": _HIGH_RISK_CANNED_RESPONSE, "handoff": False}
+        return {"intent": "HIGH_RISK", "canned_response": _high_risk_response(lowered), "handoff": False}
 
     # Only messages that cleared both deterministic layers reach here.
     if state.get("request_kind") == "summary":

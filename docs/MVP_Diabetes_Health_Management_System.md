@@ -178,7 +178,7 @@ flowchart TB
 
     LLM["LLM — OpenAI API"]
     DB[("PostgreSQL<br/>users · health records · alerts · ai_review_flags · notifications")]
-    VS[("ChromaDB<br/>guideline — chỉ nguồn Đã duyệt")]
+    VS[("Qdrant<br/>guideline — chỉ nguồn Đã duyệt")]
 
     PatientApp <--> Auth
     DoctorApp <--> Auth
@@ -211,7 +211,7 @@ flowchart TB
 | Notification | Cron đơn giản nhắc thuốc/đo chỉ số theo lịch; đẩy in-app + push ngay khi có severity Cần chú ý/Nguy hiểm (≤ 2s), resolve đích qua danh sách bác sĩ phụ trách — không broadcast, không có kênh caregiver |
 | AI Agent + Tool Registry | Một agent cho cả AI Consultation và AI Summary; luôn gọi Tool để lấy dữ liệu thật trước khi LLM tổng hợp câu trả lời; chỉ tạo cờ xem xét (`ai_review_flags`), không tạo alert |
 | PostgreSQL | Nguồn dữ liệu duy nhất: hồ sơ, health record, alert (Rule Engine), ai_review_flag (AI), notification |
-| ChromaDB | Hỗ trợ AI trả lời hỏi đáp bằng nguồn dữ liệu Đã duyệt lấy từ công bố/quy định của Bộ Y tế và tài liệu tham khảo từ bệnh viện, tổ chức quốc tế |
+| Qdrant (+ embedding BAAI/bge-m3 local) | Hỗ trợ AI trả lời hỏi đáp bằng nguồn dữ liệu Đã duyệt lấy từ công bố/quy định của Bộ Y tế và tài liệu tham khảo từ bệnh viện, tổ chức quốc tế |
 
 ### **7.4 Luồng AI Agent lấy dữ liệu từ database (trọng tâm)**
 
@@ -263,7 +263,7 @@ PRD v0.4 xác định rõ: hệ thống **không** tự động liên hệ 115/c
 
   - PostgreSQL: Ổn định, mã nguồn mở, phù hợp dữ liệu quan hệ và dễ mở rộng
 
-  - ChromaDB: Cài nhanh, phù hợp với hệ thống chỉ có vài chục tài liệu.
+  - Qdrant: vector DB chạy thành service riêng có volume bền, lọc metadata theo `patient_id` cho insight; thay ChromaDB nhúng ban đầu. Embedding BAAI/bge-m3 chạy local hỗ trợ tiếng Việt và không gửi dữ liệu ra ngoài.
 
   - Fast API: Hiệu năng cao, async tốt, tích hợp Python thuận tiện
 

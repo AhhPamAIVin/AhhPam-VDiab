@@ -34,6 +34,9 @@ class Settings(BaseSettings):
     openai_base_url: str = Field(default="", validation_alias=AliasChoices("OPENAI_BASE_URL", "AI_API_URL"))
     model_name: str = "gpt-4o-mini"
     llm_temperature: float = Field(default=0.7, ge=0.0, le=2.0)
+    # Per-node model override (Epic 5.4), "node=model,node=model", e.g.
+    # "verify_citations=gpt-4.1-nano". Nodes not listed use model_name.
+    llm_node_models: str = ""
 
     # Database
     db_host: str = "localhost"

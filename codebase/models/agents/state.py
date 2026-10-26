@@ -16,6 +16,7 @@ class SourceCitation(TypedDict, total=False):
     page_ref: str | None
     source_url: str | None
     tier: str | None
+    organization: str | None  # publisher from sources.csv, e.g. "Bộ Y tế"
 
 
 class RetrievedChunk(TypedDict, total=False):
@@ -32,6 +33,7 @@ class RetrievedChunk(TypedDict, total=False):
     source_url: str | None
     tier: int
     trust_tier: str
+    organization: str | None
     score: float
 
 
@@ -126,6 +128,12 @@ class AgentState(TypedDict, total=False):
     # "cited nothing at all, drifted/hallucinated" (same retrieved_chunks/
     # sources shape either way, see guardrail.py docstring §4f).
     personal_data_grounded: bool
+    # set by synthesize_qa.py on every QA run: True when the drafting call
+    # itself returned a parseable used_chunk_ids list, so `sources` already is
+    # "declared by the model AND word-overlap grounded" and verify_citations.py
+    # can skip its separate LLM pass (Epic 5.4). Explicit False otherwise —
+    # state persists across turns.
+    citations_self_reported: bool
 
     # control
     risk_level: Literal["low", "medium", "high"]

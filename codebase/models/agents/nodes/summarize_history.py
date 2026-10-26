@@ -68,7 +68,7 @@ async def summarize_history(state: AgentState) -> dict:
     if not to_summarize:
         return {}
 
-    llm = get_llm()
+    llm = get_llm("summarize_history")
     result = await llm.ainvoke(
         [{"role": "user", "content": _SUMMARIZE_PROMPT.format(transcript=_format_transcript(to_summarize))}]
     )

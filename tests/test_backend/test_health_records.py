@@ -82,7 +82,7 @@ def _content_safety_llm_defaults_to_safe(monkeypatch):
     that logs a meal or activity doesn't require live OpenAI access; tests
     exercising the unsafe-content/failure paths override this themselves via
     monkeypatch."""
-    monkeypatch.setattr("codebase.backend.health.content_safety.get_llm", lambda: _mock_content_safety_llm())
+    monkeypatch.setattr("codebase.backend.health.content_safety.get_llm", lambda *_args, **_kwargs: _mock_content_safety_llm())
 
 
 @pytest.mark.asyncio
@@ -295,7 +295,7 @@ async def test_meal_description_rejected_by_llm_when_denylist_misses_it(client: 
     the actual point of adding that layer: a fixed keyword list is trivially
     evaded by rewording, the LLM judgment isn't."""
     monkeypatch.setattr(
-        "codebase.backend.health.content_safety.get_llm", lambda: _mock_content_safety_llm(is_food=False)
+        "codebase.backend.health.content_safety.get_llm", lambda *_args, **_kwargs: _mock_content_safety_llm(is_food=False)
     )
     token = await _login(client, PATIENT_EMAIL)
     response = await _post_meal(client, token, patient_user, "Một gói bột trắng không rõ nguồn gốc, không phải đồ ăn")
@@ -347,7 +347,7 @@ async def test_activity_type_rejected_by_llm_when_denylist_misses_it(
     denylist term at all still needs the semantic layer, not just the fixed
     keyword list."""
     monkeypatch.setattr(
-        "codebase.backend.health.content_safety.get_llm", lambda: _mock_content_safety_llm(is_activity=False)
+        "codebase.backend.health.content_safety.get_llm", lambda *_args, **_kwargs: _mock_content_safety_llm(is_activity=False)
     )
     token = await _login(client, PATIENT_EMAIL)
     response = await _post_activity(client, token, patient_user, "Hít một gói bột trắng không rõ nguồn gốc")

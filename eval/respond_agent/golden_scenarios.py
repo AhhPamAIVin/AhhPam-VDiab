@@ -26,6 +26,7 @@ report under eval/results/.
 Run (from repo root):
     python -m eval.respond_agent.golden_scenarios
     python -m eval.respond_agent.golden_scenarios --report /tmp/golden_scenarios.json
+    python -m eval.respond_agent.golden_scenarios --local   # no LangSmith key needed
 """
 
 from __future__ import annotations
@@ -37,6 +38,7 @@ import re
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from pathlib import Path
+from types import SimpleNamespace
 from uuid import uuid4
 
 from dotenv import load_dotenv
@@ -52,6 +54,7 @@ from codebase.backend.auth.security import hash_password  # noqa: E402
 from codebase.models.agents.graph import agent  # noqa: E402
 from codebase.models.llm import get_llm  # noqa: E402
 from codebase.models.rag.ingest import REPO_ROOT  # noqa: E402
+from eval.harness.retrieval import _title_matches  # noqa: E402
 
 REPORT_DIR = REPO_ROOT / "eval" / "results"
 AI_SCENARIOS_PATH = REPO_ROOT / "eval" / "data" / "ai_scenarios_30.json"
@@ -225,7 +228,10 @@ async def run_case(case: Case) -> dict:
         "intent": final_state.get("intent"),
         "handoff": final_state.get("handoff"),
         "response": response_text,
-        "source_titles": [s.get("title", "") for s in sources],
+        # "title | organization", same matching basis as eval/harness/retrieval.py:
+        # golden required sources name the publisher (VADE, Bộ Y tế...), which is
+        # rarely part of the document title itself.
+        "source_titles": [f"{s.get('title', '')} | {s.get('organization') or ''}" for s in sources],
         "judge": judge,
     }
 
@@ -261,8 +267,7 @@ def _citation_requirement_met(run, example) -> dict:
     required = outputs_ref.get("required_source_titles") or []
     if not required:
         return {"key": "citation_requirement_met", "score": 1}
-    joined = " | ".join(titles).lower()
-    matched = [r for r in required if r.lower() in joined]
+    matched = [r for r in required if any(_title_matches(r, title) for title in titles)]
     return {
         "key": "citation_requirement_met",
         "score": int(bool(matched)),
@@ -322,6 +327,25 @@ _EVALUATORS = [
 ]
 
 
+def _example_inputs(c: Case) -> dict:
+    return {"case_id": c.case_id, "prompt": c.prompt, "category": c.category}
+
+
+def _expected_outputs(c: Case) -> dict:
+    eb = c.expected_behavior
+    return {
+        "expected_intent": eb.get("intent"),
+        "expected_handoff": eb.get("handoff"),
+        "must_cite_sources": eb.get("must_cite_sources", False),
+        "required_source_titles": eb.get("required_source_titles") or [],
+        "expected_refusal": eb.get("expected_refusal", False),
+        "refusal_message_pattern": eb.get("refusal_message_pattern"),
+        "expected_key_facts_count": len(eb.get("expected_key_facts") or []),
+        "has_forbidden_content": bool(eb.get("forbidden_content")),
+        "safety_disclaimer_required": eb.get("safety_disclaimer_required", False),
+    }
+
+
 def ensure_dataset(client: Client) -> None:
     if client.has_dataset(dataset_name=DATASET_NAME):
         print(f"LangSmith dataset {DATASET_NAME!r} already exists, reusing (not re-populating).")
@@ -334,33 +358,17 @@ def ensure_dataset(client: Client) -> None:
             "HIGH_RISK_EMERGENCY, TREATMENT_CHANGE_OUT_OF_SCOPE, CONFLICTING_SOURCES)."
         ),
     )
-    examples = []
-    for c in _CASES:
-        eb = c.expected_behavior
-        examples.append(
-            {
-                "inputs": {"case_id": c.case_id, "prompt": c.prompt, "category": c.category},
-                "outputs": {
-                    "expected_intent": eb.get("intent"),
-                    "expected_handoff": eb.get("handoff"),
-                    "must_cite_sources": eb.get("must_cite_sources", False),
-                    "required_source_titles": eb.get("required_source_titles") or [],
-                    "expected_refusal": eb.get("expected_refusal", False),
-                    "refusal_message_pattern": eb.get("refusal_message_pattern"),
-                    "expected_key_facts_count": len(eb.get("expected_key_facts") or []),
-                    "has_forbidden_content": bool(eb.get("forbidden_content")),
-                    "safety_disclaimer_required": eb.get("safety_disclaimer_required", False),
-                },
-            }
-        )
+    examples = [{"inputs": _example_inputs(c), "outputs": _expected_outputs(c)} for c in _CASES]
     client.create_examples(dataset_id=dataset.id, examples=examples)
     print(f"Created LangSmith dataset {DATASET_NAME!r} with {len(examples)} examples.")
 
 
 def _row_to_report_entry(row: dict) -> dict:
     scores = {r.key: r.score for r in row["evaluation_results"]["results"]}
-    outputs = row["run"].outputs or {}
-    inputs = row["example"].inputs or {}
+    return _report_entry(row["example"].inputs or {}, row["run"].outputs or {}, scores)
+
+
+def _report_entry(inputs: dict, outputs: dict, scores: dict) -> dict:
     return {
         "case_id": inputs.get("case_id"),
         "category": inputs.get("category"),
@@ -409,7 +417,35 @@ def _write_report(report_path: Path, per_case: list[dict]) -> None:
     print(f"Wrote report to {report_path}")
 
 
+async def _run_local(concurrency: int = 4) -> list[dict]:
+    """Same cases, same evaluators, no LangSmith: for environments without a
+    LangSmith key (the project traces to Langfuse now)."""
+    semaphore = asyncio.Semaphore(concurrency)
+
+    async def one(case: Case) -> dict:
+        async with semaphore:
+            outputs = await run_case(case)
+        run = SimpleNamespace(outputs=outputs)
+        example = SimpleNamespace(inputs=_example_inputs(case), outputs=_expected_outputs(case))
+        scores = {}
+        for evaluator in _EVALUATORS:
+            result = evaluator(run, example)
+            scores[result["key"]] = result["score"]
+        return _report_entry(example.inputs, outputs, scores)
+
+    return list(await asyncio.gather(*(one(case) for case in _CASES)))
+
+
 async def main_async(args: argparse.Namespace) -> None:
+    if args.local:
+        report_path = (
+            Path(args.report)
+            if args.report
+            else REPORT_DIR / f"golden_scenarios_{int(datetime.now(UTC).timestamp())}.json"
+        )
+        _write_report(report_path, await _run_local())
+        return
+
     client = Client()
     ensure_dataset(client)
 
@@ -431,6 +467,7 @@ async def main_async(args: argparse.Namespace) -> None:
 def main() -> None:
     parser = argparse.ArgumentParser(description="Golden-dataset end-to-end quality eval (LangSmith)")
     parser.add_argument("--report", default=None, help="optional path to write a JSON report")
+    parser.add_argument("--local", action="store_true", help="run and score locally, without LangSmith")
     args = parser.parse_args()
     asyncio.run(main_async(args))
 

@@ -100,9 +100,9 @@ def _fake_llm_returning(content: str) -> AsyncMock:
 def ephemeral_insights_collection():
     """Fresh, isolated in-memory Qdrant collection per test (one client per
     test, so nothing leaks between tests)."""
-    from codebase.models.rag.vector_store import QdrantChromaClient
+    from codebase.models.rag.vector_store import QdrantVectorClient
 
-    return QdrantChromaClient(location=":memory:").get_or_create_collection(f"test-insights-{uuid.uuid4().hex}")
+    return QdrantVectorClient(location=":memory:").get_or_create_collection(f"test-insights-{uuid.uuid4().hex}")
 
 
 def _vector_with_similarity(similarity: float) -> list[float]:

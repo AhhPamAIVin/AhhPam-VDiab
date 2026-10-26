@@ -372,7 +372,7 @@ async def test_synthesize_summary_doctor_tone_has_observation_labels(monkeypatch
         async def ainvoke(self, messages):
             return mock_response
 
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM())
 
     records = {
         "glucose": [
@@ -415,7 +415,7 @@ async def test_synthesize_summary_includes_blood_pressure_trend_and_data_used(mo
         async def ainvoke(self, messages):
             return mock_response
 
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM())
 
     records = {
         "glucose": [],
@@ -464,7 +464,7 @@ async def test_synthesize_summary_flags_repeated_missed_doses_and_lists_current_
             captured_prompt["text"] = messages[-1].content
             return type("R", (), {"content": "Bản tóm tắt."})()
 
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: _FakeLLM())
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: _FakeLLM())
 
     records = {
         "glucose": [
@@ -514,7 +514,7 @@ async def test_synthesize_summary_falls_back_when_llm_raises(monkeypatch):
         async def ainvoke(self, messages):
             raise RuntimeError("simulated network failure")
 
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: _BrokenLLM())
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: _BrokenLLM())
 
     records = {
         "glucose": [{"value": 120.0, "measured_at": "2026-06-08T07:00:00", "meal_context": "FASTING"} for _ in range(5)],
@@ -548,7 +548,7 @@ async def test_synthesize_summary_falls_back_when_llm_raises(monkeypatch):
 
 @pytest.mark.asyncio
 async def test_patient_summary_with_data(client: AsyncClient, session: Session, monkeypatch, mock_llm):
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     patient = _make_user(session, email="summary-patient@diab.example.com", role=UserRole.PATIENT)
     _seed_weekday_weekend_pattern(session, patient_id=patient.id, creator_id=patient.id, num_days=7)
@@ -593,7 +593,7 @@ async def test_patient_summary_zero_records_says_insufficient(client: AsyncClien
 
 @pytest.mark.asyncio
 async def test_doctor_summary_for_assigned_patient(client: AsyncClient, session: Session, monkeypatch, mock_llm):
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     doctor = _make_user(session, email="summary-doctor@diab.example.com", role=UserRole.DOCTOR)
     patient = _make_user(session, email="summary-doc-patient@diab.example.com", role=UserRole.PATIENT)
@@ -625,7 +625,7 @@ async def test_doctor_summary_surfaces_patient_reported_adverse_reaction(
     adverse reaction against it, doctor's AI summary must surface that report as an attention
     point — proving fetch_data -> synthesize_summary actually wires medications end-to-end,
     not just at the unit level."""
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     doctor = _make_user(session, email="med-summary-doctor@diab.example.com", role=UserRole.DOCTOR)
     patient = _make_user(session, email="med-summary-patient@diab.example.com", role=UserRole.PATIENT)
@@ -670,7 +670,7 @@ async def test_doctor_summary_surfaces_patient_reported_adverse_reaction(
 
 @pytest.mark.asyncio
 async def test_unassigned_doctor_cannot_summarize_patient(client: AsyncClient, session: Session, monkeypatch, mock_llm):
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     doctor = _make_user(session, email="unassigned-doctor@diab.example.com", role=UserRole.DOCTOR)
     patient = _make_user(session, email="unassigned-doc-patient@diab.example.com", role=UserRole.PATIENT)
@@ -694,7 +694,7 @@ async def test_unassigned_doctor_cannot_summarize_patient(client: AsyncClient, s
 
 @pytest.mark.asyncio
 async def test_summary_date_range_7_vs_30_days(client: AsyncClient, session: Session, monkeypatch, mock_llm):
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     patient = _make_user(session, email="range-patient@diab.example.com", role=UserRole.PATIENT)
     now = datetime.now(UTC).replace(tzinfo=None, microsecond=0)
@@ -738,7 +738,7 @@ async def test_summary_date_range_capped_at_30_days(client: AsyncClient, session
     """PRD §15.7: even if a caller could somehow ask for more, the tool layer
     itself caps at 30 days — exercised here via the request schema's own
     le=30 validation, i.e. the API rejects an out-of-range request outright."""
-    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda: mock_llm)
+    monkeypatch.setattr(synthesize_summary_mod, "get_llm", lambda *_args, **_kwargs: mock_llm)
 
     patient = _make_user(session, email="cap-patient@diab.example.com", role=UserRole.PATIENT)
     token = await _login(client, patient.email)

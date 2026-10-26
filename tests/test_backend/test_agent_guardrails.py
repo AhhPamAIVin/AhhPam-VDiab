@@ -253,6 +253,70 @@ async def test_direct_answer_without_clinical_claim_passes():
     assert await guardrail_check(state) == {}
 
 
+_HONEST_MYTH_ANSWER = (
+    "Hiện chưa có bằng chứng khoa học nào cho thấy nước ép khổ qua với mật ong phục hồi tuyến tụy, "
+    "và tài liệu y khoa đã duyệt không đề cập phương pháp này. Bạn đừng bỏ thuốc đang dùng; hãy hỏi "
+    "bác sĩ điều trị trước khi thử bất kỳ bài thuốc nào."
+)
+
+
+@pytest.mark.asyncio
+async def test_honest_insufficient_evidence_answer_is_not_drift():
+    """Corpus doesn't cover the question, model declared no chunk used and
+    said so without any number — not drift (Epic 5.5)."""
+    state = {
+        "intent": "QA",
+        "response": _HONEST_MYTH_ANSWER,
+        "retrieved_chunks": [{"chunk_id": "a"}],
+        "sources": [],
+        "citations_self_reported": True,
+        "retry_count": 0,
+    }
+    assert await guardrail_check(state) == {}
+
+
+@pytest.mark.asyncio
+async def test_insufficient_evidence_may_echo_the_users_own_number():
+    state = {
+        "intent": "QA",
+        "message": "Uống nước ép khổ qua có phục hồi tuyến tụy 100% không?",
+        "response": "Chưa có bằng chứng nào cho thấy khổ qua phục hồi tuyến tụy 100%; hãy hỏi bác sĩ điều trị.",
+        "retrieved_chunks": [{"chunk_id": "a"}],
+        "sources": [],
+        "citations_self_reported": True,
+        "retry_count": 0,
+    }
+    assert await guardrail_check(state) == {}
+    state["response"] = state["response"].replace("100%", "100%, nhưng giảm được 20% đường huyết")
+    result = await guardrail_check(state)
+    assert "uncited_retrieval_drift" in result["guardrail_failures"]
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("response", "self_reported"),
+    [
+        # a number without a source is still drift, however hedged
+        ("Chưa có bằng chứng đầy đủ, nhưng khổ qua giúp giảm 20% đường huyết; hãy hỏi bác sĩ.", True),
+        # no doctor deferral
+        ("Chưa có bằng chứng khoa học về khổ qua, nhưng thuốc nam thường an toàn.", True),
+        # old-style draft (no self-reported citations): the exemption does not apply
+        (_HONEST_MYTH_ANSWER, False),
+    ],
+)
+async def test_insufficient_evidence_exemption_is_narrow(response: str, self_reported: bool):
+    state = {
+        "intent": "QA",
+        "response": response,
+        "retrieved_chunks": [{"chunk_id": "a"}],
+        "sources": [],
+        "citations_self_reported": self_reported,
+        "retry_count": 0,
+    }
+    result = await guardrail_check(state)
+    assert "uncited_retrieval_drift" in result["guardrail_failures"]
+
+
 @pytest.mark.asyncio
 async def test_uncited_retrieval_does_not_drift_when_grounded_in_personal_data():
     """Regression test: retrieve_knowledge runs unconditionally even for a

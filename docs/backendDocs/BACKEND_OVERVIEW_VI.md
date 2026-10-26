@@ -25,7 +25,7 @@ PostgreSQL
 
 FastAPI Agent API
       ↓
-LangGraph → OpenAI + ChromaDB + PostgreSQL
+LangGraph → LLM API (OpenAI-compatible) + Qdrant (embedding bge-m3 local) + PostgreSQL
 ```
 
 Entry point nằm tại [`codebase/backend/main.py`](codebase/backend/main.py). Khi backend khởi động, nó:
@@ -153,7 +153,7 @@ resolve_context
 Các nguyên tắc an toàn quan trọng:
 
 - LLM không được tự bịa số liệu bệnh nhân; dữ liệu phải lấy qua tool từ database.
-- Kiến thức y khoa lấy từ ChromaDB/RAG.
+- Kiến thức y khoa lấy từ Qdrant/RAG.
 - Có guardrail cho chẩn đoán, kê đơn và thay đổi điều trị.
 - Cảnh báo theo ngưỡng phải thuộc rule engine, không phụ thuộc LLM.
 - AI review flag và cảnh báo y khoa cần được xem là hai loại dữ liệu khác nhau.
@@ -186,7 +186,8 @@ Các biến môi trường tối thiểu cần kiểm tra trong `.env`:
 - `DB_HOST`, `DB_PORT`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`
 - `JWT_SECRET_KEY`
 - `OPENAI_API_KEY` nếu làm agent
-- `CHROMA_PERSIST_DIR`
+- `QDRANT_URL` / `QDRANT_API_KEY`
+- `EMBEDDING_MODEL` / `EMBEDDING_DEVICE`
 - `CORS_ORIGINS`
 
 Tạo admin đầu tiên:

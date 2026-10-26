@@ -101,6 +101,7 @@ export function AgentAssistantPage() {
   const [messages, setMessages] = useState<Message[]>([welcomeMessage]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actionLoadingId, setActionLoadingId] = useState<string | null>(null);
   const [mobileHistoryOpen, setMobileHistoryOpen] = useState(false);
@@ -183,10 +184,11 @@ export function AgentAssistantPage() {
         refreshSuggestions(content, result.summary);
         if (autoRead.enabled) void tts.play(assistantMessage.id, assistantMessage.content);
       } else {
-        const result = await api.agentChat(
+        const result = await api.agentChatStream(
           content,
           undefined,
           activeSessionId ?? undefined,
+          setProgress,
         );
         registerSessionId(result.session_id);
         const assistantMessage: Message = {
@@ -218,6 +220,7 @@ export function AgentAssistantPage() {
       );
     } finally {
       setLoading(false);
+      setProgress(null);
     }
   };
 
@@ -471,14 +474,21 @@ export function AgentAssistantPage() {
               <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/15">
                 <Bot className="h-4 w-4 text-primary" />
               </div>
-              <div className="flex gap-1 rounded-2xl border border-border bg-card px-4 py-3">
-                {[0, 1, 2].map((item) => (
-                  <span
-                    key={item}
-                    className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground"
-                    style={{ animationDelay: `${item * 150}ms` }}
-                  />
-                ))}
+              <div className="flex items-center gap-2 rounded-2xl border border-border bg-card px-4 py-3">
+                <div className="flex gap-1">
+                  {[0, 1, 2].map((item) => (
+                    <span
+                      key={item}
+                      className="h-1.5 w-1.5 animate-bounce rounded-full bg-muted-foreground"
+                      style={{ animationDelay: `${item * 150}ms` }}
+                    />
+                  ))}
+                </div>
+                {progress && (
+                  <span aria-live="polite" className="text-xs text-muted-foreground">
+                    {progress}
+                  </span>
+                )}
               </div>
             </div>
           )}
@@ -656,6 +666,7 @@ function MessageBubble({
                 >
                   <span>
                     {source.title}
+                    {source.organization ? ` (${source.organization})` : ""}
                     {source.section ? ` — ${source.section}` : ""}
                   </span>
                   <ExternalLink className="mt-0.5 h-3 w-3 shrink-0" />
@@ -666,6 +677,7 @@ function MessageBubble({
                   className="break-words text-xs text-muted-foreground"
                 >
                   {source.title}
+                  {source.organization ? ` (${source.organization})` : ""}
                   {source.section ? ` — ${source.section}` : ""}
                 </p>
               ),
