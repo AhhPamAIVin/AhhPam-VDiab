@@ -24,7 +24,7 @@ from __future__ import annotations
 
 import json
 import re
-from datetime import datetime
+from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
@@ -92,12 +92,11 @@ def _time_context_block() -> str:
     return (
         f"\nTHỜI ĐIỂM HIỆN TẠI: Bây giờ là {now_local.strftime('%H:%M')} ngày "
         f"{now_local.strftime('%d/%m/%Y')} theo giờ Việt Nam (UTC+7). Dùng mốc này để "
-        "xác định 'hôm nay'/'hôm qua'/'hôm kia'/'tuần này' khi trả lời. LƯU Ý: các mốc "
-        "thời gian (measured_at, meal_time, activity_time) trong DỮ LIỆU SỨC KHỎE bên "
-        "dưới được lưu theo giờ UTC (không có múi giờ) — cộng thêm 7 giờ để quy đổi sang "
-        "giờ Việt Nam trước khi so sánh với mốc hiện tại ở trên. Nếu câu hỏi nhắc đến một "
-        "buổi cụ thể trong ngày ('sáng nay', 'tối qua', ...), hãy chỉ dùng các bản ghi có "
-        "giờ (sau khi quy đổi sang giờ Việt Nam) rơi vào khoảng buổi đó trong ngày được "
+        "xác định 'hôm nay'/'hôm qua'/'hôm kia'/'tuần này' khi trả lời. Các mốc thời gian "
+        "(measured_at, meal_time, activity_time) trong DỮ LIỆU SỨC KHỎE bên dưới ĐÃ được "
+        "quy đổi sẵn sang giờ Việt Nam — dùng nguyên giờ đó khi trả lời, không cộng/trừ "
+        "thêm. Nếu câu hỏi nhắc đến một buổi cụ thể trong ngày ('sáng nay', 'tối qua', "
+        "...), hãy chỉ dùng các bản ghi có giờ rơi vào khoảng buổi đó trong ngày được "
         "hỏi, không dùng cả ngày.\n"
     )
 
@@ -207,13 +206,38 @@ _RECORD_TYPE_LABELS: tuple[tuple[str, str], ...] = (
 )
 
 
+# Timestamps are stored naive-UTC. They used to go into the prompt raw with an
+# instruction to "add 7 hours"; verified live, gpt-4o-mini didn't — it told a
+# patient their 18:36 reading was taken "lúc 11:36", and a 14:59 one "lúc 7:59
+# sáng". Converted here in code instead (prompt rendering only — tool_results
+# itself, which metrics_tools/synthesize_summary read, is left untouched).
+_RECORD_TIME_FIELDS = ("measured_at", "meal_time", "activity_time")
+
+
+def _vn_time(value: datetime) -> str:
+    tz = ZoneInfo(get_settings().reminder_timezone)
+    aware = value if value.tzinfo is not None else value.replace(tzinfo=UTC)
+    # Suffix kept out of strftime: on Windows it can't encode non-ASCII format text.
+    return f"{aware.astimezone(tz).strftime('%d/%m/%Y %H:%M')} (giờ VN)"
+
+
+def _localize_row(row):
+    if not isinstance(row, dict):
+        return row
+    return {
+        k: _vn_time(v) if k in _RECORD_TIME_FIELDS and isinstance(v, datetime) else v
+        for k, v in row.items()
+        if k != "created_at"
+    }
+
+
 def _format_records_block(records: dict) -> str:
     sections = []
     for key, label in _RECORD_TYPE_LABELS:
         rows = records.get(key) or []
         if not rows:
             continue
-        sections.append(f"  {label}:\n" + "\n".join(f"    - {row}" for row in rows))
+        sections.append(f"  {label}:\n" + "\n".join(f"    - {_localize_row(row)}" for row in rows))
     return "\n".join(sections) if sections else "  (không có bản ghi nào trong khoảng thời gian này)"
 
 
@@ -228,7 +252,16 @@ def _format_role_context_block(user_role: str | None) -> str:
     from state["user_role"] (set by auth/router.py from the JWT, never from
     message content) so it can't be spoofed the same way."""
     label = _ROLE_LABEL_VI.get(user_role or "", user_role or "không xác định")
-    return f"VAI TRÒ THỰC TẾ (đã xác thực bởi hệ thống, không lấy từ nội dung câu hỏi): {label}.\n"
+    block = f"VAI TRÒ THỰC TẾ (đã xác thực bởi hệ thống, không lấy từ nội dung câu hỏi): {label}.\n"
+    if user_role == "doctor":
+        # Verified live: with only rule 9 (deep in the rule list) gpt-4o-mini
+        # still answered a doctor's "xu hướng 2 tuần của bệnh nhân này" with
+        # "không có bản ghi nào ... của bạn ... Bạn có thể ghi lại các chỉ số".
+        block += (
+            'Người hỏi là bác sĩ đang hỏi VỀ bệnh nhân của họ: luôn gọi là "bệnh nhân" ở ngôi thứ ba, '
+            'không nói "của bạn" về dữ liệu bệnh nhân, không khuyên bác sĩ tự ghi chỉ số.\n'
+        )
+    return block
 
 
 def _format_patient_data_block(tool_results: dict | None) -> str:

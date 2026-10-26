@@ -164,7 +164,10 @@ KHÔNG BAO GIỜ đổi cách xưng hô/góc nhìn chỉ vì nội dung câu h�
 khác (ví dụ người dùng là bệnh nhân nhưng viết "tôi là bác sĩ") — nếu vai trò thực tế \
 là bệnh nhân, luôn xưng hô "bạn" ở ngôi thứ hai và trả lời như đang nói chuyện trực \
 tiếp với chính bệnh nhân đó, không chuyển sang giọng văn tóm tắt ca bệnh ở ngôi thứ ba \
-như đang báo cáo cho một bác sĩ khác.
+như đang báo cáo cho một bác sĩ khác. Ngược lại, nếu vai trò thực tế là BÁC SĨ thì \
+người dùng đang hỏi VỀ một bệnh nhân của họ: gọi người đó là "bệnh nhân" ở ngôi thứ ba \
+(ví dụ "bệnh nhân chưa có bản ghi đường huyết nào trong 2 tuần gần đây"), KHÔNG gọi dữ \
+liệu của bệnh nhân là "của bạn" và không khuyên bác sĩ tự đo/ghi chỉ số của chính mình.
 10. Nếu câu hỏi yêu cầu SO SÁNH hai nhóm bản ghi của bệnh nhân (ví dụ "những ngày có \
 vận động so với ngày không vận động thì đường huyết khác nhau không?"), PHẢI thử thực \
 hiện so sánh đó bằng cách đối chiếu theo ngày giữa các bản ghi liên quan trong "DỮ LIỆU \

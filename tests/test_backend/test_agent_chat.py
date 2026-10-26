@@ -19,12 +19,12 @@ from __future__ import annotations
 
 import json
 from datetime import UTC, date, datetime, timedelta
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 from zoneinfo import ZoneInfo
 
 import pytest
 from httpx import AsyncClient
-from langchain_core.messages import AIMessage, HumanMessage
+from langchain_core.messages import HumanMessage
 from sqlmodel import Session
 
 from codebase.backend.auth.models import User, UserRole
@@ -1713,6 +1713,58 @@ async def test_qa_prompt_states_authenticated_role_not_taken_from_message(
     prompt_text = " ".join(m["content"] for m in sent_messages)
     assert "VAI TRÒ THỰC TẾ" in prompt_text
     assert "BỆNH NHÂN" in prompt_text
+
+
+@pytest.mark.asyncio
+async def test_llm_provider_error_returns_503_with_vietnamese_message(client: AsyncClient, patient_user: User):
+    """Live: the LLM proxy's "quota exhausted" 403 reached the patient as a
+    bare 500 "Internal server error"."""
+    import httpx
+    import openai
+
+    token = await _login(client, PATIENT_EMAIL)
+    denied = openai.PermissionDeniedError(
+        "quota exhausted", response=httpx.Response(403, request=httpx.Request("POST", "https://llm.example")), body=None
+    )
+    failing_llm = MagicMock()
+    failing_llm.ainvoke = AsyncMock(side_effect=denied)
+    failing_llm.with_structured_output.return_value = failing_llm
+    with (
+        patch("codebase.models.agents.nodes.retrieve_knowledge.search_approved_knowledge", return_value=[]),
+        patch("codebase.models.agents.nodes.synthesize_qa.get_llm", return_value=failing_llm),
+        patch(
+            "codebase.models.agents.nodes.plan_response.get_llm",
+            return_value=_plan_llm_mock(needs_health_data=False, needs_knowledge_retrieval=False),
+        ),
+    ):
+        response = await client.post(
+            "/api/v1/agent/chat", json={"message": "Chỉ số HbA1c là gì?"}, headers=_auth_headers(token)
+        )
+    assert response.status_code == 503
+    assert "tạm thời không khả dụng" in response.json()["detail"]
+
+
+def test_record_timestamps_reach_the_prompt_in_vietnam_time():
+    """Live: told the stored times were UTC and to "add 7 hours", the model
+    didn't — an 18:36 reading was reported to the patient as "lúc 11:36"."""
+    from datetime import datetime as dt
+
+    from codebase.models.agents.nodes.synthesize_qa import _format_records_block
+
+    block = _format_records_block({"glucose": [{"value": 310.0, "measured_at": dt(2026, 10, 26, 11, 36)}]})
+    assert "26/10/2026 18:36 (giờ VN)" in block
+    assert "11:36" not in block
+
+
+def test_role_context_block_tells_model_to_speak_about_patient_to_a_doctor():
+    """Live run: a doctor asking about a patient with no recent data got
+    "không có bản ghi ... của bạn ... Bạn có thể ghi lại các chỉ số"."""
+    from codebase.models.agents.nodes.synthesize_qa import _format_role_context_block
+
+    doctor_block = _format_role_context_block("doctor")
+    assert "BÁC SĨ" in doctor_block
+    assert "ngôi thứ ba" in doctor_block
+    assert "ngôi thứ ba" not in _format_role_context_block("patient")
 
 
 @pytest.mark.asyncio
