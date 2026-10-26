@@ -19,9 +19,10 @@ import time
 from datetime import UTC, datetime
 from typing import Any
 
+from codebase.backend.config import get_settings
 from codebase.models.agents.state import RetrievedChunk
-from codebase.models.rag.chunking import EMBEDDING_MODEL
-from codebase.models.rag.ingest import get_collection, get_embeddings_client
+from codebase.models.rag.embeddings import get_embeddings_client
+from codebase.models.rag.ingest import get_collection
 
 logger = logging.getLogger("codebase.models.agents.tools.knowledge_tools")
 
@@ -31,14 +32,14 @@ logger = logging.getLogger("codebase.models.agents.tools.knowledge_tools")
 # chunk is always the raw, unboosted cosine similarity.
 TIER1_TRUST_BOOST = 0.03
 
-# Pull a wider candidate pool than k from Chroma so the trust-tier boost has
+# Pull a wider candidate pool than k from the vector store so the trust-tier boost has
 # room to actually reorder near-ties instead of just re-sorting the same k,
 # and so BM25 below (which can only rank chunks it's actually given) has a
 # real shot at surfacing a lexically-strong match dense retrieval buried
 # deep. Real, verified case (golden eval TC-AI-001, "chất bột đường
 # (glucid)"): the chunk with the exact figures the answer needed sat at raw
 # cosine rank 85 of 300 — the corpus is small (~1100 chunks as of writing),
-# so fetching this deep from Chroma is still a fast local ANN search, not an
+# so fetching this deep is still a fast ANN search, not an
 # extra embeddings API call, which is the only genuinely expensive part of
 # this function.
 OVERFETCH_MULTIPLIER = 3
@@ -104,13 +105,31 @@ _WORD_RE = re.compile(r"\d+(?:[.,]\d+)?|\w+", re.UNICODE)
 _BM25_MAX_TERM_DOC_FREQ_RATIO = 0.05
 
 
+# Conversational function words dropped from the *query* before BM25. The
+# rarity gate below alone doesn't catch them: guideline prose rarely says
+# "tôi"/"nào", so they pass as "rare, distinctive" terms. Verified live on
+# bge-m3/Qdrant: "Khi bị hạ đường huyết tôi nên xử trí thế nào?" — dense
+# ranked QĐ 5481 PHẦN 6 "HẠ ĐƯỜNG HUYẾT" first (0.77), but "tôi" matched
+# IWGDF's "chúng tôi khuyến cáo" and RRF put four off-topic IWGDF chunks on
+# top; the answer then failed citation checks and fell back to a refusal.
+_QUERY_STOPWORDS = frozenset(
+    "tôi mình bạn chúng những nên cần phải thế nào sao khi nếu thì không được của với cho các một này như "
+    "bao nhiêu làm hay hoặc đang rất nhưng để từ trong theo hỏi muốn biết xin giúp thường nhất hơn nhiều "
+    "khác cũng vậy thôi chưa người".split()
+)
+
+
 def _tokenize(text: str) -> list[str]:
     return [w for w in _WORD_RE.findall(text.lower()) if len(w) >= _MIN_TOKEN_LEN]
 
 
+def _query_tokens(query: str) -> list[str]:
+    return [w for w in _tokenize(query) if w not in _QUERY_STOPWORDS]
+
+
 def _bm25_scores(query_tokens: list[str], doc_tokens: dict[str, list[str]]) -> dict[str, float]:
     """Classic Okapi BM25 over exactly the candidate pool search_approved_knowledge
-    already fetched from Chroma (not the whole collection) — that pool is
+    already fetched from the vector store (not the whole collection) — that pool is
     already sized (_MIN_CANDIDATE_POOL) to be deep enough that a chunk BM25
     should promote is actually in it. `doc_tokens` keyed by chunk_id."""
     n_docs = len(doc_tokens)
@@ -170,9 +189,9 @@ def _rrf_merge(*ranked_id_lists: list[str]) -> dict[str, float]:
 
 
 def _distance_to_score(distance: float) -> float:
-    """Collection is created with hnsw:space="cosine" (see ingest.get_collection),
-    where Chroma's distance = 1 - cosine_similarity. Clipped defensively —
-    floating point can push this a hair outside [0, 1]."""
+    """The collection is cosine space and the vector store reports
+    distance = 1 - cosine_similarity (see vector_store.QdrantCollection.query).
+    Clipped defensively — floating point can push this a hair outside [0, 1]."""
     return max(0.0, min(1.0, 1.0 - distance))
 
 
@@ -194,19 +213,28 @@ def _to_retrieved_chunk(chunk_id: str, text: str, metadata: dict[str, Any], scor
             chunk["trust_tier"] = trust_tier
     else:
         chunk["title"] = metadata.get("doc_title")
-        chunk["section"] = metadata.get("section_heading")
-        page_number = metadata.get("page_number")
-        chunk["page_ref"] = f"tr. {page_number}" if page_number is not None else None
-        # Tier-2 chunks have no sources.csv-style trust_tier (Bộ Y tế /
-        # Bệnh viện / Nước ngoài) — leaving the key unset (RetrievedChunk is
-        # total=False) rather than fabricating one; the tier-1-over-tier-2
-        # boost above is keyed on `tier`, not on this field being present.
+        chunk["section"] = metadata.get("heading_path") or metadata.get("section_heading")
+        chunk["page_ref"] = _page_ref(metadata.get("page_start"), metadata.get("page_end"))
+        # Tier-2 chunks inherit trust_tier (Bộ Y tế / Bệnh viện / Nước ngoài)
+        # from the sources.csv rows that reference their file; left unset
+        # (RetrievedChunk is total=False) when no row does, never fabricated.
+        trust_tier = metadata.get("trust_tier")
+        if trust_tier is not None:
+            chunk["trust_tier"] = trust_tier
     return chunk
 
 
+def _page_ref(page_start: int | None, page_end: int | None) -> str | None:
+    if page_start is None:
+        return None
+    if page_end is None or page_end == page_start:
+        return f"tr. {page_start}"
+    return f"tr. {page_start}–{page_end}"
+
+
 def search_approved_knowledge(query: str, k: int = 6) -> list[RetrievedChunk]:
-    """Embed `query`, similarity-search the `knowledge_base` Chroma collection
-    built by codebase/models/rag/ingest.py, return chunks with full metadata
+    """Embed `query` with the local embedding model, similarity-search the
+    knowledge-base collection built by codebase/models/rag/ingest.py, return chunks with full metadata
     (chunk_id, tier, trust_tier, page_ref/section, source_url — §5.3).
 
     Must log the retrieval per §5.8 (query, embedding_model, per-chunk score
@@ -267,7 +295,7 @@ def search_approved_knowledge(query: str, k: int = 6) -> list[RetrievedChunk]:
     dense_scored.sort(key=lambda pair: pair[0], reverse=True)
     dense_order = [chunk_id for _, chunk_id in dense_scored]
 
-    query_tokens = _tokenize(query)
+    query_tokens = _query_tokens(query)
     doc_tokens = {chunk_id: _tokenize(text) for chunk_id, text in zip(ids, documents, strict=True)}
     bm25_scores = _bm25_scores(query_tokens, doc_tokens)
     bm25_order = sorted(bm25_scores, key=lambda chunk_id: bm25_scores[chunk_id], reverse=True)
@@ -277,7 +305,14 @@ def search_approved_knowledge(query: str, k: int = 6) -> list[RetrievedChunk]:
     # input list just sums each dense-ranked chunk's own 1/(K+rank) once,
     # which preserves that list's relative order.
     fused = _rrf_merge(dense_order, bm25_order)
-    ranked_ids = sorted(fused, key=lambda chunk_id: fused[chunk_id], reverse=True)[:k]
+    # Superseded documents (QĐ 3280/3319, replaced by 5481 — ingest marks
+    # status="superseded") rank after every current-guidance chunk: they repeat
+    # most of 5481's vocabulary, so on a live end-to-end run they took 1-2 of
+    # the top 4 slots for HbA1c/diagnosis questions. Demoted, not dropped, so
+    # a question only they answer still gets an answer (their text says they
+    # are superseded).
+    superseded = {chunk_id for chunk_id, meta in zip(ids, metadatas, strict=True) if meta.get("status") == "superseded"}
+    ranked_ids = sorted(fused, key=lambda chunk_id: (chunk_id in superseded, -fused[chunk_id]))[:k]
     ranked = [chunk_by_id[chunk_id] for chunk_id in ranked_ids]
 
     latency_ms = int((time.monotonic() - start) * 1000)
@@ -296,7 +331,7 @@ def _log_retrieval(*, query: str, k: int, ranked: list[RetrievedChunk], latency_
         "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "tool_name": "search_approved_knowledge",
         "tool_input": {"query": query, "k": k},
-        "embedding_model": EMBEDDING_MODEL,
+        "embedding_model": get_settings().embedding_model,
         "tool_output": [
             {
                 "chunk_id": chunk.get("chunk_id"),

@@ -5,9 +5,10 @@
 #
 # 1. Reclaim ownership of the mounted volume. Railway attaches a fresh
 #    volume owned by root:root regardless of what the image's build-time
-#    chown set up, so chroma_persist_dir is unwritable by appuser until
-#    this runs — verified live: first boot after attaching the volume
-#    failed ingestion with "unable to open database file" until this fix.
+#    chown set up, so the volume (which holds the embedding model cache,
+#    HF_HOME=/app/data/hf-cache) is unwritable by appuser until this runs —
+#    verified live (back when the vector index lived there too): first boot
+#    after attaching the volume failed ingestion until this fix.
 #    Idempotent/cheap on every later boot once ownership is already correct.
 #
 # 2. Ingest the RAG corpus (codebase/models/rag/ingest.py) as appuser, then
@@ -18,7 +19,9 @@
 #    sync without a separate CI/SSH step, and self-heals a fresh/empty
 #    mount. Best-effort: RAG is an enrichment for QA chat, not a hard
 #    dependency (personal-data questions don't need it), so a failure here
-#    (e.g. embeddings API hiccup) must not block the app from starting.
+#    (e.g. Qdrant not reachable yet) must not block the app from starting.
+#    The first boot on a fresh volume also downloads the embedding model and
+#    embeds the whole corpus on CPU — expect several minutes.
 set -e
 
 chown -R appuser:appuser /app/data

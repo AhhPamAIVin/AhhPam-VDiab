@@ -1,52 +1,53 @@
-"""RAG ingestion pipeline — corpus -> chunks -> embeddings -> Chroma.
+"""RAG ingestion pipeline — corpus -> chunks -> local embeddings -> Qdrant.
 
 OWNER: RAG data-pipeline workstream. Do not edit from other workstreams.
 
-See docs/AI_Summary_Respond_System_Design.md §5.4 (pipeline pseudocode),
-§5.5 (manifest shape), §5.9 (re-ingestion/versioning). Chunking itself lives
-in codebase/models/rag/chunking.py (pure, API-free, independently
-unit-tested); this module owns all I/O: reading sources.csv/raw/*.md,
-calling the embeddings API, and talking to Chroma.
+Chunking lives in codebase/models/rag/chunking.py (pure, unit-tested); this
+module owns the I/O: reading sources.csv and raw/*.md, embedding with the
+local model (codebase/models/rag/embeddings.py), writing to the vector store
+and the manifest. Run offline, never on the request path:
 
-Run offline, never on the request path:
+    python -m codebase.models.rag.ingest            # incremental
+    python -m codebase.models.rag.ingest --rebuild  # drop + rebuild the collection
 
-    python -m codebase.models.rag.ingest
+The collection is named per embedding model (`knowledge_base__bge-m3`), so a
+model switch builds a fresh collection instead of mixing vector sizes.
 
-Idempotent (§5.3/§5.9): each tier-2 file's whole-content hash is stored as
-`source_content_hash` on every chunk from that file; each tier-1 row's
-`content_hash` (of key_content) plays the same role directly, since one row
-is one chunk. Re-running with nothing changed costs zero embedding calls —
-for every source, a single `collection.get(...)` metadata read decides
-whether to skip it. When a source *has* changed, all of its existing chunks
-are deleted and the fresh set is embedded and inserted — never diffed
-chunk-by-chunk, since chunk boundaries can shift on any edit (§5.3).
+Idempotent: every chunk carries a `pipeline_hash` of the file's whole chunker
+output (texts and metadata, chunker version). Chunking is cheap and runs every
+time; embedding only happens for a file whose output changed — so an edit to
+one web file, which also shifts the syllable vocabulary used to repair the PDF
+files, re-embeds a PDF file only if its repaired text actually changed. A
+changed file has all of its chunks deleted and re-embedded (boundaries can
+shift on any edit, so it is never diffed chunk-by-chunk). Files that left raw/
+have their chunks removed.
 """
 
 from __future__ import annotations
 
+import argparse
 import csv
 import json
 import logging
+import statistics
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any
 
 from codebase.backend.config import get_settings
 from codebase.models.rag.chunking import (
+    CHUNKER_VERSION,
     CORPUS_VERSION,
-    EMBEDDING_MODEL,
     SKIP_FAILED_CRAWL,
     SKIP_NO_LOCAL_FILE,
-    TRACK_A_FILES,
-    TRACK_B_FILES,
+    build_syllable_vocab,
     build_tier1_chunk,
-    chunk_track_a,
-    chunk_track_b,
-    classify_file,
+    chunk_document,
     classify_tier1_skip,
     compute_hash,
-    find_page_markers,
+    detect_status,
 )
+from codebase.models.rag.embeddings import EmbeddingsClient, get_embeddings_client, model_slug
 from codebase.models.rag.vector_store import get_vector_client
 
 logger = logging.getLogger("codebase.models.rag.ingest")
@@ -56,39 +57,33 @@ SOURCES_CSV_PATH = REPO_ROOT / "data" / "knowledge_base" / "sources.csv"
 RAW_DIR = REPO_ROOT / "data" / "knowledge_base" / "raw"
 MANIFEST_PATH = REPO_ROOT / "data" / "knowledge_base" / "ingestion_manifest.json"
 
-COLLECTION_NAME = "knowledge_base"
-EMBEDDING_DIMENSIONS = 1536  # text-embedding-3-small's native output size
-EMBED_BATCH_SIZE = 100  # §5.4: "batched (~100 chunks/request)"
+COLLECTION_BASE_NAME = "knowledge_base"
+EMBED_BATCH_SIZE = 64  # chunks handed to the model per call (it sub-batches itself)
 
+# Payload fields ingest and retrieval filter on.
+PAYLOAD_INDEXES = {
+    "tier": "integer",
+    "row_id": "integer",
+    "source_file": "keyword",
+    "status": "keyword",
+    "doc_type": "keyword",
+}
 
-class EmbeddingsClient(Protocol):
-    def embed_documents(self, texts: list[str]) -> list[list[float]]: ...
-    def embed_query(self, text: str) -> list[float]: ...
+_PDF_MARKER = "--- Trang "
 
 
 def _now_iso() -> str:
     return datetime.now(UTC).isoformat().replace("+00:00", "Z")
 
 
-# --- client construction ------------------------------------------------------
-
-
-def get_embeddings_client() -> EmbeddingsClient:
-    """Real OpenAI-backed embeddings client. Imports langchain_openai lazily
-    so importing this module (e.g. from knowledge_tools.py, or from a test
-    that only wants read_sources_csv) never requires it."""
-    from langchain_openai import OpenAIEmbeddings
-
-    settings = get_settings()
-    return OpenAIEmbeddings(model=EMBEDDING_MODEL, api_key=settings.openai_api_key, chunk_size=EMBED_BATCH_SIZE)
+def collection_name(model_name: str | None = None) -> str:
+    return f"{COLLECTION_BASE_NAME}__{model_slug(model_name or get_settings().embedding_model)}"
 
 
 def get_collection(client: Any | None = None) -> Any:
-    """The `knowledge_base` Chroma collection, created with cosine distance
-    (OpenAI embeddings are compared by cosine similarity, not Chroma's L2
-    default) if it doesn't exist yet."""
+    """The knowledge-base collection for the configured embedding model."""
     client = client or get_vector_client()
-    return client.get_or_create_collection(COLLECTION_NAME, metadata={"hnsw:space": "cosine"})
+    return client.get_or_create_collection(collection_name(), payload_indexes=PAYLOAD_INDEXES)
 
 
 # --- source loading -------------------------------------------------------------
@@ -99,55 +94,88 @@ def read_sources_csv(path: Path = SOURCES_CSV_PATH) -> list[dict[str, str]]:
         return list(csv.DictReader(f))
 
 
-def build_source_url_map(rows: list[dict[str, str]]) -> dict[str, str]:
-    """filename -> canonical url, read from sources.csv's local_file/url
-    columns. Several tier-1 rows can reference the same raw/*.md file
-    (verified: none disagree on url when they do) — used so tier-2 chunks
-    get a real source_url even for files like byt-5481 that have no
-    '> Nguồn:' header line of their own."""
-    mapping: dict[str, str] = {}
+def _raw_files_of(row: dict[str, str]) -> list[str]:
+    return [
+        part.strip()[len("raw/") :]
+        for part in (row.get("local_file") or "").split(";")
+        if part.strip().startswith("raw/")
+    ]
+
+
+def build_source_info_map(rows: list[dict[str, str]]) -> dict[str, dict[str, str | None]]:
+    """raw filename -> {url, organization, trust_tier, category} from the
+    sources.csv rows that reference it (the first row wins; rows that share a
+    file agree on these). Gives tier-2 chunks the same provenance fields
+    tier-1 rows have — v1 tier-2 chunks carried none of them."""
+    info: dict[str, dict[str, str | None]] = {}
     for row in rows:
-        url = (row.get("url") or "").strip()
-        if not url:
-            continue
-        for part in (row.get("local_file") or "").split(";"):
-            part = part.strip()
-            if part.startswith("raw/"):
-                mapping.setdefault(part[len("raw/") :], url)
-    return mapping
+        for filename in _raw_files_of(row):
+            info.setdefault(
+                filename,
+                {
+                    "url": (row.get("url") or "").strip() or None,
+                    "organization": (row.get("organization") or "").strip() or None,
+                    "trust_tier": (row.get("tier") or "").strip() or None,
+                    "category": (row.get("category") or "").strip() or None,
+                },
+            )
+    return info
 
 
-# --- chroma upsert helpers -------------------------------------------------------
+def build_source_url_map(rows: list[dict[str, str]]) -> dict[str, str]:
+    return {name: i["url"] for name, i in build_source_info_map(rows).items() if i["url"]}
 
 
-def _split_chunk(chunk: dict) -> tuple[str, str, dict]:
-    chunk_id = chunk["chunk_id"]
-    text = chunk["text"]
+# --- vector store helpers ---------------------------------------------------------
+
+
+def _split_chunk(chunk: dict, embedding_model: str) -> tuple[str, str, dict]:
     metadata = {k: v for k, v in chunk.items() if k not in ("chunk_id", "text") and v is not None}
-    return chunk_id, text, metadata
+    metadata["embedding_model"] = embedding_model
+    return chunk["chunk_id"], chunk["text"], metadata
 
 
-def _upsert_chunks(collection: Any, embeddings_client: EmbeddingsClient, chunks: list[dict]) -> None:
-    if not chunks:
-        return
-    ids: list[str] = []
-    texts: list[str] = []
-    metadatas: list[dict] = []
-    for chunk in chunks:
-        chunk_id, text, metadata = _split_chunk(chunk)
-        ids.append(chunk_id)
-        texts.append(text)
-        metadatas.append(metadata)
-    embeddings = embeddings_client.embed_documents(texts)  # batched internally at EMBED_BATCH_SIZE
-    collection.upsert(ids=ids, embeddings=embeddings, documents=texts, metadatas=metadatas)
+def _upsert_chunks(
+    collection: Any, embeddings_client: EmbeddingsClient, chunks: list[dict], embedding_model: str
+) -> int:
+    """Embed and upsert; returns the vector size (0 if nothing was written)."""
+    size = 0
+    for start in range(0, len(chunks), EMBED_BATCH_SIZE):
+        batch = [_split_chunk(c, embedding_model) for c in chunks[start : start + EMBED_BATCH_SIZE]]
+        ids = [b[0] for b in batch]
+        texts = [b[1] for b in batch]
+        metadatas = [b[2] for b in batch]
+        embeddings = embeddings_client.embed_documents(texts)
+        size = len(embeddings[0]) if embeddings else size
+        collection.upsert(ids=ids, embeddings=embeddings, documents=texts, metadatas=metadatas)
+    return size
 
 
-# --- tier 1 ----------------------------------------------------------------------
+def _output_hash(chunks: list[dict]) -> str:
+    """Fingerprint of everything a file's chunks would write, except the
+    per-run timestamp — equal hash means the stored vectors are still right."""
+    stable = [{k: v for k, v in c.items() if k != "ingested_at"} for c in chunks]
+    return compute_hash(CHUNKER_VERSION, json.dumps(stable, sort_keys=True, ensure_ascii=False))
+
+
+def _token_summary(tokens: list[int]) -> dict[str, int]:
+    if not tokens:
+        return {"min": 0, "median": 0, "max": 0}
+    return {"min": min(tokens), "median": int(statistics.median(tokens)), "max": max(tokens)}
+
+
+# --- tier 1 ------------------------------------------------------------------------
 
 
 def _ingest_tier1(
-    collection: Any, embeddings_client: EmbeddingsClient, rows: list[dict[str, str]], *, ingested_at: str
-) -> dict[str, Any]:
+    collection: Any,
+    embeddings_client: EmbeddingsClient,
+    rows: list[dict[str, str]],
+    status_by_file: dict[str, str],
+    *,
+    embedding_model: str,
+    ingested_at: str,
+) -> tuple[dict[str, Any], int]:
     stats = {
         "total_rows": len(rows),
         "embedded_this_run": 0,
@@ -156,6 +184,7 @@ def _ingest_tier1(
         "skipped_failed_crawl": 0,
     }
     pending: list[dict] = []
+    tokens: list[int] = []
     for row_id, row in enumerate(rows):
         skip_reason = classify_tier1_skip(row)
         if skip_reason == SKIP_NO_LOCAL_FILE:
@@ -165,7 +194,11 @@ def _ingest_tier1(
             stats["skipped_failed_crawl"] += 1
             continue
 
-        chunk = build_tier1_chunk(row, row_id, ingested_at=ingested_at)
+        # A fact card citing a superseded decision is itself superseded.
+        statuses = {status_by_file.get(f, "active") for f in _raw_files_of(row)}
+        status = "superseded" if statuses == {"superseded"} else "active"
+        chunk = build_tier1_chunk(row, row_id, status=status, ingested_at=ingested_at)
+        tokens.append(chunk["n_tokens"])
         existing = collection.get(where={"row_id": row_id}, include=["metadatas"])
         existing_hash = existing["metadatas"][0].get("content_hash") if existing["metadatas"] else None
         if existing_hash == chunk["content_hash"]:
@@ -175,89 +208,100 @@ def _ingest_tier1(
             collection.delete(ids=existing["ids"])
         pending.append(chunk)
 
-    _upsert_chunks(collection, embeddings_client, pending)
+    # Rows past the end of a shortened sources.csv.
+    stale = [
+        chunk_id
+        for chunk_id, meta in zip(*_all_tier_rows(collection, tier=1), strict=True)
+        if meta.get("row_id", -1) >= len(rows)
+    ]
+    if stale:
+        collection.delete(ids=stale)
+
+    size = _upsert_chunks(collection, embeddings_client, pending, embedding_model)
     stats["embedded_this_run"] = len(pending)
     stats["embedded"] = stats["embedded_this_run"] + stats["unchanged"]
-    return stats
+    stats["tokens"] = _token_summary(tokens)
+    return stats, size
 
 
-# --- tier 2 ----------------------------------------------------------------------
+def _all_tier_rows(collection: Any, *, tier: int) -> tuple[list[str], list[dict]]:
+    got = collection.get(where={"tier": tier}, include=["metadatas"])
+    return got["ids"], got["metadatas"]
+
+
+# --- tier 2 ------------------------------------------------------------------------
 
 
 def _ingest_tier2(
     collection: Any,
     embeddings_client: EmbeddingsClient,
-    source_url_map: dict[str, str],
+    source_info: dict[str, dict[str, str | None]],
+    contents: dict[str, str],
     *,
+    embedding_model: str,
     ingested_at: str,
-    raw_dir: Path,
-) -> tuple[dict[str, Any], list[str]]:
-    track_stats: dict[str, Any] = {
-        "A": {"files": 0, "chunks": 0, "chunks_embedded_this_run": 0, "unchanged_files": 0},
-        "B": {
-            "files": 0,
-            "chunks": 0,
-            "chunks_embedded_this_run": 0,
-            "unchanged_files": 0,
-            "files_with_page_markers": 0,
-            "files_without_page_markers": [],
-        },
-    }
+) -> tuple[dict[str, Any], list[str], int]:
     warnings: list[str] = []
+    vocab = build_syllable_vocab([c for c in contents.values() if _PDF_MARKER not in c])
 
-    mapped_files = TRACK_A_FILES | TRACK_B_FILES
-    on_disk = {p.name for p in raw_dir.glob("*.md")}
-    for missing in sorted(mapped_files - on_disk):
-        warnings.append(f"{missing}: listed in chunking.py's track mapping but not found in {raw_dir}, skipped")
-    for extra in sorted(on_disk - mapped_files):
-        warnings.append(
-            f"{extra}: found in {raw_dir} but not in chunking.TRACK_A_FILES/TRACK_B_FILES — "
-            "add it to that mapping (§5.4), skipped this run"
+    per_file: dict[str, Any] = {}
+    totals = {"files": 0, "chunks": 0, "chunks_embedded_this_run": 0, "unchanged_files": 0}
+    all_tokens: list[int] = []
+    size = 0
+
+    for filename in sorted(contents):
+        content = contents[filename]
+        is_pdf = _PDF_MARKER in content
+        info = source_info.get(filename, {})
+        if not info:
+            warnings.append(f"{filename}: not referenced by any sources.csv row — no organization/trust_tier")
+
+        file_stats: dict[str, Any] = {}
+        chunks = chunk_document(
+            filename,
+            content,
+            source_url=info.get("url"),
+            source_info=info,
+            syllable_vocab=vocab if is_pdf else None,
+            ingested_at=ingested_at,
+            stats=file_stats,
         )
-
-    for filename in sorted(mapped_files & on_disk):
-        path = raw_dir / filename
-        content = path.read_text(encoding="utf-8")
-        track = classify_file(filename)
-        source_content_hash = compute_hash(content)
-
-        if track == "B":
-            has_markers = bool(find_page_markers(content))
-            if has_markers:
-                track_stats["B"]["files_with_page_markers"] += 1
-            else:
-                track_stats["B"]["files_without_page_markers"].append(filename)
-                warnings.append(
-                    f"{filename}: no '--- Trang N ---' markers found, chunked on paragraph "
-                    "boundaries only, page_number will be null for all chunks from this file"
-                )
+        pipeline_hash = _output_hash(chunks)
+        for chunk in chunks:
+            chunk["pipeline_hash"] = pipeline_hash
+        tokens = [c["n_tokens"] for c in chunks]
+        all_tokens.extend(tokens)
+        file_stats["tokens"] = _token_summary(tokens)
+        file_stats["doc_type"] = chunks[0]["doc_type"] if chunks else None
+        per_file[filename] = file_stats
+        totals["files"] += 1
+        totals["chunks"] += len(chunks)
 
         existing = collection.get(where={"source_file": filename}, limit=1, include=["metadatas"])
-        existing_hash = existing["metadatas"][0].get("source_content_hash") if existing["metadatas"] else None
-
-        if existing_hash == source_content_hash:
-            existing_count = len(collection.get(where={"source_file": filename}, include=[])["ids"])
-            track_stats[track]["files"] += 1
-            track_stats[track]["chunks"] += existing_count
-            track_stats[track]["unchanged_files"] += 1
+        existing_hash = existing["metadatas"][0].get("pipeline_hash") if existing["metadatas"] else None
+        if existing_hash == pipeline_hash:
+            totals["unchanged_files"] += 1
             continue
 
         collection.delete(where={"source_file": filename})
-        source_url = source_url_map.get(filename)
-        if track == "A":
-            chunks = chunk_track_a(filename, content, source_url=source_url, ingested_at=ingested_at)
-        else:
-            chunks = chunk_track_b(filename, content, source_url=source_url, ingested_at=ingested_at)
+        size = _upsert_chunks(collection, embeddings_client, chunks, embedding_model) or size
+        totals["chunks_embedded_this_run"] += len(chunks)
 
-        _upsert_chunks(collection, embeddings_client, chunks)
-        track_stats[track]["files"] += 1
-        track_stats[track]["chunks"] += len(chunks)
-        track_stats[track]["chunks_embedded_this_run"] += len(chunks)
+    ids, metadatas = _all_tier_rows(collection, tier=2)
+    gone = sorted({m.get("source_file") for m in metadatas} - set(contents))
+    for filename in gone:
+        collection.delete(where={"source_file": filename})
+        warnings.append(f"{filename}: no longer in raw/, its chunks were removed")
 
-    return track_stats, warnings
+    totals["tokens"] = _token_summary(all_tokens)
+    totals["files_by_status"] = {
+        s: sorted(f for f, st in per_file.items() if st.get("status") == s) for s in ("superseded",)
+    }
+    totals["per_file"] = per_file
+    return totals, warnings, size
 
 
-# --- orchestration -----------------------------------------------------------------
+# --- orchestration -------------------------------------------------------------------
 
 
 def run_ingestion(
@@ -266,70 +310,61 @@ def run_ingestion(
     collection: Any | None = None,
     sources_csv_path: Path = SOURCES_CSV_PATH,
     raw_dir: Path = RAW_DIR,
+    embedding_model: str | None = None,
 ) -> dict[str, Any]:
-    """Runs the full pipeline against the given (or default, real) Chroma
-    collection and embeddings client, returns the manifest dict. Does not
-    write it to disk — see ingest() / write_manifest(). Split out from
-    ingest() so tests can pass a fake embeddings_client + a real (ephemeral)
-    Chroma collection without touching the network or the real persisted
-    store.
-    """
+    """Run the full pipeline and return the manifest dict (not written — see
+    ingest()). Tests pass a fake embeddings client and an in-memory Qdrant
+    collection."""
+    embedding_model = embedding_model or get_settings().embedding_model
     embeddings_client = embeddings_client or get_embeddings_client()
     collection = collection or get_collection()
     ingested_at = _now_iso()
 
     rows = read_sources_csv(sources_csv_path)
-    source_url_map = build_source_url_map(rows)
+    source_info = build_source_info_map(rows)
+    contents = {p.name: p.read_text(encoding="utf-8") for p in sorted(raw_dir.glob("*.md"))}
+    status_by_file = {name: detect_status(content) for name, content in contents.items()}
 
-    tier1_stats = _ingest_tier1(collection, embeddings_client, rows, ingested_at=ingested_at)
-    track_stats, tier2_warnings = _ingest_tier2(
-        collection, embeddings_client, source_url_map, ingested_at=ingested_at, raw_dir=raw_dir
+    missing = sorted(set(source_info) - set(contents))
+    warnings = [f"{name}: referenced by sources.csv but not found in {raw_dir.name}/" for name in missing]
+
+    tier1_stats, size1 = _ingest_tier1(
+        collection, embeddings_client, rows, status_by_file, embedding_model=embedding_model, ingested_at=ingested_at
     )
-
-    total_chunks = tier1_stats["embedded"] + track_stats["A"]["chunks"] + track_stats["B"]["chunks"]
-
-    warnings = list(tier2_warnings)
+    tier2_stats, tier2_warnings, size2 = _ingest_tier2(
+        collection, embeddings_client, source_info, contents, embedding_model=embedding_model, ingested_at=ingested_at
+    )
+    warnings.extend(tier2_warnings)
     if tier1_stats["skipped_no_local_file"] or tier1_stats["skipped_failed_crawl"]:
         warnings.append(
-            f"{tier1_stats['skipped_no_local_file']} sources.csv row(s) skipped: no local_file "
-            f"(citation-only, kept as metadata but not embedded); "
-            f"{tier1_stats['skipped_failed_crawl']} row(s) skipped: notes explicitly flag a failed crawl"
+            f"{tier1_stats['skipped_no_local_file']} sources.csv row(s) skipped: no local_file (citation-only); "
+            f"{tier1_stats['skipped_failed_crawl']} row(s) skipped: notes flag a failed crawl"
         )
     warnings.append(
-        "Track B (long-form PDF-to-text) tables were reconstructed heuristically from blank-line "
-        "and 'Bảng N:' boundaries, not verified against the source PDFs page-by-page — §5.2 flags "
-        "this as needing a one-time human spot-check before the corpus is treated as fully trusted, "
-        "especially byt-5481's Bảng 4/5 treatment-target tables that the mock patient scenario "
-        "depends on."
+        "PDF-extracted tables are reconstructed from line order under 'Bảng N:' captions, not verified "
+        "against the source PDFs page by page — spot-check byt-5481's Bảng 4/5 before relying on them."
     )
 
-    # Aggregate corpus hash: every tier-1 row's content_hash the collection
-    # currently holds, plus every tier-2 file's source_content_hash. Cheap
-    # to recompute (metadata-only reads, no embedding calls) and gives a
-    # single "did anything in the corpus change" fingerprint for the
-    # manifest, independent of chunk boundaries.
-    all_hashes: list[str] = []
-    tier1_meta = collection.get(where={"tier": 1}, include=["metadatas"])
-    all_hashes.extend(m["content_hash"] for m in tier1_meta["metadatas"] if "content_hash" in m)
-    for filename in sorted(TRACK_A_FILES | TRACK_B_FILES):
-        file_meta = collection.get(where={"source_file": filename}, limit=1, include=["metadatas"])
-        if file_meta["metadatas"]:
-            all_hashes.append(file_meta["metadatas"][0].get("source_content_hash", ""))
-    corpus_content_hash = compute_hash(*sorted(all_hashes))
+    embedding_dimensions = size1 or size2 or (collection.vector_size() if hasattr(collection, "vector_size") else None)
 
-    manifest = {
+    # Corpus fingerprint, independent of chunk boundaries.
+    corpus_content_hash = compute_hash(
+        *[compute_hash(c) for _, c in sorted(contents.items())], *[r.get("key_content", "") for r in rows]
+    )
+
+    return {
         "corpus_version": CORPUS_VERSION,
+        "chunker_version": CHUNKER_VERSION,
         "generated_at_utc": ingested_at,
-        "embedding_model": EMBEDDING_MODEL,
-        "embedding_dimensions": EMBEDDING_DIMENSIONS,
+        "embedding_model": embedding_model,
+        "embedding_dimensions": embedding_dimensions,
+        "collection": getattr(collection, "name", None),
         "tier1_sources_csv": tier1_stats,
-        "tier2_track_a": track_stats["A"],
-        "tier2_track_b": track_stats["B"],
-        "total_chunks": total_chunks,
+        "tier2_documents": tier2_stats,
+        "total_chunks": tier1_stats["embedded"] + tier2_stats["chunks"],
         "corpus_content_hash": corpus_content_hash,
         "warnings": warnings,
     }
-    return manifest
 
 
 def write_manifest(manifest: dict[str, Any], path: Path = MANIFEST_PATH) -> None:
@@ -339,20 +374,33 @@ def write_manifest(manifest: dict[str, Any], path: Path = MANIFEST_PATH) -> None
         f.write("\n")
 
 
-def ingest() -> dict[str, Any]:
+def ingest(*, rebuild: bool = False) -> dict[str, Any]:
+    if rebuild:
+        get_vector_client().delete_collection(collection_name())
     manifest = run_ingestion()
     write_manifest(manifest)
     logger.info(
-        "ingestion complete: %s tier-1 chunks, %s tier-2A chunks, %s tier-2B chunks, %s total",
+        "ingestion complete into %s: %s tier-1 + %s tier-2 chunks (%s embedded this run), model %s (%s-dim)",
+        manifest["collection"],
         manifest["tier1_sources_csv"]["embedded"],
-        manifest["tier2_track_a"]["chunks"],
-        manifest["tier2_track_b"]["chunks"],
-        manifest["total_chunks"],
+        manifest["tier2_documents"]["chunks"],
+        manifest["tier1_sources_csv"]["embedded_this_run"] + manifest["tier2_documents"]["chunks_embedded_this_run"],
+        manifest["embedding_model"],
+        manifest["embedding_dimensions"],
     )
     return manifest
 
 
-if __name__ == "__main__":
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Ingest the knowledge base into the vector store.")
+    parser.add_argument("--rebuild", action="store_true", help="drop the collection first and re-embed everything")
+    args = parser.parse_args()
     logging.basicConfig(level=logging.INFO)
-    result = ingest()
-    print(json.dumps(result, indent=2, ensure_ascii=False))
+    manifest = ingest(rebuild=args.rebuild)
+    summary = {k: v for k, v in manifest.items() if k != "tier2_documents"}
+    summary["tier2_documents"] = {k: v for k, v in manifest["tier2_documents"].items() if k != "per_file"}
+    print(json.dumps(summary, indent=2, ensure_ascii=False))
+
+
+if __name__ == "__main__":
+    main()

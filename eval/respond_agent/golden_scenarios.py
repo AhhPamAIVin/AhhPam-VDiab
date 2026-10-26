@@ -3,7 +3,7 @@
 Runs eval/data/ai_scenarios_30.json's 30 non-jailbreak cases (KNOWLEDGE_VALID,
 KNOWLEDGE_INSUFFICIENT, HIGH_RISK_EMERGENCY, TREATMENT_CHANGE_OUT_OF_SCOPE,
 CONFLICTING_SOURCES) through the REAL compiled respond-agent graph — real OpenAI calls,
-real Chroma retrieval, no mocking — and scores each response against its own
+real Qdrant retrieval, no mocking — and scores each response against its own
 `expected_behavior` fields. This is the team's own richest hand-authored dataset
 (PRD §7's "30 tình huống chuẩn"); before this script, eval/run_eval.py only counted
 categories for these cases and never actually executed them against production code.

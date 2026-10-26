@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-watch-classifier eval-personal-data-faithfulness eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -138,6 +138,16 @@ ai-chat:
 backfill-insights:
 	python -m scripts.backfill_patient_insights $(BACKFILL_ARGS)
 
+# Knowledge base -> local embeddings (BAAI/bge-m3) -> Qdrant. Incremental;
+# INGEST_ARGS="--rebuild" drops the collection first. Needs `make db-up`.
+ingest:
+	python -m codebase.models.rag.ingest $(INGEST_ARGS)
+
+# Re-embed existing ACTIVE patient insights after an embedding-model or
+# vector-store change (no LLM calls; Postgres is the source of truth).
+reindex-insights:
+	python -m scripts.reindex_patient_insights $(REINDEX_ARGS)
+
 # One-off backfill of ChatSession rows for chat threads that existed before
 # the multi-session model (GET /api/v1/agent/sessions) landed — those
 # threads' conversation history is still in agent_checkpoints, but without a
@@ -203,24 +213,25 @@ tts-down:
 # under eval/results/. Pass EVAL_ARGS="--report /tmp/x.json" etc. ----
 
 # RAG retrieval recall against data/knowledge_base/sources.csv, scored with
-# Ragas' NonLLMContextRecall. Needs the Chroma store already ingested
-# (data/chroma/) and OPENAI_API_KEY (for one-time eval question generation).
+# Ragas' NonLLMContextRecall. Needs the Qdrant collection already ingested
+# (`make db-up` + `python -m codebase.models.rag.ingest`) and OPENAI_API_KEY
+# (for one-time eval question generation).
 eval-retrieval-recall:
 	python -m eval.respond_agent.retrieval_recall $(EVAL_ARGS)
 
 # Independent LLM safety judge cross-checked against guardrail.py's
-# deterministic verdict. No DB/Chroma dependency.
+# deterministic verdict. No DB/vector-store dependency.
 eval-guardrail-judge:
 	python -m eval.respond_agent.guardrail_judge $(EVAL_ARGS)
 
 # Agent routing/trajectory correctness — which graph nodes and tools actually
-# fired vs. expected. LLM/RAG calls mocked throughout; no Chroma/Postgres
+# fired vs. expected. LLM/RAG calls mocked throughout; no Qdrant/Postgres
 # dependency (checkpointer runs against an in-memory SQLite session).
 eval-trajectory:
 	python -m eval.respond_agent.trajectory $(EVAL_ARGS)
 
 # Golden-dataset end-to-end quality — eval/data/ai_scenarios_30.json's 30 non-
-# jailbreak cases run through the REAL graph (real OpenAI + Chroma calls, no
+# jailbreak cases run through the REAL graph (real OpenAI + Qdrant calls, no
 # mocking), scored against each case's own expected_behavior fields.
 eval-golden-scenarios:
 	python -m eval.respond_agent.golden_scenarios $(EVAL_ARGS)

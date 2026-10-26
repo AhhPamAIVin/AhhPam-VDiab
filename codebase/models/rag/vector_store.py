@@ -1,14 +1,15 @@
-"""Vector store backend selection — Chroma (embedded, default) or Qdrant (server).
+"""Vector store — Qdrant, behind a small Chroma-shaped collection API.
 
 Every caller (rag/ingest.py, knowledge_tools.py, insight_tools.py,
 upsert_insight.py) was written against Chroma's collection API: `get`,
 `upsert`, `delete`, `query` with Chroma-style `where` filters and
-`{"ids": [[...]], "distances": [[...]]}` result shapes. Rather than fork each
-of those call sites per backend, QdrantCollection below implements exactly
-that subset on top of qdrant-client, so switching is a single setting:
+`{"ids": [[...]], "distances": [[...]]}` result shapes. The project ran on
+Chroma first; QdrantCollection below implements exactly that subset on top of
+qdrant-client so those call sites did not have to change when Chroma was
+removed.
 
-    VECTOR_STORE=qdrant
-    QDRANT_URL=http://localhost:6333
+    QDRANT_URL=http://localhost:6333     # server (`make db-up`)
+    QDRANT_LOCATION=:memory:             # in-process, no server (tests)
 
 Only the filter shapes those callers actually use are supported: a flat
 `{"field": value}` equality, and `{"$and": [{...}, {...}]}` of those.
@@ -17,6 +18,7 @@ Only the filter shapes those callers actually use are supported: a flat
 from __future__ import annotations
 
 import uuid
+import warnings
 from typing import Any
 
 from codebase.backend.config import get_settings
@@ -32,16 +34,27 @@ _ID_NAMESPACE = uuid.UUID("6f1c9d3e-2a4b-4c8e-9f0a-7d5e3b1c2a90")
 _SCROLL_PAGE = 256
 
 
-def get_vector_client() -> Any:
-    """Chroma PersistentClient or QdrantChromaClient, per settings.vector_store.
-    Both expose `get_or_create_collection(name, metadata=...)`."""
-    settings = get_settings()
-    if settings.vector_store == "qdrant":
-        return QdrantChromaClient(url=settings.qdrant_url, api_key=settings.qdrant_api_key or None)
+class VectorSizeMismatchError(RuntimeError):
+    """The collection was built with a different embedding model (vector size)
+    than the one now configured. Raised instead of returning nonsense
+    similarities — re-run ingestion / re-index to fix."""
 
-    import chromadb
 
-    return chromadb.PersistentClient(path=settings.chroma_persist_dir)
+_CLIENT: QdrantChromaClient | None = None
+
+
+def get_vector_client() -> QdrantChromaClient:
+    """One shared QdrantChromaClient per process, per settings. Shared because
+    an in-process `:memory:` store only exists inside the client that made it."""
+    global _CLIENT
+    if _CLIENT is None:
+        settings = get_settings()
+        _CLIENT = QdrantChromaClient(
+            url=settings.qdrant_url,
+            api_key=settings.qdrant_api_key or None,
+            location=settings.qdrant_location or None,
+        )
+    return _CLIENT
 
 
 def _point_id(chunk_id: str) -> str:
@@ -69,34 +82,76 @@ def _payload_metadata(payload: dict[str, Any]) -> dict[str, Any]:
 
 
 class QdrantChromaClient:
-    def __init__(self, url: str, api_key: str | None = None) -> None:
+    def __init__(self, url: str | None = None, api_key: str | None = None, location: str | None = None) -> None:
         from qdrant_client import QdrantClient
 
-        self._client = QdrantClient(url=url, api_key=api_key)
+        if location:
+            self._client = QdrantClient(location=location)
+        else:
+            self._client = QdrantClient(url=url, api_key=api_key)
 
-    def get_or_create_collection(self, name: str, metadata: dict[str, Any] | None = None) -> QdrantCollection:
+    def get_or_create_collection(
+        self,
+        name: str,
+        metadata: dict[str, Any] | None = None,
+        *,
+        payload_indexes: dict[str, str] | None = None,
+    ) -> QdrantCollection:
         # The collection itself is created lazily on first upsert: Qdrant needs
         # the vector size up front, which is only known once we have a vector.
-        return QdrantCollection(self._client, name)
+        # `metadata` is Chroma's collection-options argument, kept so call
+        # sites read the same; Qdrant collections are always cosine here.
+        return QdrantCollection(self._client, name, payload_indexes=payload_indexes)
+
+    def delete_collection(self, name: str) -> None:
+        if self._client.collection_exists(name):
+            self._client.delete_collection(name)
+
+
+# Field types accepted in `payload_indexes`, mapped to Qdrant schema types.
+_PAYLOAD_SCHEMA = {"keyword": "KEYWORD", "integer": "INTEGER", "bool": "BOOL", "float": "FLOAT"}
 
 
 class QdrantCollection:
-    def __init__(self, client: Any, name: str) -> None:
+    def __init__(self, client: Any, name: str, *, payload_indexes: dict[str, str] | None = None) -> None:
         self._client = client
         self.name = name
+        self._payload_indexes = payload_indexes or {}
 
     def _exists(self) -> bool:
         return self._client.collection_exists(self.name)
+
+    def vector_size(self) -> int | None:
+        if not self._exists():
+            return None
+        vectors = self._client.get_collection(self.name).config.params.vectors
+        return vectors.size
+
+    def _check_size(self, vector_size: int) -> None:
+        existing = self.vector_size()
+        if existing is not None and existing != vector_size:
+            raise VectorSizeMismatchError(
+                f"collection {self.name!r} holds {existing}-dim vectors but the configured embedding "
+                f"model produces {vector_size}-dim vectors — re-run ingestion/re-index for this model"
+            )
 
     def _ensure(self, vector_size: int) -> None:
         from qdrant_client import models
 
         if self._exists():
+            self._check_size(vector_size)
             return
         self._client.create_collection(
             self.name,
             vectors_config=models.VectorParams(size=vector_size, distance=models.Distance.COSINE),
         )
+        for field, kind in self._payload_indexes.items():
+            schema = getattr(models.PayloadSchemaType, _PAYLOAD_SCHEMA[kind])
+            # Local (in-process) mode has no payload indexes and warns so;
+            # filtering still works there, just unindexed.
+            with warnings.catch_warnings():
+                warnings.simplefilter("ignore")
+                self._client.create_payload_index(self.name, field_name=field, field_schema=schema)
 
     def upsert(
         self,
@@ -191,6 +246,8 @@ class QdrantCollection:
             return {key: [[] for _ in query_embeddings] for key in result}
 
         query_filter = _build_filter(where)
+        if query_embeddings:
+            self._check_size(len(query_embeddings[0]))
         for vector in query_embeddings:
             hits = self._client.query_points(
                 self.name, query=list(vector), query_filter=query_filter, limit=n_results, with_payload=True

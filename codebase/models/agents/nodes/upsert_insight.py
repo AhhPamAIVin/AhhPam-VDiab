@@ -31,7 +31,7 @@ from codebase.models.agents.prompts.reflect import REFLECT_MERGE_TEMPLATE
 from codebase.models.agents.state import ReflectState
 from codebase.models.agents.tools.insight_tools import find_similar_insights, get_insights_collection
 from codebase.models.llm import get_llm
-from codebase.models.rag.ingest import get_embeddings_client
+from codebase.models.rag.embeddings import get_embeddings_client
 
 logger = logging.getLogger(__name__)
 
@@ -77,7 +77,7 @@ def _embedding_metadata(insight: PatientInsight) -> dict[str, Any]:
 def _write_embedding(collection: Any, embeddings_client: Any, insight: PatientInsight) -> None:
     """One embedded vector per ACTIVE insight's text (design doc §7.1),
     keyed by the same id as the Postgres row — an update replaces the prior
-    vector in place (Chroma upsert) rather than accumulating stale ones."""
+    vector in place (vector-store upsert) rather than accumulating stale ones."""
     vector = embeddings_client.embed_documents([insight.text])[0]
     collection.upsert(
         ids=[str(insight.id)],
@@ -125,7 +125,7 @@ async def upsert_insight(
     insights for this scope) -> creates a new PatientInsight, version=1. At
     or above threshold -> updates the matched row IN PLACE: same `id`,
     `version += 1`, `supersedes_version` set, `text` replaced by the merge
-    LLM call's output, Chroma embedding for that id replaced — never both,
+    LLM call's output, vector-store embedding for that id replaced — never both,
     never a duplicate row for an already-known pattern.
 
     Returns the resulting row as a plain dict (`PatientInsight.model_dump()`),
@@ -158,13 +158,13 @@ async def upsert_insight(
             session.refresh(existing)
             _write_embedding(collection, embeddings_client, existing)
             return _to_dict(existing)
-        # Chroma and Postgres disagreed (the vector's id should always be a
+        # The vector store and Postgres disagreed (the vector's id should always be a
         # real insight.id) — shouldn't happen in normal operation, but fail
         # safe by falling through to CREATE rather than raising, same "an
         # insight is additional context, never a hard dependency" posture
         # design doc §7.4 takes for the read side.
         logger.warning(
-            "reflect: find_similar_insights matched chroma id %s with no corresponding PatientInsight row, "
+            "reflect: find_similar_insights matched vector id %s with no corresponding PatientInsight row, "
             "creating a new row instead",
             best["insight_id"],
         )

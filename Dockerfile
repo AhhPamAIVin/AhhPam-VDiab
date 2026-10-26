@@ -7,7 +7,10 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# CPU-only torch first (the default Linux wheel bundles ~2 GB of CUDA libraries
+# the embedding model never uses here), then the rest.
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu \
+    && pip install --no-cache-dir -r requirements.txt
 
 # ---- Stage 2: Production ----
 FROM python:3.11-slim
@@ -22,6 +25,10 @@ ENV PATH="/opt/venv/bin:$PATH"
 
 # Security: run as non-root user
 RUN useradd -m appuser
+
+# Embedding model cache on the data volume: BAAI/bge-m3 (~2.3 GB) downloads
+# once on first boot and survives redeploys. Needs ~3 GB RAM at runtime.
+ENV HF_HOME=/app/data/hf-cache
 
 # Copy application code
 COPY . .

@@ -15,8 +15,9 @@ Steps, in order (every one is idempotent, so re-running is safe):
 4. scripts.backfill_care_plan_targets      — PatientProfile + doctor-approved thresholds
 5. scripts.backfill_threshold_evaluations  — threshold_status for seeded glucose rows
 6. scripts.seed_demo_doctor_showcase       — 3 NORMAL / 1 WATCH / 1 DANGER demo panel
-7. codebase.models.rag.ingest              — knowledge base -> embeddings -> Chroma/Qdrant
-                                             (VECTOR_STORE in .env; needs OPENAI_API_KEY)
+7. codebase.models.rag.ingest              — knowledge base -> local embeddings -> Qdrant
+8. scripts.reindex_patient_insights        — re-embed existing ACTIVE insights into the
+                                             current model's collection (no LLM calls)
 
 Not included: the LLM-heavy backfills (make backfill-insights /
 backfill-summaries) — one LLM call per patient-week, run them by hand.
@@ -40,6 +41,7 @@ STEPS: list[tuple[str, str]] = [
     ("backfill threshold evaluations", "scripts.backfill_threshold_evaluations"),
     ("seed demo doctor showcase", "scripts.seed_demo_doctor_showcase"),
     ("ingest RAG knowledge base", "codebase.models.rag.ingest"),
+    ("reindex RAG patient insights", "scripts.reindex_patient_insights"),
 ]
 
 
@@ -52,7 +54,7 @@ def create_full_schema() -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--skip-rag", action="store_true", help="Skip the RAG ingestion step (no OpenAI calls).")
+    parser.add_argument("--skip-rag", action="store_true", help="Skip the RAG ingestion step (loads the local embedding model, needs Qdrant).")
     parser.add_argument("--skip-showcase", action="store_true", help="Skip the demo doctor showcase panel.")
     args = parser.parse_args()
 
@@ -60,7 +62,7 @@ def main() -> None:
     create_full_schema()
 
     for name, module in STEPS:
-        if args.skip_rag and name.startswith("ingest RAG"):
+        if args.skip_rag and " RAG " in f" {name} ":
             continue
         if args.skip_showcase and name.startswith("seed demo doctor"):
             continue

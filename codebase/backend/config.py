@@ -1,7 +1,7 @@
 from functools import lru_cache
 from typing import Literal
 
-from pydantic import Field
+from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -10,6 +10,9 @@ class Settings(BaseSettings):
         env_file=".env",
         env_file_encoding="utf-8",
         extra="ignore",
+        # Keyword construction by field name (Settings(openai_api_key=...))
+        # keeps working alongside the env-var aliases above.
+        populate_by_name=True,
     )
 
     # App
@@ -24,8 +27,11 @@ class Settings(BaseSettings):
     # medication reminders) schedules against, independent of the server's own TZ.
     reminder_timezone: str = "Asia/Ho_Chi_Minh"
 
-    # LLM
-    openai_api_key: str = ""
+    # LLM — any OpenAI-compatible endpoint. Read from OPENAI_API_KEY /
+    # OPENAI_BASE_URL, or the provider-neutral AI_API_KEY / AI_API_URL names
+    # .env uses. Empty base URL = api.openai.com.
+    openai_api_key: str = Field(default="", validation_alias=AliasChoices("OPENAI_API_KEY", "AI_API_KEY"))
+    openai_base_url: str = Field(default="", validation_alias=AliasChoices("OPENAI_BASE_URL", "AI_API_URL"))
     model_name: str = "gpt-4o-mini"
     llm_temperature: float = Field(default=0.7, ge=0.0, le=2.0)
 
@@ -47,13 +53,23 @@ class Settings(BaseSettings):
     admin_seed_password: str = ""
     admin_seed_name: str = "System Admin"
 
-    # Vector Store — "chroma" (embedded, on-disk at chroma_persist_dir) or
-    # "qdrant" (server at qdrant_url, see docker-compose.yml). See
-    # codebase/models/rag/vector_store.py.
-    vector_store: Literal["chroma", "qdrant"] = "chroma"
-    chroma_persist_dir: str = "./data/chroma"
+    # Vector Store — Qdrant server at qdrant_url (see docker-compose.yml,
+    # `make db-up`). qdrant_location=":memory:" runs an in-process store with
+    # no server (tests). See codebase/models/rag/vector_store.py.
     qdrant_url: str = "http://localhost:6333"
     qdrant_api_key: str = ""
+    qdrant_location: str = ""
+
+    # Embeddings — local sentence-transformers model, see
+    # codebase/models/rag/embeddings.py. BAAI/bge-m3: multilingual (Vietnamese
+    # included), 1024-dim dense, 8192-token context, cosine, no query prefix.
+    # The vector size is read from the model, never configured by hand.
+    embedding_model: str = "BAAI/bge-m3"
+    embedding_device: Literal["auto", "cpu", "cuda", "mps"] = "auto"
+    embedding_batch_size: int = Field(default=16, ge=1, le=256)
+    # Longest chunk the chunker emits is ~800 tokens plus a short context
+    # prefix; capping here bounds memory on batches without truncating real text.
+    embedding_max_seq_length: int = Field(default=1024, ge=128, le=8192)
 
     # Langfuse LLM tracing (replaces LangSmith). Disabled unless both keys are
     # set. See codebase/models/tracing.py and docker-compose.langfuse.yml.

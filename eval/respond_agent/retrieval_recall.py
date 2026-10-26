@@ -77,7 +77,7 @@ class EligibleRow:
 
 def load_eligible_rows() -> list[EligibleRow]:
     """Same eligibility rule ingest.py's own _ingest_tier1 uses (classify_tier1_skip),
-    so this eval's row set always matches what's actually embedded in Chroma — not a
+    so this eval's row set always matches what's actually embedded in the vector store — not a
     looser "non-empty key_content" guess that could drift from the real corpus."""
     rows = []
     for row_id, row in enumerate(read_sources_csv()):

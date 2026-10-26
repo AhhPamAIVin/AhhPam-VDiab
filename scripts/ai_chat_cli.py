@@ -26,7 +26,9 @@ import asyncio
 import json
 from datetime import datetime, timezone
 from pathlib import Path
+from uuid import uuid4
 
+from langchain_core.messages import HumanMessage
 from sqlmodel import Session, select
 
 import codebase.backend.appointments.models as _appointments_models  # noqa: F401  (registers Appointment into SQLModel.metadata — ClinicalNote.appointment_id FKs into it)
@@ -132,11 +134,18 @@ def _load_assigned_patients(session: Session, doctor_id, patients: list[User]) -
     return [p for p in patients if p.id in assigned_ids]
 
 
+# One checkpointer thread per CLI run, like one ChatSession in the real app —
+# the graph's checkpointer requires a thread_id (KeyError without one).
+_THREAD_ID = str(uuid4())
+
+
 async def _run_turn(**agent_input) -> dict:
     from codebase.models.agents.graph import agent
 
+    if agent_input.get("message"):
+        agent_input.setdefault("messages", [HumanMessage(content=agent_input["message"])])
     with Session(engine) as session:
-        return await agent.ainvoke(agent_input, config={"configurable": {"session": session}})
+        return await agent.ainvoke(agent_input, config={"configurable": {"session": session, "thread_id": _THREAD_ID}})
 
 
 def _print_result(result: dict) -> None:

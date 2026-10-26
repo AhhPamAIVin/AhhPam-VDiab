@@ -13,7 +13,7 @@ services:
       # reaches the `db` service instead of trying to hit itself.
       DB_HOST: db
       DB_PORT: "5432"
-      # Same idea for Qdrant (only used when VECTOR_STORE=qdrant).
+      # Same idea for Qdrant.
       QDRANT_URL: http://qdrant:6333
       # Langfuse runs in its own compose project (docker-compose.langfuse.yml),
       # reached through the host's published port.
@@ -71,8 +71,7 @@ services:
       timeout: 5s
       retries: 10
 
-  # Vector DB for the RAG corpus + patient insights when VECTOR_STORE=qdrant
-  # (default stays the embedded Chroma store). Dashboard: http://localhost:6333/dashboard
+  # Vector DB for the RAG corpus + patient insights. Dashboard: http://localhost:6333/dashboard
   qdrant:
     image: qdrant/qdrant:v1.20.0
     ports:

@@ -63,7 +63,7 @@ class PatientInsight(SQLModel, table=True):
     upsert_insight.py finds a semantic match above SIMILARITY_THRESHOLD, it
     mutates THIS SAME row (same `id`, `version` incremented,
     `supersedes_version` recorded, `text`/`evidence`/`confidence` replaced
-    with the LLM-merged result, Chroma's embedding for this id replaced in
+    with the LLM-merged result, the vector-store embedding for this id replaced in
     place) rather than writing a second row — confirmed against
     data/mock/demo_patient/expected_reflections.json's EVAL-REFLECT-002,
     where INS-DEMO-P-0001-01 goes version 1 -> 2 under the same insight_id,

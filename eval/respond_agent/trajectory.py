@@ -29,7 +29,7 @@ The LLM and search_approved_knowledge are mocked for every case (never real API 
 even the "should short-circuit" cases, since a routing miss can send a case down the full
 path unexpectedly and this eval must not crash or spend money when that happens.
 
-No Chroma/Postgres dependency: the checkpointer's DB session is an in-memory SQLite engine,
+No vector-store/Postgres dependency: the checkpointer's DB session is an in-memory SQLite engine,
 the same pattern tests/conftest.py's `session` fixture uses (verified compatible with
 SQLModelCheckpointSaver's Postgres-flavored upsert — SQLAlchemy compiles it against SQLite
 fine).
