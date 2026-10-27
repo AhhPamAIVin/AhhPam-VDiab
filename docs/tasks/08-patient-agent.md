@@ -79,7 +79,8 @@ năng mới chỉ là **thêm một tool vào registry** — trong khi giữ ngu
 - [ ] Tuân thủ thuốc: đánh dấu đã uống / nhắc (Epic 3).
 - [ ] Soạn yêu cầu đặt lịch gửi bác sĩ (hiện chỉ có câu soạn sẵn).
 - [ ] Insight dài hạn (đã có đồng ý) trong hỏi đáp, không chỉ trong tóm tắt.
-- [ ] Báo cáo tuần (Epic 2) như một tool.
+- [x] Báo cáo tuần (Epic 2) như một tool.
+      *`get_weekly_report` — báo cáo gần nhất (số liệu + việc nên làm).*
 
 ## Definition of Done
 - 8.1–8.4 xong, pytest xanh; 8.5 có số đo latency/đúng tool; README/ARCHITECTURE mô tả agent.

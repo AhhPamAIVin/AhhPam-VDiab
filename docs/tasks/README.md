@@ -6,7 +6,7 @@ Mỗi epic một file. Mỗi task có checklist, file dự kiến sửa và acce
 | # | Epic | File | Ưu tiên | Độ lớn | Phụ thuộc | Trạng thái |
 |---|---|---|---|---|---|---|
 | 1 | Meal Intelligence — agent phân tích bữa ăn | [01-meal-intelligence.md](01-meal-intelligence.md) | P0 | L | — | Gần xong — 1.1–1.6, 1.8 xong; 1.7, 1.9 lịch 29/10 |
-| 2 | Báo cáo tuần cho bệnh nhân | [02-patient-weekly-report.md](02-patient-weekly-report.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Chưa bắt đầu |
+| 2 | Báo cáo tuần cho bệnh nhân | [02-patient-weekly-report.md](02-patient-weekly-report.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Xong code; còn mục thuốc (Epic 3.1) + review bác sĩ |
 | 3 | Tuân thủ thuốc & nhắc nhở thông minh | [03-medication-adherence.md](03-medication-adherence.md) | P2 | M | — | Chưa bắt đầu |
 | 4 | Brief tái khám cho bác sĩ | [04-doctor-previsit-brief.md](04-doctor-previsit-brief.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Chưa bắt đầu |
 | 5 | Hiệu năng & chất lượng AI | [05-ai-performance-quality.md](05-ai-performance-quality.md) | P1 (song song) | M | — | Gần xong — mọi task đã làm; p95 10.3–11.8s chưa đạt ≤ 10s |
