@@ -33,7 +33,7 @@ from codebase.backend.notifications.models import Notification, NotificationStat
 from codebase.backend.notifications.service import get_or_create_notification
 from codebase.backend.notifications.zalo import ZaloAPIError, ZaloBotNotifier, ZaloConfigurationError
 from codebase.backend.reports.models import PatientWeeklyReport, WeeklyReportStatus
-from codebase.backend.reports.stats import compute_weekly_stats, has_any_data, pick_tip
+from codebase.backend.reports.stats import compute_weekly_stats, has_any_data, has_medications, pick_tip
 from codebase.backend.summaries.service import generate_and_store_snapshot
 
 logger = logging.getLogger(__name__)
@@ -42,8 +42,15 @@ NO_DATA_SUMMARY = (
     "Tuần này bạn chưa ghi số đo đường huyết, huyết áp, bữa ăn hay vận động nào, nên mình chưa có gì để "
     "tổng kết. Mỗi lần đo và ghi lại đều giúp bạn và bác sĩ hiểu rõ hơn tình hình của mình."
 )
-# Section keys the page renders; "medications" joins when Epic 3.1 lands.
+# Section keys the page renders; "medications" only for a patient with any
+# medication in the week (Epic 3.1).
 SECTIONS = ["glucose", "logging", "meals", "blood_pressure"]
+
+
+def _sections(stats: dict) -> list[str]:
+    if not has_any_data(stats) and not has_medications(stats):
+        return []
+    return SECTIONS + (["medications"] if has_medications(stats) else [])
 
 
 def _tz() -> ZoneInfo:
@@ -158,7 +165,7 @@ async def generate_weekly_report(
         raise
     report.stats = stats
     report.tip = pick_tip(stats)
-    report.sections_enabled = SECTIONS if has_any_data(stats) else []
+    report.sections_enabled = _sections(stats)
     report.status = WeeklyReportStatus.GENERATED
     session.add(report)
     session.commit()

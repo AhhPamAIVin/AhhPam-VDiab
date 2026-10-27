@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { AlertTriangle, Check, Info, Loader2, Pill, RefreshCw, Send } from "lucide-react";
 import { api, type MedicationNote, type MedicationRecord } from "@/lib/api";
 import { useToast } from "@/components/ui/toast";
+import { MedicationAdherencePanel } from "@/components/medication-adherence-panel";
 
 type ReportForm = {
   medicationId: string;
@@ -103,6 +104,7 @@ export function MedicationPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-4">
+      <MedicationAdherencePanel audience="patient" />
       <div className="flex gap-3 rounded-2xl border border-orange-200 bg-orange-50 p-4 dark:border-[#4B3B27] dark:bg-[#211D18]">
         <AlertTriangle className="mt-0.5 h-5 w-5 flex-shrink-0 text-orange-500" />
         <div>

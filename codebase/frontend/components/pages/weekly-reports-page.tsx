@@ -1,11 +1,12 @@
 'use client'
 
 import { useCallback, useEffect, useState } from 'react'
-import { ArrowDown, ArrowUp, CalendarRange, Lightbulb, Loader2, Minus, RefreshCw, UtensilsCrossed } from 'lucide-react'
+import { ArrowDown, ArrowUp, CalendarRange, Lightbulb, Loader2, Minus, Pill, RefreshCw, UtensilsCrossed } from 'lucide-react'
 import { api, type WeeklyReport, type WeeklyReportListItem, type WeeklyReportStats } from '@/lib/api'
 import { useToast } from '@/components/ui/toast'
 import { TtsPlayButton } from '@/components/tts-play-button'
 import { useTtsPlayback } from '@/hooks/use-tts-playback'
+import { DAY_DISPLAY } from '@/components/medication-adherence-panel'
 
 const CONTEXT_LABELS: Record<string, string> = {
   FASTING: 'Lúc đói',
@@ -132,6 +133,34 @@ function ReportDetail({ report }: { report: WeeklyReport }) {
         <section className='rounded-2xl border border-border bg-card p-5'>
           <h3 className='text-lg font-semibold'>Huyết áp</h3>
           <p className='mt-2 text-base'>Trung bình {num(stats.blood_pressure.systolic_avg)}/{num(stats.blood_pressure.diastolic_avg)} mmHg ({stats.blood_pressure.count} lần đo)</p>
+        </section>
+      )}
+
+      {hasStats(stats) && report.sections_enabled.includes('medications') && stats.medications && (
+        <section className='space-y-3 rounded-2xl border border-border bg-card p-5'>
+          <h3 className='flex items-center gap-2 text-lg font-semibold'><Pill className='h-5 w-5 text-primary' aria-hidden /> Uống thuốc</h3>
+          {stats.medications.day_rate_pct === null ? (
+            <p className='text-base text-muted-foreground'>Tuần này chưa có trả lời nhắc uống thuốc nào để tổng kết.</p>
+          ) : (
+            <p className='text-base'>
+              <strong>{stats.medications.days_taken}</strong> ngày đủ thuốc, <strong>{stats.medications.days_missed}</strong> ngày có quên hoặc bỏ qua
+              {stats.medications.days_unconfirmed > 0 && <>, {stats.medications.days_unconfirmed} ngày không xác nhận</>}.
+            </p>
+          )}
+          <ul className='grid grid-cols-7 gap-1' aria-label='Từng ngày trong tuần'>
+            {stats.medications.daily.map((day) => {
+              const display = DAY_DISPLAY[day.status]
+              const Icon = display.icon
+              return (
+                <li key={day.date} className={`flex flex-col items-center gap-0.5 rounded-lg py-2 text-xs ${display.className}`}>
+                  <Icon className='h-4 w-4' aria-hidden />
+                  <span>{formatDay(day.date)}</span>
+                  <span className='sr-only'>{display.label}</span>
+                </li>
+              )
+            })}
+          </ul>
+          <p className='text-sm text-muted-foreground'>Không tự đổi liều hay ngừng thuốc — hãy hỏi bác sĩ nếu bạn gặp khó khăn khi dùng thuốc.</p>
         </section>
       )}
 

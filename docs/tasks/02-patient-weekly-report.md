@@ -1,7 +1,7 @@
 # Epic 2 — Báo cáo tuần cho bệnh nhân
 
 **Ưu tiên:** P1 · **Độ lớn:** M · **Phụ thuộc:** Epic 1 (mục bữa ăn), Epic 3 (mục thuốc) — các mục
-này bật dần khi epic tương ứng xong · **Trạng thái:** Xong phần code (2.1–2.5); còn mục thuốc (chờ Epic 3.1) và vòng review bác sĩ (2.6)
+này bật dần khi epic tương ứng xong · **Trạng thái:** Xong phần code (2.1–2.6, kể cả mục thuốc); chỉ còn vòng review của bác sĩ (cần người)
 
 ## Mục tiêu
 
@@ -42,7 +42,10 @@ nên làm tuần tới. Hỗ trợ mục tiêu F2 trong PRD (bệnh nhân hiểu
       chưa có care plan không tính vào % (có `evaluated_count`). Thêm số lần < 70 mg/dL, huyết áp, vận động.*
 - [x] Mục bữa ăn (khi Epic 1.4 xong): top món đi kèm glucose sau ăn cao (n ≥ 3).
       *Từ `meal_glucose_response` 30 ngày, món có ≥ 50% bữa vượt 180 mg/dL, tối đa 3.*
-- [ ] Mục thuốc (khi Epic 3.1 xong): % tuân thủ tuần.
+- [x] Mục thuốc (khi Epic 3.1 xong): % tuân thủ tuần.
+      *`stats["medications"]` từ `medications/adherence.py` cho đúng 7 ngày của tuần (ngày đủ / có quên / không xác
+      nhận + dải từng ngày); mục chỉ bật khi bệnh nhân có thuốc trong tuần. "Việc nên làm" ưu tiên ngay sau hạ đường
+      huyết: ≥ 2 ngày quên → gợi ý đổi giờ nhắc / trao đổi bác sĩ (không đổi liều).*
 - **AC:** unit test trên dữ liệu cố định; không gọi LLM.
   *"Việc nên làm" cũng tất định: `pick_tip` chọn theo thứ tự ưu tiên (an toàn trước) từ câu đã soạn sẵn, mọi
   câu đều qua guardrail trong test — LLM không viết lời khuyên.*
@@ -66,8 +69,8 @@ nên làm tuần tới. Hỗ trợ mục tiêu F2 trong PRD (bệnh nhân hiểu
       *Mở báo cáo → `read_at` + thông báo chuyển `completed`.*
 - [x] Zalo: tin ngắn (2–3 dòng tóm tắt + link mở app), **không** gửi chi tiết số liệu sức khỏe qua Zalo
       nếu chưa có đồng ý riêng.
-      *Chỉ gồm tiêu đề tuần + "mở ứng dụng, mục Báo cáo tuần" — không có số liệu, chưa có link vì config không có
-      URL công khai của frontend.*
+      *Chỉ gồm tiêu đề tuần + link `{FRONTEND_PUBLIC_URL}/reports` (khi đặt config này; nếu không thì "mở ứng dụng,
+      mục Báo cáo tuần") — không có số liệu.*
 - [x] Bệnh nhân bật/tắt nhận báo cáo trong `NotificationPreference`.
       *Đổi thành `User.weekly_report_enabled` (`PATCH /auth/me`, công tắc trên trang báo cáo): `NotificationPreference`
       là kế hoạch nhắc **hằng ngày** mà cron nhắc nhở quét mỗi phút. Tắt nhận vẫn tạo báo cáo để xem trong app.*
@@ -88,6 +91,9 @@ nên làm tuần tới. Hỗ trợ mục tiêu F2 trong PRD (bệnh nhân hiểu
 - [x] `tests/test_backend/test_weekly_reports.py`: idempotent, opt-out, không dữ liệu, lỗi LLM.
       *28 case, gồm ranh giới tuần theo giờ VN, Zalo không chứa số liệu, quyền truy cập, tool agent.*
 - [ ] 5–10 báo cáo mẫu đưa bác sĩ đánh giá độ dễ hiểu/an toàn (dùng `docs/evaluation/human_review.csv`).
+      *Công cụ đã có: `make export-weekly-report-review` (`EVAL_ARGS="--generate"` để chạy job tuần trước) xuất
+      `docs/evaluation/weekly_report_review.csv` cùng cột với `human_review.csv` (số liệu + nội dung bệnh nhân thấy,
+      không tên/id). **Còn lại: chạy trên DB có dữ liệu demo và bác sĩ chấm** — việc cần người.*
 
 ## Definition of Done
 - Cron sinh và gửi báo cáo tự động; bệnh nhân xem được lịch sử; test xanh; ≥1 vòng review bác sĩ.

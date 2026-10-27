@@ -1,15 +1,21 @@
-from datetime import date
+from datetime import date, time
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query, status
-from sqlmodel import Session
+from sqlmodel import Session, SQLModel
 
 from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.config import get_settings
 from codebase.backend.db import get_session
-from codebase.backend.notifications import service
-from codebase.backend.notifications.models import Notification, NotificationPreference, NotificationStatus
+from codebase.backend.notifications import service, smart_reminders
+from codebase.backend.notifications.models import (
+    Notification,
+    NotificationPreference,
+    NotificationStatus,
+    ReminderTimeSuggestion,
+    SuggestionStatus,
+)
 from codebase.backend.notifications.schemas import (
     NotificationPreferenceCreate,
     NotificationPreferencePublic,
@@ -30,6 +36,7 @@ _can_respond = require_roles(UserRole.PATIENT, UserRole.DOCTOR)
 _can_manage_plan = require_roles(UserRole.PATIENT, UserRole.DOCTOR)
 _can_send_zalo = require_roles(UserRole.ADMIN, UserRole.DOCTOR)
 _can_link_zalo = require_roles(UserRole.PATIENT)
+_patient_only = require_roles(UserRole.PATIENT)
 
 
 def _resolve_patient_id(current_user: User, patient_id: UUID | None) -> UUID:
@@ -71,6 +78,55 @@ def update_notification(
         new_status=request.status,
         snooze_minutes=request.snooze_minutes,
     )
+
+
+# ---- Reminder-time suggestions (Epic 3.3) — patient-only, never auto-applied ----
+
+
+class ReminderSuggestionPublic(SQLModel):
+    id: UUID
+    preference_id: UUID
+    label: str
+    previous_time: time
+    suggested_time: time
+    late_count: int
+    sample_count: int
+    status: SuggestionStatus
+
+
+def _suggestion_public(session: Session, suggestion: ReminderTimeSuggestion) -> ReminderSuggestionPublic:
+    preference = session.get(NotificationPreference, suggestion.preference_id)
+    return ReminderSuggestionPublic(
+        **suggestion.model_dump(exclude={"patient_id", "created_at", "decided_at"}),
+        label=preference.label if preference else "",
+    )
+
+
+@router.get("/reminder-suggestions", response_model=list[ReminderSuggestionPublic])
+def list_reminder_suggestions(
+    current_user: User = Depends(_patient_only),
+    session: Session = Depends(get_session),
+) -> list[ReminderSuggestionPublic]:
+    """Pending suggestions, computing any new one first (cheap: no LLM)."""
+    return [_suggestion_public(session, s) for s in smart_reminders.refresh_suggestions(session, current_user.id)]
+
+
+@router.post("/reminder-suggestions/{suggestion_id}/accept", response_model=ReminderSuggestionPublic)
+def accept_reminder_suggestion(
+    suggestion_id: UUID,
+    current_user: User = Depends(_patient_only),
+    session: Session = Depends(get_session),
+) -> ReminderSuggestionPublic:
+    return _suggestion_public(session, smart_reminders.accept_suggestion(session, suggestion_id, current_user.id))
+
+
+@router.post("/reminder-suggestions/{suggestion_id}/decline", response_model=ReminderSuggestionPublic)
+def decline_reminder_suggestion(
+    suggestion_id: UUID,
+    current_user: User = Depends(_patient_only),
+    session: Session = Depends(get_session),
+) -> ReminderSuggestionPublic:
+    return _suggestion_public(session, smart_reminders.decline_suggestion(session, suggestion_id, current_user.id))
 
 
 # ---- Notification preferences — the patient's adjustable reminder plan ----

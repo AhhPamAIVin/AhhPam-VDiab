@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { AlertTriangle, Bell, Check, CheckCheck, CheckCircle2, Clock3, Copy, Droplets, ExternalLink, Heart, Loader2, MessageCircleMore, Pencil, Pill, Plus, RotateCcw, Settings2, SkipForward, Trash2, X, FileBarChart } from 'lucide-react'
 import { api, type DoctorAlert, type NotificationPreference, type NotificationRecord, type NotificationStatus, type NotificationType, type ZaloLinkCode } from '@/lib/api'
 import { useToast } from '@/components/ui/toast'
+import { ReminderSuggestionsCard } from '@/components/reminder-suggestions-card'
 import { cn, parseUtcTimestamp } from '@/lib/utils'
 import { useAuth } from '@/lib/auth-context'
 
@@ -205,6 +206,7 @@ function PatientNotificationsPage() {
 
   return (
     <div className='mx-auto max-w-2xl space-y-4'>
+      <ReminderSuggestionsCard onChanged={() => { if (planOpen) loadPreferences() }} />
       <div className='flex items-start justify-between gap-3'>
         <div><h2 className='font-semibold'>Thông báo</h2><p className='mt-0.5 text-xs text-muted-foreground'>{pendingCount ? `${pendingCount} nhắc nhở chưa xử lý` : 'Bạn đã xử lý tất cả nhắc nhở'}</p></div>
         <div className='flex flex-wrap justify-end gap-2'>

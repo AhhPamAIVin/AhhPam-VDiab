@@ -308,6 +308,45 @@ async def test_patient_can_turn_report_notifications_off(client: AsyncClient, pa
     assert response.json()["ai_memory_consent"] is False
 
 
+def _medication_with_reminders(session: Session, patient: User, statuses: list[NotificationStatus]) -> None:
+    from codebase.backend.medications.models import Medication
+
+    session.add(Medication(patient_id=patient.id, drug_name="Metformin", dose="500mg", frequency="2 lần/ngày",
+                           start_date=datetime(2026, 9, 1), created_by=patient.id))
+    for offset, status in enumerate(statuses):
+        day = date(2026, 10, 18) + timedelta(days=offset)
+        session.add(Notification(
+            patient_id=patient.id, notification_type=NotificationType.MEDICATION_REMINDER, title="t", message="m",
+            slot_key=f"medication_glucose_before_breakfast:{day}", slot_date=day,
+            scheduled_for=datetime.combine(day, datetime.min.time()), status=status,
+        ))
+    session.commit()
+
+
+@pytest.mark.asyncio
+async def test_medication_section_and_tip(session: Session, patient: User):
+    done, skipped = NotificationStatus.COMPLETED, NotificationStatus.SKIPPED
+    _medication_with_reminders(session, patient, [done, skipped, done, skipped, done, skipped, done])
+    _glucose(session, patient, PERIOD_START + timedelta(days=1), 110, status="NORMAL")
+    for day in range(5):  # enough logging days that the medication tip wins on priority
+        _glucose(session, patient, PERIOD_START + timedelta(days=day, hours=12), 120, status="NORMAL")
+    with patch(SNAPSHOT, _snapshot_mock(session)):
+        report = await _generate(session, patient)
+    meds = report.stats["medications"]
+    assert (meds["days_taken"], meds["days_missed"]) == (4, 3)
+    assert [d["status"] for d in meds["daily"]][:2] == ["taken", "missed"]
+    assert "medications" in report.sections_enabled
+    assert report.tip.startswith("Tuần này có 3 ngày bạn quên hoặc bỏ qua nhắc uống thuốc")
+
+
+@pytest.mark.asyncio
+async def test_no_medication_section_without_medications(session: Session, patient: User):
+    _glucose(session, patient, PERIOD_START + timedelta(days=1), 110)
+    with patch(SNAPSHOT, _snapshot_mock(session)):
+        report = await _generate(session, patient)
+    assert "medications" not in report.sections_enabled
+
+
 @pytest.mark.asyncio
 async def test_zalo_links_the_report_when_the_app_url_is_set(session: Session, monkeypatch):
     from codebase.backend.config import get_settings

@@ -34,7 +34,11 @@ from codebase.backend.appointments.models import AppointmentStatus
 from codebase.backend.appointments.service import list_appointments_for_patient
 from codebase.backend.reports.service import list_reports
 from codebase.models.agents.tools.knowledge_tools import search_approved_knowledge
-from codebase.models.agents.tools.meal_tools import MEAL_RESPONSE_DAYS, get_meal_glucose_response
+from codebase.models.agents.tools.meal_tools import (
+    MEAL_RESPONSE_DAYS,
+    get_meal_glucose_response,
+    get_medication_adherence,
+)
 from codebase.models.agents.tools.patient_tools import (
     MAX_DATE_RANGE_DAYS,
     get_assigned_doctor,
@@ -169,6 +173,20 @@ def _get_weekly_report(state: dict, session: Session, _args: NoArgs) -> ToolOutc
     return ToolOutcome(_merge_tool_results(state, weekly_report=report), f"Đã lấy báo cáo tuần {report['week']}.")
 
 
+class AdherenceArgs(BaseModel):
+    days: int = Field(default=30, ge=7, le=90, description="Số ngày nhìn lại (7-90).")
+
+
+def _get_medication_adherence(state: dict, session: Session, args: AdherenceArgs) -> ToolOutcome:
+    result = get_medication_adherence(session, state["patient_id"], args.days)
+    rate = result["day_rate_pct"]
+    return ToolOutcome(
+        _merge_tool_results(state, medication_adherence=result),
+        f"Tuân thủ thuốc {args.days} ngày: {result['days_taken']} ngày đủ, {result['days_missed']} ngày có quên/bỏ qua"
+        + (f" ({rate}% ngày đủ thuốc)." if rate is not None else " (chưa đủ dữ liệu)."),
+    )
+
+
 class MealResponseArgs(BaseModel):
     days: int = Field(default=MEAL_RESPONSE_DAYS, ge=7, le=90, description="Số ngày nhìn lại (7-90).")
 
@@ -230,6 +248,12 @@ TOOLS: tuple[AgentTool, ...] = (
         _get_health_records,
     ),
     AgentTool("get_medications", "Lấy thuốc đang dùng và ghi chú thuốc (quên liều, tác dụng phụ) của bệnh nhân.", NoArgs, _get_medications),
+    AgentTool(
+        "get_medication_adherence",
+        "Mức tuân thủ dùng thuốc: số ngày đủ thuốc / có quên, thuốc hay quên, đường huyết ngày đủ vs ngày quên.",
+        AdherenceArgs,
+        _get_medication_adherence,
+    ),
     AgentTool("get_my_doctor", "Lấy thông tin bác sĩ phụ trách của bệnh nhân.", NoArgs, _get_my_doctor),
     AgentTool("get_appointments", "Lấy lịch khám/tái khám sắp tới và gần đây của bệnh nhân.", NoArgs, _get_appointments),
     AgentTool(
@@ -287,6 +311,7 @@ PROGRESS_BY_TOOL = {
     "get_health_records": "Đang xem các chỉ số và bữa ăn bạn đã ghi…",
     "get_medications": "Đang xem thuốc bạn đang dùng…",
     "get_my_doctor": "Đang xem thông tin bác sĩ phụ trách…",
+    "get_medication_adherence": "Đang xem việc uống thuốc của bạn…",
     "get_appointments": "Đang xem lịch khám của bạn…",
     "get_weekly_report": "Đang xem báo cáo tuần của bạn…",
     "get_meal_glucose_response": "Đang xem món ăn nào thường đi kèm đường huyết cao…",

@@ -8,6 +8,7 @@ from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.db import get_session
 from codebase.backend.medications import service
+from codebase.backend.medications.adherence import adherence_last_days
 from codebase.backend.medications.models import Medication, MedicationNote
 from codebase.backend.medications.schemas import (
     MedicationChange,
@@ -94,6 +95,20 @@ def discontinue_medication(
         end_date=request.end_date,
         note=request.note,
     )
+
+
+@router.get("/adherence")
+def get_adherence(
+    patient_id: UUID | None = Query(default=None),
+    days: int = Query(default=30, ge=7, le=90),
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Medication adherence over the last `days` local days (Epic 3.1) — see
+    medications/adherence.py for the day/dose definitions."""
+    target_patient_id = _resolve_patient_id(current_user, patient_id)
+    ensure_patient_access(session, current_user, target_patient_id)
+    return adherence_last_days(session, target_patient_id, days)
 
 
 @router.get("/active", response_model=list[MedicationPublic])

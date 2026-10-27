@@ -21,6 +21,7 @@ from sqlmodel import Session, col, select
 from codebase.backend.config import get_settings
 from codebase.backend.health.meal_response import meal_glucose_response
 from codebase.backend.health.models import ActivityRecord, BloodPressureRecord, GlucoseRecord, MealRecord
+from codebase.backend.medications.adherence import compute_adherence
 from codebase.models.agents.tools.metrics_tools import HYPOGLYCEMIA_THRESHOLD_MG_DL
 
 # A food goes in the report when post-meal glucose was above target after
@@ -91,6 +92,11 @@ def compute_weekly_stats(session: Session, patient_id: UUID, start: datetime, en
         if g["pct_over_target"] >= _MEAL_FLAG_PCT
     ][:_MAX_FOODS]
 
+    # Medication section (Epic 3.1): the same local days as the report week.
+    local_start = start.replace(tzinfo=ZoneInfo("UTC")).astimezone(tz).date()
+    local_end = (end - timedelta(microseconds=1)).replace(tzinfo=ZoneInfo("UTC")).astimezone(tz).date()
+    medications = compute_adherence(session, patient_id, local_start, local_end)
+
     timestamps = (
         [r.measured_at for r in glucose]
         + [r.measured_at for r in pressure]
@@ -123,7 +129,18 @@ def compute_weekly_stats(session: Session, patient_id: UUID, start: datetime, en
             "min_n": meal_response["min_n"],
             "top_foods": top_foods,
         },
+        "medications": {
+            key: medications[key]
+            for key in (
+                "day_rate_pct", "days_taken", "days_missed", "days_unconfirmed", "days_no_data",
+                "dose_rate_pct", "medications", "daily",
+            )
+        },  # fmt: skip
     }
+
+
+def has_medications(stats: dict) -> bool:
+    return bool((stats.get("medications") or {}).get("medications"))
 
 
 def has_any_data(stats: dict) -> bool:
@@ -143,6 +160,12 @@ def pick_tip(stats: dict) -> str:
         return (
             f"Tuần này có {glucose['low_count']} lần đường huyết dưới 70 mg/dL. Hãy báo cho bác sĩ điều trị biết; "
             "nếu thấy run tay, vã mồ hôi hay chóng mặt, hãy xử trí theo hướng dẫn bác sĩ đã dặn."
+        )
+    missed_medication_days = (stats.get("medications") or {}).get("days_missed") or 0
+    if missed_medication_days >= 2:
+        return (
+            f"Tuần này có {missed_medication_days} ngày bạn quên hoặc bỏ qua nhắc uống thuốc. Bạn có thể đổi giờ nhắc "
+            "cho hợp thói quen hằng ngày; nếu gặp khó khăn khi dùng thuốc, hãy trao đổi với bác sĩ."
         )
     if not has_any_data(stats):
         return "Tuần tới, bạn hãy thử đo và ghi đường huyết vài lần để mình cùng theo dõi xu hướng nhé."

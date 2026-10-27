@@ -165,6 +165,39 @@ export interface MealGlucoseResponse {
 
 export type MealItemEdit = { name: string; quantity: number | null; unit: string | null };
 
+export type AdherenceDayStatus = "taken" | "missed" | "unconfirmed" | "no_data";
+
+// GET /medications/adherence (backend medications/adherence.py). day_rate_pct
+// is the headline: share of days with medication taken among days with an
+// answer; "unconfirmed" = reminders left unanswered, not counted as forgotten.
+export interface MedicationAdherence {
+  start: string;
+  end: string;
+  days: number;
+  day_rate_pct: number | null;
+  days_taken: number;
+  days_missed: number;
+  days_unconfirmed: number;
+  days_no_data: number;
+  dose_rate_pct: number | null;
+  doses_considered: number;
+  medications: { medication_id: string; drug_name: string; as_needed: boolean; missed_notes: number }[];
+  missed_dates: string[];
+  daily: { date: string; status: AdherenceDayStatus; completed: number; skipped: number; expired: number; missed_notes: number }[];
+  glucose_by_adherence: { taken_days: number; taken_avg_mg_dl: number; missed_days: number; missed_avg_mg_dl: number } | null;
+}
+
+export interface ReminderSuggestion {
+  id: string;
+  preference_id: string;
+  label: string;
+  previous_time: string; // HH:MM:SS
+  suggested_time: string;
+  late_count: number;
+  sample_count: number;
+  status: "pending" | "accepted" | "declined";
+}
+
 type StatSummary = { count: number; avg: number | null; min: number | null; max: number | null };
 
 // Deterministic figures computed by the backend (reports/stats.py).
@@ -188,6 +221,11 @@ export interface WeeklyReportStats {
     min_n: number;
     top_foods: { name: string; n: number; avg_post_mg_dl: number; pct_over_target: number }[];
   };
+  // Absent on reports generated before Epic 3.
+  medications?: Pick<
+    MedicationAdherence,
+    "day_rate_pct" | "days_taken" | "days_missed" | "days_unconfirmed" | "days_no_data" | "dose_rate_pct" | "medications" | "daily"
+  >;
 }
 
 export interface WeeklyReportListItem {
@@ -842,6 +880,23 @@ export const api = {
     apiRequest<ZaloLinkCode>("/notifications/zalo/link-code", {
       method: "POST",
     }),
+  reminderSuggestions: () =>
+    apiRequest<ReminderSuggestion[]>("/notifications/reminder-suggestions"),
+  acceptReminderSuggestion: (suggestionId: string) =>
+    apiRequest<ReminderSuggestion>(
+      `/notifications/reminder-suggestions/${encodeURIComponent(suggestionId)}/accept`,
+      { method: "POST" },
+    ),
+  declineReminderSuggestion: (suggestionId: string) =>
+    apiRequest<ReminderSuggestion>(
+      `/notifications/reminder-suggestions/${encodeURIComponent(suggestionId)}/decline`,
+      { method: "POST" },
+    ),
+  medicationAdherence: (patientId?: string, days = 30) => {
+    const params = new URLSearchParams({ days: String(days) });
+    if (patientId) params.set("patient_id", patientId);
+    return apiRequest<MedicationAdherence>(`/medications/adherence?${params}`);
+  },
   activeMedications: (patientId?: string) =>
     apiRequest<MedicationRecord[]>(
       `/medications/active${patientId ? `?patient_id=${encodeURIComponent(patientId)}` : ""}`,

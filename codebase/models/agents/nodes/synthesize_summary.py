@@ -227,6 +227,33 @@ _MEAL_RESPONSE_FLAG_PCT = 50.0
 _MEAL_RESPONSE_MAX_FOODS = 3
 
 
+def _build_adherence_lines(adherence: dict | None, role: str) -> list[str]:
+    """Doctor only (Epic 3.2): day-level medication adherence and, when both
+    groups have enough days, glucose on full vs missed days — association
+    wording only, no dose or stop advice."""
+    if role != "doctor" or not adherence or adherence.get("day_rate_pct") is None:
+        return []
+    days = adherence["days"]
+    line = (
+        f"Tuân thủ thuốc ({days} ngày): {adherence['days_taken']} ngày đủ thuốc, {adherence['days_missed']} ngày "
+        f"có quên/bỏ qua ({adherence['day_rate_pct']}% ngày đủ thuốc)"
+    )
+    if adherence.get("days_unconfirmed"):
+        line += f", {adherence['days_unconfirmed']} ngày không xác nhận"
+    lines = [line + "."]
+    forgotten = [m["drug_name"] for m in adherence.get("medications") or [] if m.get("missed_notes")]
+    if forgotten:
+        lines.append("Thuốc bệnh nhân tự ghi nhận quên: " + ", ".join(forgotten) + ".")
+    glucose = adherence.get("glucose_by_adherence")
+    if glucose:
+        lines.append(
+            f"Đường huyết TB ngày đủ thuốc {glucose['taken_avg_mg_dl']} mg/dL ({glucose['taken_days']} ngày) so với "
+            f"ngày có quên {glucose['missed_avg_mg_dl']} mg/dL ({glucose['missed_days']} ngày) — liên quan thống kê, "
+            "không phải nguyên nhân."
+        )
+    return lines
+
+
 def _build_meal_response_lines(meal_response: dict | None, role: str) -> list[str]:
     """Doctor only (Epic 1.4): foods / carb bands that go with post-meal
     glucose above target in most of their meals, from meal_tools'
@@ -414,7 +441,11 @@ async def synthesize_summary(state: AgentState) -> dict:
         }
 
     meal_response = tool_results.get("meal_glucose_response")
-    trends = _build_trends(metrics, role) + _build_meal_response_lines(meal_response, role)
+    trends = (
+        _build_trends(metrics, role)
+        + _build_meal_response_lines(meal_response, role)
+        + _build_adherence_lines(tool_results.get("medication_adherence"), role)
+    )
     if role == "doctor" and meal_response and meal_response.get("meals_paired"):
         data_used.append(f"meal_glucose_pairs (n={meal_response['meals_paired']})")
     attention_points = _build_attention_points(metrics) + medication_attention

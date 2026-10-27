@@ -30,7 +30,12 @@ from datetime import datetime, timedelta
 from langchain_core.runnables import RunnableConfig
 
 from codebase.models.agents.state import AgentState
-from codebase.models.agents.tools.meal_tools import get_meal_glucose_response, is_meal_question
+from codebase.models.agents.tools.meal_tools import (
+    get_meal_glucose_response,
+    get_medication_adherence,
+    is_meal_question,
+    is_medication_question,
+)
 from codebase.models.agents.tools.patient_tools import (
     get_assigned_doctor,
     get_health_records,
@@ -110,4 +115,7 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
     # the question is about food, so unrelated answers don't bring it up.
     if intent == "SUMMARY" or is_meal_question(state.get("message")):
         tool_results["meal_glucose_response"] = get_meal_glucose_response(session, patient_id)
+    # Epic 3.2: same rule for medication adherence (30 days).
+    if intent == "SUMMARY" or is_medication_question(state.get("message")):
+        tool_results["medication_adherence"] = get_medication_adherence(session, patient_id)
     return {"tool_results": tool_results, "date_range": (start, end)}

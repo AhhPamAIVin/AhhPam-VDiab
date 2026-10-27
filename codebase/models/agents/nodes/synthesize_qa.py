@@ -218,6 +218,11 @@ _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
         "là liên quan thống kê, KHÔNG phải nguyên nhân — chỉ nói \"thường đi kèm\", không nói \"gây ra\")",
     ),
     ("medications", "Thuốc đang dùng"),
+    (
+        "medication_adherence",
+        "Tuân thủ thuốc 30 ngày (day_rate_pct = % ngày đủ thuốc; glucose_by_adherence chỉ là liên quan, KHÔNG "
+        "phải nguyên nhân; không khuyên đổi liều/ngừng thuốc)",
+    ),
     ("appointments", "Lịch khám (upcoming=True là lịch sắp tới)"),
     ("weekly_report", "Báo cáo tuần gần nhất (số liệu tính sẵn; tip là việc nên làm đã được duyệt)"),
     ("assigned_doctor", "Bác sĩ điều trị được phân công"),

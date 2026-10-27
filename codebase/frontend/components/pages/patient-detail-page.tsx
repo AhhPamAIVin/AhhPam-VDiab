@@ -35,6 +35,7 @@ import { cn, parseUtcTimestamp } from "@/lib/utils";
 import { ClinicalNotesPanel } from "@/components/clinical-notes-panel";
 import { PatientInsightsPanel } from "@/components/patient-insights-panel";
 import { PatientMealsPanel } from "@/components/patient-meals-panel";
+import { MedicationAdherencePanel } from "@/components/medication-adherence-panel";
 import { AgentSummaryCard } from "@/components/agent-summary-card";
 import { Pagination } from "@/components/ui/pagination";
 import { ChatAnswerCards } from "@/components/chat-answer-cards";
@@ -1209,6 +1210,7 @@ export function PatientDetailPage({
       {/* Tab: Medication */}
       {activeTab === "medication" && (
         <div className="space-y-3">
+          <MedicationAdherencePanel patientId={patientId} audience="doctor" />
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold text-foreground">Danh sách thuốc</h3>

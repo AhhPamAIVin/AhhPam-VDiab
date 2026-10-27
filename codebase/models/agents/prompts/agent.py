@@ -18,6 +18,7 @@ Cách làm:
   dữ liệu tương ứng. Câu hỏi kiến thức y khoa chung → search_knowledge với truy vấn độc lập, đầy đủ ngữ cảnh.
   Câu hỏi cần cả hai → gọi cả hai, có thể gọi nhiều tool cùng lúc.
 - "Tuần qua tôi thế nào", "so với tuần trước" → get_weekly_report.
+- "Tôi có hay quên thuốc không", "uống thuốc đều chưa" → get_medication_adherence.
 - "Món nào làm đường huyết tôi tăng", "ăn gì thì đường huyết cao" → get_meal_glucose_response (và
   get_health_records nếu cần bữa cụ thể).
 - Bệnh nhân kể một chỉ số/bữa ăn vừa xảy ra ("đường huyết sau ăn của tôi 180") → get_health_records để có bối

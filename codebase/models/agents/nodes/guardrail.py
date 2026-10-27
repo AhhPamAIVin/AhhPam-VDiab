@@ -212,7 +212,20 @@ _STOP_MEDICATION_RE = re.compile(
     r"glimepiride|sitagliptin|dapagliflozin|empagliflozin|pioglitazone|acarbose|liraglutide)\b|"
     r"\bstop (?:taking )?(?:your )?(?:medication|insulin|metformin)\b"
 )
-_ADVICE_CUES: tuple[str, ...] = ("bạn có thể", "bạn nên", "hãy", "bạn cứ", "nên", "you can", "you should", "you may")
+_ADVICE_CUES: tuple[str, ...] = (
+    "bạn có thể", "có thể", "bạn nên", "hãy", "bạn cứ", "nên", "you can", "you should", "you may",
+)  # fmt: skip
+# Epic 3.2: changing a dose is advice even with no number in it.
+_DOSE_CHANGE_RE = re.compile(
+    r"\b(?:tăng|giảm|chỉnh|điều chỉnh|đổi|thay đổi|gấp đôi|bớt|nâng)\s+(?:liều|lượng thuốc|số viên|số đơn vị)\b|"
+    r"\b(?:increase|decrease|double|adjust|change)\s+(?:your\s+)?(?:dose|dosage)\b"
+)
+# "uống gấp đôi để bù" is a dosing instruction on its own, with or without
+# "nên"/"hãy" — unless negated right before it ("không uống bù").
+_MAKE_UP_DOSE_RE = re.compile(r"\b(?:uống|tiêm|dùng)\s+(?:gấp đôi|bù|thêm một liều|thêm liều)\b|\bdouble up\b")
+_MAKE_UP_NEGATED_RE = re.compile(
+    r"\b(?:không|đừng|chớ|tránh)\s+(?:nên\s+)?(?:tự\s+)?(?:ý\s+)?(?:uống|tiêm|dùng)\s+(?:gấp đôi|bù|thêm)|\bdon't double"
+)
 _PERSONAL_CAUSAL_RE = re.compile(
     r"(?:là nguyên nhân|gây ra|đã gây|chính là lý do|khiến)[^.!?]{0,40}(?:đường huyết|đường máu)"
     r"[^.!?]{0,30}\b(?:của bạn|bạn)\b"
@@ -249,9 +262,28 @@ def _has_meal_skipping_advice(lowered: str) -> bool:
 
 def _has_medication_stop_advice(lowered: str) -> bool:
     return any(
-        _STOP_MEDICATION_RE.search(s) and any(cue in s for cue in _ADVICE_CUES) and not _negated(s)
+        _STOP_MEDICATION_RE.search(s)
+        and any(cue in s for cue in _ADVICE_CUES)
+        and not _negated(s)
+        and not _defers_to_doctor(s)
         for s in _sentences(lowered)
     )
+
+
+def _defers_to_doctor(sentence: str) -> bool:
+    # "bác sĩ có thể chỉnh liều cho bạn" hands the decision to the doctor.
+    return "bác sĩ" in sentence or "doctor" in sentence
+
+
+def _has_dose_change_advice(lowered: str) -> bool:
+    for s in _sentences(lowered):
+        if _defers_to_doctor(s):
+            continue
+        if _DOSE_CHANGE_RE.search(s) and any(cue in s for cue in _ADVICE_CUES) and not _negated(s):
+            return True
+        if _MAKE_UP_DOSE_RE.search(s) and not _MAKE_UP_NEGATED_RE.search(s):
+            return True
+    return False
 
 
 def _has_personal_meal_causal_claim(lowered: str) -> bool:
@@ -548,6 +580,8 @@ def _scan(state: AgentState, lowered_response: str) -> list[str]:
         failures.append("meal_skipping_advice")
     if _has_medication_stop_advice(lowered_response):
         failures.append("medication_stop_advice")
+    if _has_dose_change_advice(lowered_response):
+        failures.append("dose_change_advice")
     if _has_system_prompt_leak(lowered_response):
         failures.append("system_prompt_leak")
     if _has_compliance_marker(lowered_response):
