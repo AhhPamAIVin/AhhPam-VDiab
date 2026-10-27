@@ -32,6 +32,7 @@ from sqlmodel import Session
 
 from codebase.backend.appointments.models import AppointmentStatus
 from codebase.backend.appointments.service import list_appointments_for_patient
+from codebase.backend.reports.service import list_reports
 from codebase.models.agents.tools.knowledge_tools import search_approved_knowledge
 from codebase.models.agents.tools.meal_tools import MEAL_RESPONSE_DAYS, get_meal_glucose_response
 from codebase.models.agents.tools.patient_tools import (
@@ -155,6 +156,19 @@ def _get_appointments(state: dict, session: Session, _args: NoArgs) -> ToolOutco
     )
 
 
+def _get_weekly_report(state: dict, session: Session, _args: NoArgs) -> ToolOutcome:
+    reports = list_reports(session, state["patient_id"])
+    if not reports:
+        return ToolOutcome(_merge_tool_results(state, weekly_report=None), "Chưa có báo cáo tuần nào.")
+    latest = reports[0]
+    report = {
+        "week": f"{latest.week_start:%d/%m/%Y}–{latest.week_end:%d/%m/%Y}",
+        "stats": latest.stats,
+        "tip": latest.tip,
+    }
+    return ToolOutcome(_merge_tool_results(state, weekly_report=report), f"Đã lấy báo cáo tuần {report['week']}.")
+
+
 class MealResponseArgs(BaseModel):
     days: int = Field(default=MEAL_RESPONSE_DAYS, ge=7, le=90, description="Số ngày nhìn lại (7-90).")
 
@@ -219,6 +233,12 @@ TOOLS: tuple[AgentTool, ...] = (
     AgentTool("get_my_doctor", "Lấy thông tin bác sĩ phụ trách của bệnh nhân.", NoArgs, _get_my_doctor),
     AgentTool("get_appointments", "Lấy lịch khám/tái khám sắp tới và gần đây của bệnh nhân.", NoArgs, _get_appointments),
     AgentTool(
+        "get_weekly_report",
+        "Lấy báo cáo tuần gần nhất (tuần Chủ nhật–thứ Bảy đã qua): số liệu so với tuần trước và việc nên làm.",
+        NoArgs,
+        _get_weekly_report,
+    ),
+    AgentTool(
         "get_meal_glucose_response",
         "Món ăn / mức carb nào thường đi kèm đường huyết sau ăn cao ở bệnh nhân này (liên quan thống kê).",
         MealResponseArgs,
@@ -268,6 +288,7 @@ PROGRESS_BY_TOOL = {
     "get_medications": "Đang xem thuốc bạn đang dùng…",
     "get_my_doctor": "Đang xem thông tin bác sĩ phụ trách…",
     "get_appointments": "Đang xem lịch khám của bạn…",
+    "get_weekly_report": "Đang xem báo cáo tuần của bạn…",
     "get_meal_glucose_response": "Đang xem món ăn nào thường đi kèm đường huyết cao…",
     "search_knowledge": "Đang tra cứu tài liệu y khoa đã được duyệt…",
 }

@@ -21,6 +21,7 @@ class UserPublic(SQLModel):
     must_change_password: bool
     ai_memory_consent: bool
     meal_photo_ai_consent: bool = False
+    weekly_report_enabled: bool = True
     created_at: UtcDatetime
 
 
@@ -29,6 +30,7 @@ class UpdateMeRequest(SQLModel):
 
     ai_memory_consent: bool | None = None
     meal_photo_ai_consent: bool | None = None
+    weekly_report_enabled: bool | None = None
 
 
 class UserCreate(SQLModel):

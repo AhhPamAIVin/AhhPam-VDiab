@@ -69,6 +69,12 @@ class Settings(BaseSettings):
     # decide on more tools — multi-step, but one more LLM call per turn.
     patient_agent_reflect: bool = False
 
+    # Weekly patient report (Epic 2): generated for the Sunday-Saturday week
+    # just ended, at this local time (reminder_timezone).
+    weekly_reports_enabled: bool = True
+    weekly_report_day_of_week: Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"] = "sun"
+    weekly_report_hour: int = Field(default=8, ge=0, le=23)
+
     # Database
     db_host: str = "localhost"
     db_port: int = Field(default=5533, ge=1, le=65535)

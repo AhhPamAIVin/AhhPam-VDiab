@@ -219,6 +219,7 @@ _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
     ),
     ("medications", "Thuốc đang dùng"),
     ("appointments", "Lịch khám (upcoming=True là lịch sắp tới)"),
+    ("weekly_report", "Báo cáo tuần gần nhất (số liệu tính sẵn; tip là việc nên làm đã được duyệt)"),
     ("assigned_doctor", "Bác sĩ điều trị được phân công"),
     # Last on purpose, same recency reasoning as assigned_doctor above — this
     # is check_data_quality.py's calculate_health_metrics output (count/avg/

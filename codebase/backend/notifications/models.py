@@ -19,6 +19,9 @@ class NotificationType(StrEnum):
     # glucose reading is evaluated WATCH. See
     # docs/ML_PERSONALIZED_WATCH_SYSTEM_PLAN.md section 6 (Giai doan E).
     GLUCOSE_ALERT = "glucose_alert"
+    # Event-driven too: one per patient and week when reports/service.py
+    # generates the weekly report (Epic 2).
+    WEEKLY_REPORT = "weekly_report"
 
 
 class NotificationStatus(StrEnum):

@@ -47,6 +47,7 @@ from codebase.backend.auth.models import User, UserRole
 from codebase.backend.config import get_settings
 from codebase.backend.db import engine
 from codebase.backend.health.models import ActivityRecord, GlucoseRecord, MealRecord
+from codebase.backend.reports.service import run_weekly_report_tick
 from codebase.models.agents.nodes.reflect import reflect
 
 # Weekly, not a short repeating tick (contrast notifications/scheduler.py's
@@ -211,6 +212,13 @@ def _run_weekly_reflection_tick() -> None:
         asyncio.run(run_weekly_reflection_tick(session, now=datetime.now(tz).replace(tzinfo=None)))
 
 
+def _run_weekly_report_tick() -> None:
+    """Cron target for the weekly patient report (Epic 2) — own session, one
+    asyncio.run() per tick, same shape as _run_weekly_reflection_tick."""
+    with Session(engine) as session:
+        asyncio.run(run_weekly_report_tick(session, now_utc=datetime.utcnow()))
+
+
 def start_scheduler() -> BackgroundScheduler:
     """Called from main.py's lifespan, alongside notifications/scheduler.py's
     own start_scheduler() — a separate BackgroundScheduler instance/job,
@@ -230,6 +238,16 @@ def start_scheduler() -> BackgroundScheduler:
         max_instances=1,
         coalesce=True,
     )
+    settings = get_settings()
+    if settings.weekly_reports_enabled:
+        scheduler.add_job(
+            _run_weekly_report_tick,
+            CronTrigger(day_of_week=settings.weekly_report_day_of_week, hour=settings.weekly_report_hour, timezone=tz),
+            id="weekly_report_tick",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
     scheduler.start()
     _scheduler = scheduler
     return scheduler
