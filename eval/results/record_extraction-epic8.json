@@ -1,0 +1,3247 @@
+{
+  "run_at": "2026-10-27T16:33:31.633712+00:00",
+  "cases": 63,
+  "agent": {
+    "case_accuracy": 0.937,
+    "false_record_rate": 0.0,
+    "recall": 0.927,
+    "field_accuracy": 1.0,
+    "by_group": {
+      "glucose": "8/8",
+      "unaccented": "8/8",
+      "units": "5/5",
+      "time": "6/7",
+      "blood_pressure": "5/5",
+      "meal": "6/6",
+      "activity": "4/4",
+      "medication": "1/3",
+      "compound": "4/5",
+      "negative": "12/12"
+    },
+    "latency_p50_s": 6.91
+  },
+  "regex_parser": {
+    "case_accuracy": 0.54,
+    "false_record_rate": 0.167,
+    "recall": 0.527,
+    "field_accuracy": 0.966,
+    "by_group": {
+      "glucose": "4/8",
+      "unaccented": "0/8",
+      "units": "2/5",
+      "time": "7/7",
+      "blood_pressure": "1/5",
+      "meal": "4/6",
+      "activity": "3/4",
+      "medication": "1/3",
+      "compound": "2/5",
+      "negative": "10/12"
+    }
+  },
+  "rows": [
+    {
+      "id": "A1",
+      "group": "glucose",
+      "message": "Đường huyết sau ăn của tôi 180",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 180,
+          "unit": "mg/dL",
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết sau ăn của tôi 180",
+          "value": 180.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 180.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.44,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 180.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "A2",
+      "group": "glucose",
+      "message": "Sáng nay lúc đói tôi đo đường huyết được 126",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 126,
+          "unit": "mg/dL",
+          "meal_context": "FASTING",
+          "has_time": false
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Sáng nay lúc đói tôi đo đường huyết được 126",
+          "value": 126.0,
+          "meal_context": "FASTING"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 126.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 10.5,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 4,
+        "fields_checked": 4
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 126.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 4,
+        "fields_checked": 4
+      }
+    },
+    {
+      "id": "A3",
+      "group": "glucose",
+      "message": "Tôi vừa đo đường huyết, kết quả 145 mg/dL",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 145,
+          "unit": "mg/dL",
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Tôi vừa đo đường huyết, kết quả 145 mg/dL",
+          "value": 145.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 145.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:23:21.570244+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.08,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "A4",
+      "group": "glucose",
+      "message": "Đường huyết trước khi đi ngủ của tôi là 132",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 132,
+          "meal_context": "BEFORE_SLEEP"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết trước khi đi ngủ của tôi là 132",
+          "value": 132.0,
+          "meal_context": "BEFORE_SLEEP"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 132.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "BEFORE_SLEEP",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 13.12,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "A5",
+      "group": "glucose",
+      "message": "Đường máu của tôi hiện tại là 98",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 98,
+          "unit": "mg/dL",
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường máu của tôi hiện tại là 98",
+          "value": 98.0,
+          "unit": "mg/dL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 98.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:23:55.268806+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 20.58,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 98.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:23:55.269319+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "A6",
+      "group": "glucose",
+      "message": "Mình đo đường huyết trước bữa trưa được 110",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 110,
+          "meal_context": "BEFORE_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Mình đo đường huyết trước bữa trưa được 110",
+          "value": 110.0,
+          "meal_context": "BEFORE_MEAL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 110.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "BEFORE_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 28.94,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "A7",
+      "group": "glucose",
+      "message": "kết quả đo đường huyết hôm nay của tôi là 7.8 mmol/L",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 7.8,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "kết quả đo đường huyết hôm nay của tôi là 7.8 mmol/L",
+          "value": 7.8,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 7.8,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 52.92,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 7.8,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "A8",
+      "group": "glucose",
+      "message": "Đường huyết 2 tiếng sau ăn tối của em là 210",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 210,
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết 2 tiếng sau ăn tối của em là 210",
+          "value": 210.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 210.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.91,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B1",
+      "group": "unaccented",
+      "message": "dg sau an 180",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 180,
+          "unit": "mg/dL",
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "dg sau an 180",
+          "value": 180.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 180.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 8.08,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B2",
+      "group": "unaccented",
+      "message": "duong huyet luc doi sang nay 6.5",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 6.5,
+          "unit": "mmol/L",
+          "meal_context": "FASTING"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "duong huyet luc doi sang nay 6.5",
+          "value": 6.5
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 6.5,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 5.48,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B3",
+      "group": "unaccented",
+      "message": "dh vừa đo 156",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 156,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "dh vừa đo 156",
+          "value": 156.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 156.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:25:41.959187+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.36,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B4",
+      "group": "unaccented",
+      "message": "dg truoc an trua 118",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 118,
+          "meal_context": "BEFORE_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "dg truoc an trua 118",
+          "value": 118.0,
+          "meal_context": "BEFORE_MEAL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 118.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "BEFORE_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.58,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B5",
+      "group": "unaccented",
+      "message": "em do dg dc 140 sau an",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 140,
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "em do dg dc 140 sau an",
+          "value": 140.0,
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 140.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 5.51,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B6",
+      "group": "unaccented",
+      "message": "ha cua toi 135/85",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 135,
+          "diastolic": 85
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "ha cua toi 135/85",
+          "systolic": 135.0,
+          "diastolic": 85.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 135.0,
+          "diastolic": 85.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 7.49,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B7",
+      "group": "unaccented",
+      "message": "huyet ap cua toi 128/82",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 128,
+          "diastolic": 82
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "huyet ap cua toi 128/82",
+          "systolic": 128.0,
+          "diastolic": 82.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 128.0,
+          "diastolic": 82.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.84,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "B8",
+      "group": "unaccented",
+      "message": "duong mau cua toi 8 phay 1",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 8.1,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "duong mau cua toi 8 phay 1",
+          "value": 8.1,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 8.1,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 11.41,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "C1",
+      "group": "units",
+      "message": "Đường huyết của tôi 7 phẩy 2",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 7.2,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết của tôi 7 phẩy 2",
+          "value": 7.2
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 7.2,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 2.83,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 7.0,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "C2",
+      "group": "units",
+      "message": "Tôi đo đường huyết được 30",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 30,
+          "unit": null
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Tôi đo đường huyết được 30",
+          "value": 30.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 30.0,
+          "unit": null,
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.61,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 30.0,
+          "unit": null,
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "C3",
+      "group": "units",
+      "message": "đường huyết lúc đói của tôi 5,9 mmol",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 5.9,
+          "unit": "mmol/L",
+          "meal_context": "FASTING"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "đường huyết lúc đói của tôi 5,9 mmol",
+          "value": 5.9,
+          "unit": "mmol/L",
+          "meal_context": "FASTING"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 5.9,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 7.64,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 5.9,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "C4",
+      "group": "units",
+      "message": "chỉ số đường của tôi 250 mg/dl sau ăn",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 250,
+          "unit": "mg/dL",
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "chỉ số đường của tôi 250 mg/dl sau ăn",
+          "value": 250.0,
+          "unit": "mg/dL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 250.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 10.39,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "C5",
+      "group": "units",
+      "message": "đường huyết tôi đo được 11",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 11,
+          "unit": "mmol/L"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "đường huyết tôi đo được 11",
+          "value": 11.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 11.0,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 14.03,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "D1",
+      "group": "time",
+      "message": "Hôm qua lúc 9 giờ tối tôi đo đường huyết được 160",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 160,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Hôm qua lúc 9 giờ tối tôi đo đường huyết được 160",
+          "time": "2026-10-26T21:00:00+07:00",
+          "value": 160.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 160.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-26T14:00:00+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.31,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 160.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-26T02:00:00+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "D2",
+      "group": "time",
+      "message": "Đường huyết của tôi 30 phút trước là 150",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 150,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết của tôi 30 phút trước là 150",
+          "time": "2026-10-27T22:56:00+07:00",
+          "value": 150.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 150.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T15:56:00+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 11.02,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 150.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T15:57:10.619761+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "D3",
+      "group": "time",
+      "message": "Sáng nay tôi đo đường huyết 135",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 135,
+          "has_time": false
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Sáng nay tôi đo đường huyết 135",
+          "time": "",
+          "value": 135.0,
+          "unit": "mg/dL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 135.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 15.42,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 135.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "D4",
+      "group": "time",
+      "message": "Tối qua 21h30 đường huyết của tôi 142",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 142,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Tối qua 21h30 đường huyết của tôi 142",
+          "time": "2026-10-26T21:30:00+07:00",
+          "value": 142.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 142.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-26T14:30:00+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 14.56,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 142.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T14:30:00+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "D5",
+      "group": "time",
+      "message": "hôm qua 7h sáng lúc đói đường huyết của tôi 120",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 120,
+          "meal_context": "FASTING",
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [],
+      "agent_error": null,
+      "agent_latency_s": 22.06,
+      "agent": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 120.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-26T00:00:00+00:00",
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "D6",
+      "group": "time",
+      "message": "Lúc nãy tôi đo đường huyết được 170",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 170,
+          "has_time": false
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Lúc nãy tôi đo đường huyết được 170",
+          "value": 170.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 170.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 9.0,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 170.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "D7",
+      "group": "time",
+      "message": "Đường huyết của tôi bây giờ là 112",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 112,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Đường huyết của tôi bây giờ là 112",
+          "value": 112.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 112.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:28:16.969563+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 5.31,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 112.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:28:16.970571+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "E1",
+      "group": "blood_pressure",
+      "message": "Huyết áp của tôi sáng nay 130/85",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 130,
+          "diastolic": 85
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "Huyết áp của tôi sáng nay 130/85",
+          "systolic": 130.0,
+          "diastolic": 85.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 130.0,
+          "diastolic": 85.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.12,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "E2",
+      "group": "blood_pressure",
+      "message": "huyết áp của tôi 140 trên 90",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 140,
+          "diastolic": 90
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "huyết áp của tôi 140 trên 90",
+          "systolic": 140.0,
+          "diastolic": 90.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 140.0,
+          "diastolic": 90.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 2.19,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "E3",
+      "group": "blood_pressure",
+      "message": "Tôi vừa đo huyết áp được 118/76",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 118,
+          "diastolic": 76,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "Tôi vừa đo huyết áp được 118/76",
+          "systolic": 118.0,
+          "diastolic": 76.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 118.0,
+          "diastolic": 76.0,
+          "unit": "mmHg",
+          "measured_at": "2026-10-27T16:28:37.560508+00:00",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 12.26,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 118.0,
+          "diastolic": 76.0,
+          "unit": "mmHg",
+          "measured_at": "2026-10-27T16:28:37.561510+00:00",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "E4",
+      "group": "blood_pressure",
+      "message": "Huyết áp hôm qua lúc 8h tối của tôi 150/95",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 150,
+          "diastolic": 95,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "Huyết áp hôm qua lúc 8h tối của tôi 150/95",
+          "time": "2026-10-26T20:00:00+07:00",
+          "systolic": 150.0,
+          "diastolic": 95.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 150.0,
+          "diastolic": 95.0,
+          "unit": "mmHg",
+          "measured_at": "2026-10-26T13:00:00+00:00",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 10.45,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "E5",
+      "group": "blood_pressure",
+      "message": "Huyết áp của tôi tâm thu 125 tâm trương 80",
+      "expected": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 125,
+          "diastolic": 80
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "blood_pressure",
+          "evidence": "Huyết áp của tôi tâm thu 125 tâm trương 80",
+          "systolic": 125.0,
+          "diastolic": 80.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "blood_pressure",
+          "systolic": 125.0,
+          "diastolic": 80.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records",
+        "get_health_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.52,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "F1",
+      "group": "meal",
+      "message": "Trưa nay tôi ăn 2 bát phở bò",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "phở bò",
+          "meal_type": "lunch"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Trưa nay tôi ăn 2 bát phở bò",
+          "meal_type": "lunch",
+          "description": "2 bát phở bò"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "lunch",
+          "meal_time": null,
+          "description": "2 bát phở bò",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 5.11,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "lunch",
+          "meal_time": null,
+          "description": "2 bát phở bò",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "F2",
+      "group": "meal",
+      "message": "Bữa sáng tôi ăn một ổ bánh mì trứng và ly cà phê sữa",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "bánh mì",
+          "meal_type": "breakfast"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Bữa sáng tôi ăn một ổ bánh mì trứng và ly cà phê sữa",
+          "description": "một ổ bánh mì trứng và ly cà phê sữa"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "breakfast",
+          "meal_time": null,
+          "description": "một ổ bánh mì trứng và ly cà phê sữa",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 7.67,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "breakfast",
+          "meal_time": null,
+          "description": "một ổ bánh mì trứng và ly cà phê sữa",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "F3",
+      "group": "meal",
+      "message": "Tối qua tôi ăn cơm với cá kho và rau muống luộc",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "cá kho",
+          "meal_type": "dinner"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Tối qua tôi ăn cơm với cá kho và rau muống luộc",
+          "description": "cơm với cá kho và rau muống luộc"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "dinner",
+          "meal_time": null,
+          "description": "cơm với cá kho và rau muống luộc",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 7.88,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": null,
+          "meal_time": null,
+          "description": "cơm với cá kho và rau muống luộc",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "F4",
+      "group": "meal",
+      "message": "toi vua an 1 dia com tam",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "com tam",
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "toi vua an 1 dia com tam",
+          "description": "1 dia com tam"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": null,
+          "meal_time": "2026-10-27T16:29:20.368945+00:00",
+          "description": "1 dia com tam",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 8.19,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "F5",
+      "group": "meal",
+      "message": "Tôi vừa ăn nhẹ một quả chuối",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "chuối"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Tôi vừa ăn nhẹ một quả chuối",
+          "description": "một quả chuối"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "snack",
+          "meal_time": "2026-10-27T16:29:24.282305+00:00",
+          "description": "một quả chuối",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.92,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "snack",
+          "meal_time": "2026-10-27T16:29:24.283375+00:00",
+          "description": "nhẹ một quả chuối",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "F6",
+      "group": "meal",
+      "message": "Hôm nay tôi ăn bún chả",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "bún chả"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Hôm nay tôi ăn bún chả",
+          "description": "bún chả"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": null,
+          "meal_time": null,
+          "description": "bún chả",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 2.73,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": null,
+          "meal_time": null,
+          "description": "bún chả",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "G1",
+      "group": "activity",
+      "message": "Tôi vừa đi bộ 30 phút",
+      "expected": [
+        {
+          "record_type": "activity",
+          "duration_minutes": 30,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "activity",
+          "evidence": "Tôi vừa đi bộ 30 phút",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30,
+          "activity_time": "2026-10-27T16:29:30.549896+00:00",
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.53,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30,
+          "activity_time": "2026-10-27T16:29:30.549896+00:00",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "G2",
+      "group": "activity",
+      "message": "Chiều nay tôi đạp xe 45 phút",
+      "expected": [
+        {
+          "record_type": "activity",
+          "duration_minutes": 45
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "activity",
+          "evidence": "Chiều nay tôi đạp xe 45 phút",
+          "activity_type": "đạp xe",
+          "duration_minutes": 45
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đạp xe",
+          "duration_minutes": 45,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 9.41,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đạp xe",
+          "duration_minutes": 45,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "G3",
+      "group": "activity",
+      "message": "sang nay toi di bo 1 tieng",
+      "expected": [
+        {
+          "record_type": "activity",
+          "duration_minutes": 60
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "activity",
+          "evidence": "sang nay toi di bo 1 tieng",
+          "activity_type": "đi bộ",
+          "duration_minutes": 60
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đi bộ",
+          "duration_minutes": 60,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.66,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "G4",
+      "group": "activity",
+      "message": "Tối qua tôi tập yoga 20 phút",
+      "expected": [
+        {
+          "record_type": "activity",
+          "duration_minutes": 20
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "activity",
+          "evidence": "Tối qua tôi tập yoga 20 phút",
+          "activity_type": "yoga",
+          "duration_minutes": 20
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "yoga",
+          "duration_minutes": 20,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.94,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "tập yoga",
+          "duration_minutes": 20,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "H1",
+      "group": "medication",
+      "message": "Sáng nay tôi quên uống metformin",
+      "expected": [
+        {
+          "record_type": "medication_note",
+          "medication_contains": "metformin"
+        }
+      ],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "mark_medication_taken"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 9.19,
+      "agent": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [
+        {
+          "record_type": "medication_note",
+          "medication_name": "metformin",
+          "medication_id": null,
+          "note_type": "missed_dose",
+          "text": "Sáng nay tôi quên uống metformin",
+          "occurred_at": "2026-10-27T16:29:57.741601+00:00"
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "H2",
+      "group": "medication",
+      "message": "toi quen uong thuoc metformin toi qua",
+      "expected": [
+        {
+          "record_type": "medication_note",
+          "medication_contains": "metformin"
+        }
+      ],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [],
+      "agent_error": null,
+      "agent_latency_s": 28.56,
+      "agent": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "H3",
+      "group": "medication",
+      "message": "Hôm qua tôi bỏ liều metformin buổi tối",
+      "expected": [
+        {
+          "record_type": "medication_note",
+          "medication_contains": "metformin"
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "medication_note",
+          "evidence": "Hôm qua tôi bỏ liều metformin buổi tối",
+          "medication_name": "metformin",
+          "note_type": "missed_dose"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "medication_note",
+          "medication_name": "metformin",
+          "medication_id": "4a9890df-6f50-4691-a002-090eb951104c",
+          "note_type": "missed_dose",
+          "text": "hôm qua tôi bỏ liều metformin buổi tối",
+          "occurred_at": "2026-10-27T16:30:31.272021+00:00"
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.97,
+      "agent": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "I1",
+      "group": "compound",
+      "message": "Sáng nay đường huyết lúc đói của tôi 128, huyết áp 125/80",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 128,
+          "meal_context": "FASTING"
+        },
+        {
+          "record_type": "blood_pressure",
+          "systolic": 125,
+          "diastolic": 80
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "Sáng nay đường huyết lúc đói của tôi 128",
+          "value": 128.0,
+          "meal_context": "FASTING"
+        },
+        {
+          "record_type": "blood_pressure",
+          "evidence": "huyết áp 125/80",
+          "systolic": 125.0,
+          "diastolic": 80.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 128.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        },
+        {
+          "record_type": "blood_pressure",
+          "systolic": 125.0,
+          "diastolic": 80.0,
+          "unit": "mmHg",
+          "measured_at": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records",
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.09,
+      "agent": {
+        "exact": true,
+        "matched": 2,
+        "extra": 0,
+        "fields_right": 4,
+        "fields_checked": 4
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 128.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "I2",
+      "group": "compound",
+      "message": "Trưa nay tôi ăn cơm gà, 2 tiếng sau đo đường huyết 190",
+      "expected": [
+        {
+          "record_type": "meal",
+          "description_contains": "cơm gà"
+        },
+        {
+          "record_type": "glucose",
+          "value": 190
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Trưa nay tôi ăn cơm gà",
+          "time": "",
+          "meal_type": "lunch",
+          "description": "cơm gà"
+        },
+        {
+          "record_type": "glucose",
+          "evidence": "2 tiếng sau đo đường huyết 190",
+          "time": "",
+          "value": 190.0,
+          "unit": "mg/dL"
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "lunch",
+          "meal_time": null,
+          "description": "cơm gà",
+          "note": null
+        },
+        {
+          "record_type": "glucose",
+          "value": 190.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records",
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.41,
+      "agent": {
+        "exact": true,
+        "matched": 2,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      },
+      "parser_drafts": [
+        {
+          "record_type": "meal",
+          "meal_type": "lunch",
+          "meal_time": null,
+          "description": "cơm gà, 2 tiếng sau đo đường huyết 190",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 1,
+        "fields_checked": 1
+      }
+    },
+    {
+      "id": "I3",
+      "group": "compound",
+      "message": "dg luc doi cua toi 6.8, di bo 30 phut",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 6.8,
+          "unit": "mmol/L",
+          "meal_context": "FASTING"
+        },
+        {
+          "record_type": "activity",
+          "duration_minutes": 30
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "glucose",
+          "evidence": "dg luc doi cua toi 6.8",
+          "value": 6.8
+        },
+        {
+          "record_type": "activity",
+          "evidence": "di bo 30 phut",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 6.8,
+          "unit": "mmol/L",
+          "measured_at": null,
+          "meal_context": "FASTING",
+          "note": null,
+          "symptoms": null
+        },
+        {
+          "record_type": "activity",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30,
+          "activity_time": null,
+          "note": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records",
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 11.95,
+      "agent": {
+        "exact": true,
+        "matched": 2,
+        "extra": 0,
+        "fields_right": 4,
+        "fields_checked": 4
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "I4",
+      "group": "compound",
+      "message": "Tôi quên uống metformin và đường huyết của tôi bây giờ là 210",
+      "expected": [
+        {
+          "record_type": "medication_note",
+          "medication_contains": "metformin"
+        },
+        {
+          "record_type": "glucose",
+          "value": 210,
+          "has_time": true
+        }
+      ],
+      "agent_proposals": [
+        {
+          "record_type": "medication_note",
+          "evidence": "quên uống metformin",
+          "medication_name": "metformin",
+          "note_type": "missed_dose"
+        },
+        {
+          "record_type": "glucose",
+          "evidence": "đường huyết của tôi bây giờ là 210",
+          "value": 210.0
+        }
+      ],
+      "agent_drafts": [
+        {
+          "record_type": "medication_note",
+          "medication_name": "metformin",
+          "medication_id": "4a9890df-6f50-4691-a002-090eb951104c",
+          "note_type": "missed_dose",
+          "text": "quên uống metformin",
+          "occurred_at": "2026-10-27T16:30:56.090889+00:00"
+        },
+        {
+          "record_type": "glucose",
+          "value": 210.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:30:56.091904+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "agent_tool_calls": [
+        "draft_records",
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.36,
+      "agent": {
+        "exact": true,
+        "matched": 2,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      },
+      "parser_drafts": [
+        {
+          "record_type": "medication_note",
+          "medication_name": "metformin và",
+          "medication_id": null,
+          "note_type": "missed_dose",
+          "text": "Tôi quên uống metformin và",
+          "occurred_at": "2026-10-27T16:30:56.091904+00:00"
+        },
+        {
+          "record_type": "glucose",
+          "value": 210.0,
+          "unit": "mg/dL",
+          "measured_at": "2026-10-27T16:30:56.091904+00:00",
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 2,
+        "extra": 0,
+        "fields_right": 3,
+        "fields_checked": 3
+      }
+    },
+    {
+      "id": "I5",
+      "group": "compound",
+      "message": "Đường huyết sau ăn của tôi 175 mà tôi thấy hơi mệt, có sao không?",
+      "expected": [
+        {
+          "record_type": "glucose",
+          "value": 175,
+          "meal_context": "AFTER_MEAL"
+        }
+      ],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "get_health_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 38.99,
+      "agent": {
+        "exact": false,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 175.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": "AFTER_MEAL",
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": true,
+        "matched": 1,
+        "extra": 0,
+        "fields_right": 2,
+        "fields_checked": 2
+      }
+    },
+    {
+      "id": "J1",
+      "group": "negative",
+      "message": "Đường huyết 180 có cao không?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "search_knowledge"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 9.5,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J2",
+      "group": "negative",
+      "message": "Nếu đường huyết của tôi 250 thì phải làm sao?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "search_knowledge"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 14.0,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J3",
+      "group": "negative",
+      "message": "Mẹ tôi đo đường huyết được 200",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "out_of_scope"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 11.73,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [
+        {
+          "record_type": "glucose",
+          "value": 200.0,
+          "unit": "mg/dL",
+          "measured_at": null,
+          "meal_context": null,
+          "note": null,
+          "symptoms": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 1,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J4",
+      "group": "negative",
+      "message": "Tối nay tôi định ăn phở",
+      "expected": [],
+      "agent_proposals": [
+        {
+          "record_type": "meal",
+          "evidence": "Tối nay tôi định ăn phở",
+          "meal_type": "dinner",
+          "description": "phở"
+        }
+      ],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.67,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J5",
+      "group": "negative",
+      "message": "Đường huyết lúc đói bao nhiêu là bình thường?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "search_knowledge"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 30.22,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J6",
+      "group": "negative",
+      "message": "Ăn chuối có làm tăng đường huyết không?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "search_knowledge"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 5.88,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J7",
+      "group": "negative",
+      "message": "Tuần này đường huyết trung bình của tôi bao nhiêu?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "get_weekly_report"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.51,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J8",
+      "group": "negative",
+      "message": "Giả sử huyết áp 140/90 thì có nguy hiểm không",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "search_knowledge"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 6.06,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J9",
+      "group": "negative",
+      "message": "Chồng tôi vừa đi bộ 30 phút",
+      "expected": [],
+      "agent_proposals": [
+        {
+          "record_type": "activity",
+          "evidence": "Chồng tôi vừa đi bộ 30 phút",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30
+        }
+      ],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "draft_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.98,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [
+        {
+          "record_type": "activity",
+          "activity_type": "đi bộ",
+          "duration_minutes": 30,
+          "activity_time": "2026-10-27T16:33:10.628681+00:00",
+          "note": null
+        }
+      ],
+      "parser": {
+        "exact": false,
+        "matched": 0,
+        "extra": 1,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J10",
+      "group": "negative",
+      "message": "Tôi nên ăn gì vào bữa sáng?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "answer_directly"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 4.81,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J11",
+      "group": "negative",
+      "message": "Bác sĩ dặn đường huyết sau ăn phải dưới 180",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "reply_social"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 3.09,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    },
+    {
+      "id": "J12",
+      "group": "negative",
+      "message": "Hôm qua đường huyết của tôi bao nhiêu?",
+      "expected": [],
+      "agent_proposals": [],
+      "agent_drafts": [],
+      "agent_tool_calls": [
+        "get_health_records"
+      ],
+      "agent_error": null,
+      "agent_latency_s": 13.09,
+      "agent": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      },
+      "parser_drafts": [],
+      "parser": {
+        "exact": true,
+        "matched": 0,
+        "extra": 0,
+        "fields_right": 0,
+        "fields_checked": 0
+      }
+    }
+  ]
+}
