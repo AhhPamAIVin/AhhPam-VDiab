@@ -4,7 +4,7 @@ from uuid import UUID
 from fastapi import HTTPException, status
 from sqlmodel import Session, col, select
 
-from codebase.backend.appointments.models import Appointment, AppointmentStatus
+from codebase.backend.appointments.models import Appointment, AppointmentStatus, PrevisitBrief
 
 
 def _day_bounds(on_date: date) -> tuple[datetime, datetime]:
@@ -92,5 +92,12 @@ def update_appointment(
 
 
 def delete_appointment(session: Session, appointment: Appointment) -> None:
+    brief = session.exec(select(PrevisitBrief).where(PrevisitBrief.appointment_id == appointment.id)).first()
+    if brief is not None:
+        # FK to the appointment. Flushed on its own: with no relationship()
+        # between the two models the unit of work does not order the deletes,
+        # and Postgres rejected the appointment's going first (verified live).
+        session.delete(brief)
+        session.flush()
     session.delete(appointment)
     session.commit()

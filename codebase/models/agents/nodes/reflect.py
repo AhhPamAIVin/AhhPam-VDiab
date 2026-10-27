@@ -334,5 +334,6 @@ async def reflect(
                 # see that script's _already_backfilled().
                 now=period_end,
             )
-            results.append(insight)
+            if insight is not None:  # None: matched a doctor-rejected insight (Epic 4.4)
+                results.append(insight)
         return results

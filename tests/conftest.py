@@ -12,6 +12,10 @@ os.environ["QDRANT_LOCATION"] = ":memory:"
 # Every test logs in again; per-IP login limits would trip across tests.
 # tests/test_backend/test_rate_limit.py turns them back on for itself.
 os.environ["RATE_LIMIT_ENABLED"] = "false"
+# The chat tests pin plan_response's contract with a mocked planner LLM; the
+# patient agent (Epic 8, on by default) would otherwise make a real LLM call.
+# tests/test_backend/test_patient_agent.py turns it on for itself.
+os.environ["PATIENT_AGENT_ENABLED"] = "false"
 
 import pytest
 import pytest_asyncio
@@ -80,3 +84,16 @@ def _no_background_summary_refresh(monkeypatch):
 
     monkeypatch.setattr("codebase.backend.health.router.refresh_patient_summaries", _noop)
     monkeypatch.setattr("codebase.backend.agent.router.refresh_patient_summaries", _noop)
+
+
+@pytest.fixture(autouse=True)
+def _no_background_meal_analysis(monkeypatch):
+    """Same reason as above for the meal analysis BackgroundTask (Epic 1.3):
+    analyze_meal_in_background opens Session(engine) on the real database.
+    Tests run the analysis through health.meal_analysis.analyze_meal on the
+    test session instead."""
+
+    async def _noop(meal_id) -> None:
+        return None
+
+    monkeypatch.setattr("codebase.backend.health.meal_analysis.analyze_meal_in_background", _noop)

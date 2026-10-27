@@ -8,17 +8,19 @@ from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.config import get_settings
 from codebase.backend.db import get_session
-from codebase.backend.health import meal_photo, service
+from codebase.backend.health import meal_analysis, meal_photo, service
 from codebase.backend.health.content_safety import (
     find_unsafe_substance_term,
     is_unsafe_activity_type,
     is_unsafe_meal_description,
 )
+from codebase.backend.health.meal_response import meal_glucose_response
 from codebase.backend.health.models import (
     ActivityRecord,
     BloodPressureRecord,
     DoctorWatchReview,
     GlucoseRecord,
+    MealAnalysis,
     MealRecord,
 )
 from codebase.backend.health.schemas import (
@@ -30,6 +32,9 @@ from codebase.backend.health.schemas import (
     DoctorWatchReviewPublic,
     GlucoseRecordCreate,
     GlucoseRecordPublic,
+    MealAnalysisEdit,
+    MealAnalysisPublic,
+    MealGlucoseResponsePublic,
     MealPhotoAnalysisPublic,
     MealPhotoItemPublic,
     MealRecordCreate,
@@ -229,6 +234,8 @@ async def create_meal(
         created_by=current_user.id,
     )
     background_tasks.add_task(refresh_patient_summaries, patient_id=request.patient_id)
+    # Attribute lookup at call time, so tests can stub it (tests/conftest.py).
+    background_tasks.add_task(meal_analysis.analyze_meal_in_background, meal_id=record.id)
     return record
 
 
@@ -289,11 +296,103 @@ def list_meals(
     end_date: datetime | None = Query(default=None, description="Inclusive upper bound on meal_time"),
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
-) -> list[MealRecord]:
+) -> list[MealRecordPublic]:
     _validate_date_range(start_date, end_date)
     target_patient_id = _resolve_patient_id(current_user, patient_id)
     ensure_patient_access(session, current_user, target_patient_id)
-    return service.list_meal_records(session, target_patient_id, start_date=start_date, end_date=end_date)
+    meals = service.list_meal_records(session, target_patient_id, start_date=start_date, end_date=end_date)
+    analyses = meal_analysis.analyses_by_meal(session, [meal.id for meal in meals])
+    return [_meal_public(meal, analyses.get(meal.id)) for meal in meals]
+
+
+def _meal_public(meal: MealRecord, analysis: MealAnalysis | None) -> MealRecordPublic:
+    public = MealRecordPublic.model_validate(meal)
+    public.analysis = MealAnalysisPublic.from_row(analysis) if analysis is not None else None
+    return public
+
+
+@router.get("/meals/glucose-response", response_model=MealGlucoseResponsePublic)
+def get_meal_glucose_response(
+    patient_id: UUID | None = Query(default=None),
+    days: int = Query(default=30, ge=7, le=90),
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> dict:
+    """Which foods / carb bands tend to go with high post-meal glucose for
+    this patient (Epic 1.4). Association only; groups under min_n meals are
+    left out."""
+    target_patient_id = _resolve_patient_id(current_user, patient_id)
+    ensure_patient_access(session, current_user, target_patient_id)
+    return meal_glucose_response(session, target_patient_id, days=days)
+
+
+def _get_meal_for(session: Session, current_user: User, meal_id: UUID) -> MealRecord:
+    meal = session.get(MealRecord, meal_id)
+    if meal is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Meal record not found")
+    ensure_patient_access(session, current_user, meal.patient_id)
+    return meal
+
+
+def _get_analysis_for(session: Session, meal: MealRecord) -> MealAnalysis:
+    analysis = meal_analysis.get_meal_analysis(session, meal.id)
+    if analysis is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Bữa ăn này chưa có phân tích.")
+    return analysis
+
+
+@router.get("/meals/{meal_id}/analysis", response_model=MealAnalysisPublic)
+def get_meal_analysis(
+    meal_id: UUID,
+    current_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+) -> MealAnalysisPublic:
+    meal = _get_meal_for(session, current_user, meal_id)
+    return MealAnalysisPublic.from_row(_get_analysis_for(session, meal))
+
+
+@router.post(
+    "/meals/{meal_id}/analysis/rerun",
+    response_model=MealAnalysisPublic,
+    dependencies=[Depends(limit_agent)],
+)
+async def rerun_meal_analysis(
+    meal_id: UUID,
+    current_user: User = Depends(_can_write),
+    session: Session = Depends(get_session),
+) -> MealAnalysisPublic:
+    """Analyse again from the meal text (back to draft). May call the LLM,
+    hence the /agent/* rate limit."""
+    meal = _get_meal_for(session, current_user, meal_id)
+    return MealAnalysisPublic.from_row(await meal_analysis.analyze_meal(session, meal))
+
+
+@router.patch("/meals/{meal_id}/analysis", response_model=MealAnalysisPublic)
+async def edit_meal_analysis(
+    meal_id: UUID,
+    request: MealAnalysisEdit,
+    current_user: User = Depends(_can_write),
+    session: Session = Depends(get_session),
+) -> MealAnalysisPublic:
+    """Replace the item list with the patient's own and recompute from the
+    nutrition table — no LLM involved. Stored as status=edited."""
+    meal = _get_meal_for(session, current_user, meal_id)
+    for item in request.items:
+        if find_unsafe_substance_term(item.name) is not None:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tên món không hợp lệ.")
+    edited = [item.model_dump() for item in request.items]
+    return MealAnalysisPublic.from_row(await meal_analysis.analyze_meal(session, meal, edited_items=edited))
+
+
+@router.post("/meals/{meal_id}/analysis/confirm", response_model=MealAnalysisPublic)
+def confirm_meal_analysis(
+    meal_id: UUID,
+    current_user: User = Depends(_can_write),
+    session: Session = Depends(get_session),
+) -> MealAnalysisPublic:
+    meal = _get_meal_for(session, current_user, meal_id)
+    analysis = meal_analysis.confirm_meal_analysis(session, _get_analysis_for(session, meal))
+    return MealAnalysisPublic.from_row(analysis)
 
 
 async def _validate_activity_type(activity_type: str) -> None:

@@ -1,7 +1,8 @@
 from uuid import UUID
 
-from sqlmodel import SQLModel
+from sqlmodel import Field, SQLModel
 
+from codebase.backend.insights.models import InsightVerdict
 from codebase.backend.time_utils import UtcDatetime
 
 
@@ -26,3 +27,13 @@ class PatientInsightPublic(SQLModel):
     reviewed: bool
     first_observed_at: UtcDatetime
     last_confirmed_at: UtcDatetime
+    # Latest doctor verdict (Epic 4.4); never set on what a patient receives.
+    verdict: InsightVerdict | None = None
+    verdict_comment: str | None = None
+    verdict_version: int | None = None
+    verdict_at: UtcDatetime | None = None
+
+
+class InsightFeedbackRequest(SQLModel):
+    verdict: InsightVerdict
+    comment: str | None = Field(default=None, max_length=1000)

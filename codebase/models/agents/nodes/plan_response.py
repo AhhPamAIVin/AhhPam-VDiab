@@ -280,7 +280,60 @@ def _fast_path_plan(message: str) -> dict | None:
     return None
 
 
+# Reviewed results, shared with nodes/agent_plan.py's terminal tools so the
+# agent ends a turn with exactly the replies this planner would.
+
+
+def social_plan(kind: str | None) -> dict:
+    return _canned_result("SOCIAL", _SOCIAL_RESPONSES.get(kind or "", _GREETING_CANNED_RESPONSE))
+
+
+def appointment_plan() -> dict:
+    return _canned_result("APPOINTMENT_SUPPORT", _APPOINTMENT_SUPPORT_RESPONSE)
+
+
+def out_of_scope_plan() -> dict:
+    return _canned_result("OUT_OF_SCOPE", _OUT_OF_SCOPE_CANNED_RESPONSE)
+
+
+def direct_answer_plan(answer: str) -> dict:
+    """An untrusted draft shipped as the reply — guardrail.py's
+    _has_unsupported_claim_with_no_grounding is its backstop."""
+    return {
+        "intent": "QA",
+        "needs_health_data": False,
+        "skip_knowledge_retrieval": True,
+        "knowledge_query": None,
+        "answered_directly": True,
+        "response": answer.strip(),
+        "sources": [],
+        "data_used": [],
+        "limitations": [],
+        "canned_response": None,
+        "handoff": False,
+    }
+
+
+def fallback_plan(message: str) -> dict:
+    return _fallback_plan(message)
+
+
+def fast_path_plan(message: str) -> dict | None:
+    return _fast_path_plan(message)
+
+
+def history_block(messages: list[AnyMessage]) -> str:
+    return _history_block(messages)
+
+
 async def plan_response(state: AgentState) -> dict:
+    # agent_gathered is reset every turn: a stale True from an earlier
+    # agent turn on this thread would turn fetch_data/retrieve_knowledge
+    # into no-ops for this one.
+    return {**await _plan(state), "agent_gathered": False, "agent_tool_calls": []}
+
+
+async def _plan(state: AgentState) -> dict:
     message = state.get("message", "") or ""
     fast_plan = _fast_path_plan(message)
     if fast_plan is not None:
@@ -312,14 +365,13 @@ async def plan_response(state: AgentState) -> dict:
     intent = plan["intent"]
 
     if intent == "SOCIAL":
-        response_text = _SOCIAL_RESPONSES.get(plan.get("social_subtype"), _GREETING_CANNED_RESPONSE)
-        return _canned_result("SOCIAL", response_text)
+        return social_plan(plan.get("social_subtype"))
 
     if intent == "APPOINTMENT_SUPPORT":
-        return _canned_result("APPOINTMENT_SUPPORT", _APPOINTMENT_SUPPORT_RESPONSE)
+        return appointment_plan()
 
     if intent == "OUT_OF_SCOPE":
-        return _canned_result("OUT_OF_SCOPE", _OUT_OF_SCOPE_CANNED_RESPONSE)
+        return out_of_scope_plan()
 
     # intent == "QA"
     needs_health_data = bool(plan.get("needs_health_data", True))
@@ -327,19 +379,7 @@ async def plan_response(state: AgentState) -> dict:
     direct_answer = plan.get("direct_answer")
 
     if not needs_health_data and not needs_knowledge and isinstance(direct_answer, str) and direct_answer.strip():
-        return {
-            "intent": "QA",
-            "needs_health_data": False,
-            "skip_knowledge_retrieval": True,
-            "knowledge_query": None,
-            "answered_directly": True,
-            "response": direct_answer.strip(),
-            "sources": [],
-            "data_used": [],
-            "limitations": [],
-            "canned_response": None,
-            "handoff": False,
-        }
+        return direct_answer_plan(direct_answer)
 
     knowledge_query = plan.get("knowledge_query")
     return {

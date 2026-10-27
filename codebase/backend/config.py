@@ -44,6 +44,49 @@ class Settings(BaseSettings):
     # stores it. false turns the feature off for everyone.
     meal_photo_analysis_enabled: bool = True
     meal_photo_max_bytes: int = Field(default=10 * 1024 * 1024, ge=1)
+    # Meal carb_load bands per meal (Epic 1.3): < low_max -> low,
+    # >= high_min -> high, between -> medium. Default after the ~45-60 g/meal
+    # range of ADA carb-counting education; pending the clinical team's
+    # sign-off — see codebase/models/agents/nodes/meal/analysis.py.
+    meal_carb_low_max_g: float = Field(default=30.0, gt=0)
+    meal_carb_high_min_g: float = Field(default=60.0, gt=0)
+    # Meal <-> post-meal glucose pairing (Epic 1.4, health/meal_response.py):
+    # an AFTER_MEAL reading 60-180 min after the meal, a BEFORE_MEAL/FASTING
+    # one up to 60 min before; a food/carb band is shown only from min_n meals.
+    meal_response_after_min_minutes: int = Field(default=60, ge=0)
+    meal_response_after_max_minutes: int = Field(default=180, ge=1)
+    meal_response_before_max_minutes: int = Field(default=60, ge=0)
+    meal_response_min_n: int = Field(default=3, ge=1)
+
+    # Patient agent (Epic 8): patient chat runs nodes/agent_plan.py (tool
+    # calling, up to patient_agent_max_rounds rounds) instead of the fixed
+    # plan_response planner. Doctors and summaries keep the planner.
+    patient_agent_enabled: bool = True
+    patient_agent_max_rounds: int = Field(default=3, ge=1, le=6)
+    # false: stop after the first round whose tool calls all succeeded (one
+    # LLM call per turn, like the planner); a further round only retries a
+    # failed call. true: always let the model look at the observations and
+    # decide on more tools — multi-step, but one more LLM call per turn.
+    patient_agent_reflect: bool = False
+
+    # Weekly patient report (Epic 2): generated for the Sunday-Saturday week
+    # just ended, at this local time (reminder_timezone).
+    weekly_reports_enabled: bool = True
+    weekly_report_day_of_week: Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"] = "sun"
+    weekly_report_hour: int = Field(default=8, ge=0, le=23)
+    # Public URL of the patient app, for links in messages sent outside it
+    # (Zalo). Empty: messages say where to look instead of linking.
+    frontend_public_url: str = ""
+
+    # Pre-visit brief (Epic 4): an hourly job prepares the doctor's summary
+    # for every scheduled appointment in the next lead_hours. It covers the
+    # time since the last visit (default_days when there is none, 7-90 days)
+    # and is regenerated when the appointment moves, or when new data has
+    # come in and the brief is at least refresh_hours old.
+    previsit_briefs_enabled: bool = True
+    previsit_brief_lead_hours: int = Field(default=48, ge=1, le=168)
+    previsit_brief_refresh_hours: int = Field(default=6, ge=1, le=48)
+    previsit_brief_default_days: int = Field(default=30, ge=7, le=90)
 
     # Database
     db_host: str = "localhost"

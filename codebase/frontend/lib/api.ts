@@ -9,6 +9,7 @@ export interface ApiUser {
   must_change_password: boolean;
   ai_memory_consent: boolean;
   meal_photo_ai_consent: boolean;
+  weekly_report_enabled: boolean;
   created_at: string;
 }
 
@@ -103,6 +104,145 @@ export interface MealRecord {
   input_source: MealInputSource | null;
   created_by: string;
   created_at: string;
+  // Filled in by a background job after saving; null until it has run.
+  analysis: MealAnalysis | null;
+}
+
+export type CarbLoad = "low" | "medium" | "high" | "unknown";
+export type MealAnalysisStatus = "draft" | "confirmed" | "edited";
+
+export interface MealAnalysisItem {
+  name: string;
+  matched_food_id: string | null;
+  matched_name: string | null;
+  quantity: number | null;
+  unit: string | null;
+  grams: number | null;
+  carbs_g: number | null;
+  kcal: number | null;
+  gi_level: "low" | "medium" | "high" | null;
+  match_confidence: number | null;
+  portion_estimated: boolean;
+}
+
+// Estimate from the nutrition table. With has_unmatched the totals cover
+// only the matched items (a lower bound).
+export interface MealAnalysis {
+  id: string;
+  meal_id: string;
+  items: MealAnalysisItem[];
+  total_carbs_g: number | null;
+  total_kcal: number | null;
+  carb_load: CarbLoad;
+  has_unmatched: boolean;
+  source: MealInputSource;
+  status: MealAnalysisStatus;
+  model_version: string | null;
+  nutrition_db_version: string | null;
+  updated_at: string;
+}
+
+export interface MealGroupResponse {
+  n: number;
+  avg_post_mg_dl: number;
+  avg_delta_mg_dl: number | null;
+  n_with_delta: number;
+  pct_over_target: number;
+}
+
+// Association between meals and post-meal glucose, not cause. Groups with
+// fewer than min_n paired meals are left out by the server.
+export interface MealGlucoseResponse {
+  start: string;
+  end: string;
+  days: number;
+  meals_paired: number;
+  min_n: number;
+  post_prandial_target_mg_dl: number;
+  by_food: (MealGroupResponse & { food_id: string; name: string })[];
+  by_carb_load: (MealGroupResponse & { carb_load: CarbLoad })[];
+}
+
+export type MealItemEdit = { name: string; quantity: number | null; unit: string | null };
+
+export type AdherenceDayStatus = "taken" | "missed" | "unconfirmed" | "no_data";
+
+// GET /medications/adherence (backend medications/adherence.py). day_rate_pct
+// is the headline: share of days with medication taken among days with an
+// answer; "unconfirmed" = reminders left unanswered, not counted as forgotten.
+export interface MedicationAdherence {
+  start: string;
+  end: string;
+  days: number;
+  day_rate_pct: number | null;
+  days_taken: number;
+  days_missed: number;
+  days_unconfirmed: number;
+  days_no_data: number;
+  dose_rate_pct: number | null;
+  doses_considered: number;
+  medications: { medication_id: string; drug_name: string; as_needed: boolean; missed_notes: number }[];
+  missed_dates: string[];
+  daily: { date: string; status: AdherenceDayStatus; completed: number; skipped: number; expired: number; missed_notes: number }[];
+  glucose_by_adherence: { taken_days: number; taken_avg_mg_dl: number; missed_days: number; missed_avg_mg_dl: number } | null;
+}
+
+export interface ReminderSuggestion {
+  id: string;
+  preference_id: string;
+  label: string;
+  previous_time: string; // HH:MM:SS
+  suggested_time: string;
+  late_count: number;
+  sample_count: number;
+  status: "pending" | "accepted" | "declined";
+}
+
+type StatSummary = { count: number; avg: number | null; min: number | null; max: number | null };
+
+// Deterministic figures computed by the backend (reports/stats.py).
+export interface WeeklyReportStats {
+  glucose: StatSummary & {
+    low_count: number;
+    evaluated_count: number;
+    in_target_pct: number | null;
+    by_context: Record<string, StatSummary>;
+  };
+  previous_week: { count: number; avg: number | null; in_target_pct: number | null };
+  change: { avg_delta: number | null; in_target_pct_delta: number | null };
+  blood_pressure: { count: number; systolic_avg: number | null; diastolic_avg: number | null };
+  meal_count: number;
+  activity_count: number;
+  activity_minutes: number;
+  days_logged: number;
+  meals: {
+    lookback_days: number;
+    meals_paired: number;
+    min_n: number;
+    top_foods: { name: string; n: number; avg_post_mg_dl: number; pct_over_target: number }[];
+  };
+  // Absent on reports generated before Epic 3.
+  medications?: Pick<
+    MedicationAdherence,
+    "day_rate_pct" | "days_taken" | "days_missed" | "days_unconfirmed" | "days_no_data" | "dose_rate_pct" | "medications" | "daily"
+  >;
+}
+
+export interface WeeklyReportListItem {
+  id: string;
+  week_start: string; // YYYY-MM-DD, local Sunday
+  week_end: string; // inclusive Saturday
+  status: "generated" | "delivered" | "failed";
+  tip: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface WeeklyReport extends WeeklyReportListItem {
+  summary: string;
+  stats: WeeklyReportStats | Record<string, never>;
+  sections_enabled: string[];
+  delivered_at: string | null;
 }
 
 export type MealInputSource = "text" | "photo" | "voice";
@@ -121,7 +261,8 @@ export type NotificationType =
   | "glucose_alert"
   | "blood_pressure_reminder"
   | "medication_reminder"
-  | "custom";
+  | "custom"
+  | "weekly_report";
 export type NotificationStatus =
   | "pending"
   | "completed"
@@ -199,6 +340,46 @@ export interface AppointmentInput {
   notes?: string | null;
 }
 
+// Epic 4 — codebase/backend/appointments/schemas.py. "stale": made before the
+// appointment was rescheduled; "failed": last attempt failed (retried hourly).
+export type BriefState = "ready" | "stale" | "failed" | "pending";
+
+// "changes" / "meals" / "medication_adherence" — each never empty for a
+// doctor summary (a "Chưa đủ dữ liệu" line instead).
+export type SummarySections = Partial<Record<"changes" | "meals" | "medication_adherence", string[]>>;
+
+export interface PrevisitBrief {
+  id: string;
+  appointment_id: string;
+  patient_id: string;
+  state: BriefState;
+  appointment_scheduled_at: string;
+  previous_visit_at: string | null;
+  period_start: string;
+  period_end: string;
+  period_days: number;
+  summary: string;
+  trends: string[];
+  attention_points: string[];
+  limitations: string[];
+  sections: SummarySections;
+  data_completeness: Record<string, unknown>;
+  generated_at: string;
+  seen_at: string | null;
+}
+
+export interface UpcomingAppointment {
+  id: string;
+  patient_id: string;
+  patient_name: string;
+  scheduled_at: string;
+  reason: string | null;
+  brief_state: BriefState;
+  brief_generated_at: string | null;
+  brief_unseen: boolean;
+  attention_count: number | null;
+}
+
 export interface ClinicalNote {
   id: string;
   patient_id: string;
@@ -237,7 +418,14 @@ export interface PatientInsight {
   reviewed: boolean;
   first_observed_at: string;
   last_confirmed_at: string;
+  // Latest doctor verdict (Epic 4.4); always null in a patient's own view.
+  verdict: InsightVerdict | null;
+  verdict_comment: string | null;
+  verdict_version: number | null;
+  verdict_at: string | null;
 }
+
+export type InsightVerdict = "confirmed" | "rejected";
 
 export interface MedicationRecord {
   id: string;
@@ -360,6 +548,7 @@ export interface AgentSummaryResponse {
   limitations: string[];
   suggested_doctor_questions: string[];
   relevant_insights: string[];
+  sections: SummarySections;
   disclaimer: string;
 }
 
@@ -651,6 +840,22 @@ export const api = {
       method: "POST",
       body: JSON.stringify(data),
     }),
+  mealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis`),
+  rerunMealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis/rerun`, { method: "POST" }),
+  editMealAnalysis: (mealId: string, items: MealItemEdit[]) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis`, {
+      method: "PATCH",
+      body: JSON.stringify({ items }),
+    }),
+  confirmMealAnalysis: (mealId: string) =>
+    apiRequest<MealAnalysis>(`/health/meals/${encodeURIComponent(mealId)}/analysis/confirm`, { method: "POST" }),
+  mealGlucoseResponse: (patientId?: string, days = 30) => {
+    const params = new URLSearchParams({ days: String(days) });
+    if (patientId) params.set("patient_id", patientId);
+    return apiRequest<MealGlucoseResponse>(`/health/meals/glucose-response?${params}`);
+  },
   analyzeMealPhoto: (file: File, hint?: string) => {
     const form = new FormData();
     form.append("file", file);
@@ -660,6 +865,13 @@ export const api = {
       body: form,
     });
   },
+  weeklyReports: () => apiRequest<WeeklyReportListItem[]>("/reports/weekly"),
+  weeklyReport: (reportId: string) =>
+    apiRequest<WeeklyReport>(`/reports/weekly/${encodeURIComponent(reportId)}`),
+  markWeeklyReportRead: (reportId: string) =>
+    apiRequest<WeeklyReport>(`/reports/weekly/${encodeURIComponent(reportId)}/read`, { method: "POST" }),
+  generateWeeklyReport: () =>
+    apiRequest<WeeklyReport>("/reports/weekly/generate", { method: "POST" }),
   notifications: (status?: NotificationStatus, onDate?: string) => {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
@@ -716,6 +928,23 @@ export const api = {
     apiRequest<ZaloLinkCode>("/notifications/zalo/link-code", {
       method: "POST",
     }),
+  reminderSuggestions: () =>
+    apiRequest<ReminderSuggestion[]>("/notifications/reminder-suggestions"),
+  acceptReminderSuggestion: (suggestionId: string) =>
+    apiRequest<ReminderSuggestion>(
+      `/notifications/reminder-suggestions/${encodeURIComponent(suggestionId)}/accept`,
+      { method: "POST" },
+    ),
+  declineReminderSuggestion: (suggestionId: string) =>
+    apiRequest<ReminderSuggestion>(
+      `/notifications/reminder-suggestions/${encodeURIComponent(suggestionId)}/decline`,
+      { method: "POST" },
+    ),
+  medicationAdherence: (patientId?: string, days = 30) => {
+    const params = new URLSearchParams({ days: String(days) });
+    if (patientId) params.set("patient_id", patientId);
+    return apiRequest<MedicationAdherence>(`/medications/adherence?${params}`);
+  },
   activeMedications: (patientId?: string) =>
     apiRequest<MedicationRecord[]>(
       `/medications/active${patientId ? `?patient_id=${encodeURIComponent(patientId)}` : ""}`,
@@ -775,6 +1004,16 @@ export const api = {
     apiRequest<PatientInsight[]>(
       "/doctor/patients/" + encodeURIComponent(patientId) + "/insights",
     ),
+  setInsightFeedback: (
+    patientId: string,
+    insightId: string,
+    verdict: InsightVerdict,
+    comment?: string,
+  ) =>
+    apiRequest<PatientInsight>(
+      `/doctor/patients/${encodeURIComponent(patientId)}/insights/${encodeURIComponent(insightId)}/feedback`,
+      { method: "PUT", body: JSON.stringify({ verdict, comment: comment || null }) },
+    ),
   createClinicalNote: (patientId: string, data: ClinicalNoteInput) =>
     apiRequest<ClinicalNote>(
       "/doctor/patients/" + encodeURIComponent(patientId) + "/notes",
@@ -832,6 +1071,18 @@ export const api = {
   deleteAppointment: (appointmentId: string) =>
     apiRequest<void>(`/appointments/${encodeURIComponent(appointmentId)}`, {
       method: "DELETE",
+    }),
+  upcomingAppointments: (days = 7) =>
+    apiRequest<UpcomingAppointment[]>(`/appointments/upcoming?days=${days}`),
+  previsitBrief: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief`),
+  generatePrevisitBrief: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief`, {
+      method: "POST",
+    }),
+  markPrevisitBriefSeen: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief/seen`, {
+      method: "POST",
     }),
   agentChat: (message: string, patientId?: string, sessionId?: string) =>
     apiRequest<AgentChatResponse>("/agent/chat", {
@@ -896,7 +1147,7 @@ export const api = {
     apiRequest<ChatSessionMessagesResponse>(
       `/agent/sessions/${encodeURIComponent(sessionId)}/messages`,
     ),
-  updateMe: (data: { ai_memory_consent?: boolean; meal_photo_ai_consent?: boolean }) =>
+  updateMe: (data: { ai_memory_consent?: boolean; meal_photo_ai_consent?: boolean; weekly_report_enabled?: boolean }) =>
     apiRequest<ApiUser>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),

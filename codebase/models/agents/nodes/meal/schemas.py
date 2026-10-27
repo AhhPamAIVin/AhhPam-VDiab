@@ -14,7 +14,8 @@ MAX_MEAL_ITEMS = 10
 
 class MealItemDraft(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    quantity: float | None = Field(default=None, gt=0, le=50)
+    # Up to 2000 so grams/ml ("200g cơm") fit; household units stay small.
+    quantity: float | None = Field(default=None, gt=0, le=2000)
     unit: str | None = Field(default=None, min_length=1, max_length=20)
 
 

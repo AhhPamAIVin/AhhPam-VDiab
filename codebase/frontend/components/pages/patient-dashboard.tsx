@@ -6,9 +6,11 @@ import {
   Droplets, Heart, Activity, Scale, Footprints,
   Plus, CheckCircle2, Circle, Bot, ChevronRight, TrendingUp,
   Syringe, Pill, UtensilsCrossed, Dumbbell, Loader2, AlertTriangle, X, Bell, SkipForward, CalendarDays,
+  FileBarChart,
 } from 'lucide-react'
 import { HealthMetricCard } from '@/components/health-metric-card'
 import { AgentSummaryCard } from '@/components/agent-summary-card'
+import { WeeklyReportBadge } from '@/components/weekly-report-badge'
 import { mockPatient } from '@/lib/mock-data'
 import { useAuth } from '@/lib/auth-context'
 import { useToast } from '@/components/ui/toast'
@@ -22,6 +24,7 @@ const notificationIcons: Record<NotificationType, React.ReactNode> = {
   medication_reminder:      <Pill className="w-4 h-4 text-purple-500" />,
   custom:                   <Bell className="w-4 h-4 text-blue-500" />,
   glucose_alert:            <AlertTriangle className="w-4 h-4 text-orange-600" />,
+  weekly_report:            <FileBarChart className="w-4 h-4 text-[#2D9D97]" />,
 }
 
 // Local (browser) yyyy-mm-dd — matches what the backend's `on_date` filter and
@@ -316,6 +319,8 @@ export function PatientDashboard({ onNavigate, onOpenAI }: PatientDashboardProps
           <p className="mt-1 text-xs text-white/85">Hôm nay bạn thế nào?</p>
         </div>
       </div>
+
+      <WeeklyReportBadge />
 
       {/* Quick actions */}
       <div ref={quickActionsRef} className="relative z-20 hidden sm:block">

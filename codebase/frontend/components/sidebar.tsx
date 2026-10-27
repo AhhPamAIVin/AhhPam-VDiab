@@ -21,6 +21,7 @@ import {
   X,
   LogOut,
   Link2,
+  FileBarChart,
 } from "lucide-react";
 
 type NavItem = {
@@ -38,6 +39,7 @@ const patientNav: NavItem[] = [
   { icon: Utensils, label: "Bữa ăn", href: "/meals" },
   { icon: Pill, label: "Thuốc", href: "/medication" },
   { icon: CalendarClock, label: "Lịch khám", href: "/appointments" },
+  { icon: FileBarChart, label: "Báo cáo tuần", href: "/reports" },
   { icon: Bell, label: "Thông báo", href: "/notifications" },
   { icon: User, label: "Hồ sơ", href: "/profile" },
 ];

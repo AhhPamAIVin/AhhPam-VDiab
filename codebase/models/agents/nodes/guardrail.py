@@ -69,6 +69,14 @@ _DIAGNOSIS_PATTERNS: list[str] = [
     "bạn được chẩn đoán mắc",
     "kết luận là bạn bị",
     "bạn chắc chắn bị",
+    # Epic 1.8: conditions a meal log can't diagnose either.
+    "bạn bị tiền đái tháo đường",
+    "bạn bị tiền tiểu đường",
+    "bạn mắc tiền đái tháo đường",
+    "bạn bị kháng insulin",
+    "bạn bị rối loạn dung nạp glucose",
+    "bạn bị hạ đường huyết phản ứng",
+    "bạn bị liệt dạ dày",
     "you have diabetes",
     "you are diabetic",
     "you are diagnosed with",
@@ -162,6 +170,131 @@ _CAUSAL_OVERREACH_PATTERNS: list[str] = [
     "directly caused by",
     "proves that this caused",
 ]
+
+# --- 4c': meal-specific unsafe advice (Epic 1.8) ------------------------------
+# Checked sentence by sentence: the advice and its subject must sit in the
+# same sentence, and a sentence that warns against it ("không nên bỏ bữa để
+# hạ đường huyết") is the safe answer, not a violation.
+_SENTENCE_SPLIT_RE = re.compile(r"(?<=[.!?;])\s*")
+_NEGATION_CUES: tuple[str, ...] = (
+    "không nên",
+    "đừng",
+    "không được",
+    "không tự",
+    "tránh",
+    "chớ",
+    "không bao giờ",
+    "không khuyến",
+    "do not",
+    "don't",
+    "never",
+    "avoid",
+)
+_INSULIN_WORDS = ("insulin", "tiêm", "mũi tiêm")
+_CARB_WORDS = ("carb", "tinh bột", "bột đường", "carbohydrate", "glucid")
+_CARB_DOSE_RATIO_RE = re.compile(
+    r"tỷ lệ insulin|tỉ lệ insulin|insulin\s*/\s*carb|insulin[- ]to[- ]carb|\bicr\b|"
+    r"đơn vị(?: insulin)? cho mỗi|units? of insulin (?:per|for)|cho mỗi \d+\s*(?:g|gam|gram)\b"
+)
+_INSULIN_DOSE_NUMBER_RE = re.compile(r"\d+(?:[.,]\d+)?\s*(?:đơn vị|ui|iu|units?)\b")
+_INSULIN_ADJUST_RE = re.compile(
+    r"tiêm thêm|tăng (?:liều|insulin)|giảm (?:liều|insulin)|bớt insulin|chỉnh liều|bù insulin"
+)
+_MEAL_SKIP_RE = re.compile(
+    r"\b(?:bỏ|nhịn|cắt|bớt)\s+(?:bữa|ăn|cơm|sáng|trưa|tối)\b|\bskip(?:ping)? (?:a )?meals?\b"
+)
+_LOWER_GLUCOSE_PURPOSE_RE = re.compile(
+    r"(?:để|giúp|nhằm|cho)\s+(?:hạ|giảm|kiểm soát|ổn định)\s+(?:đường|đường huyết|đường máu)\b|"
+    r"to lower (?:your )?(?:blood )?(?:sugar|glucose)"
+)
+_STOP_MEDICATION_RE = re.compile(
+    r"\b(?:ngừng|ngưng|dừng|bỏ|thôi)\s+(?:uống\s+|dùng\s+|tiêm\s+)?(?:thuốc|insulin|metformin|gliclazide|"
+    r"glimepiride|sitagliptin|dapagliflozin|empagliflozin|pioglitazone|acarbose|liraglutide)\b|"
+    r"\bstop (?:taking )?(?:your )?(?:medication|insulin|metformin)\b"
+)
+_ADVICE_CUES: tuple[str, ...] = (
+    "bạn có thể", "có thể", "bạn nên", "hãy", "bạn cứ", "nên", "you can", "you should", "you may",
+)  # fmt: skip
+# Epic 3.2: changing a dose is advice even with no number in it.
+_DOSE_CHANGE_RE = re.compile(
+    r"\b(?:tăng|giảm|chỉnh|điều chỉnh|đổi|thay đổi|gấp đôi|bớt|nâng)\s+(?:liều|lượng thuốc|số viên|số đơn vị)\b|"
+    r"\b(?:increase|decrease|double|adjust|change)\s+(?:your\s+)?(?:dose|dosage)\b"
+)
+# "uống gấp đôi để bù" is a dosing instruction on its own, with or without
+# "nên"/"hãy" — unless negated right before it ("không uống bù").
+_MAKE_UP_DOSE_RE = re.compile(r"\b(?:uống|tiêm|dùng)\s+(?:gấp đôi|bù|thêm một liều|thêm liều)\b|\bdouble up\b")
+_MAKE_UP_NEGATED_RE = re.compile(
+    r"\b(?:không|đừng|chớ|tránh)\s+(?:nên\s+)?(?:tự\s+)?(?:ý\s+)?(?:uống|tiêm|dùng)\s+(?:gấp đôi|bù|thêm)|\bdon't double"
+)
+_PERSONAL_CAUSAL_RE = re.compile(
+    r"(?:là nguyên nhân|gây ra|đã gây|chính là lý do|khiến)[^.!?]{0,40}(?:đường huyết|đường máu)"
+    r"[^.!?]{0,30}\b(?:của bạn|bạn)\b"
+)
+
+
+def _sentences(lowered: str) -> list[str]:
+    return [part for part in _SENTENCE_SPLIT_RE.split(lowered) if part.strip()]
+
+
+def _negated(sentence: str) -> bool:
+    return any(cue in sentence for cue in _NEGATION_CUES)
+
+
+def _has_carb_based_dose_advice(lowered: str) -> bool:
+    """Insulin dosing worked out from the meal's carbs — PRD Won't."""
+    for sentence in _sentences(lowered):
+        if _negated(sentence) or not any(w in sentence for w in _INSULIN_WORDS):
+            continue
+        has_carb = any(w in sentence for w in _CARB_WORDS)
+        if _CARB_DOSE_RATIO_RE.search(sentence) and (has_carb or "insulin" in sentence):
+            return True
+        if has_carb and (_INSULIN_DOSE_NUMBER_RE.search(sentence) or _INSULIN_ADJUST_RE.search(sentence)):
+            return True
+    return False
+
+
+def _has_meal_skipping_advice(lowered: str) -> bool:
+    return any(
+        _MEAL_SKIP_RE.search(s) and _LOWER_GLUCOSE_PURPOSE_RE.search(s) and not _negated(s)
+        for s in _sentences(lowered)
+    )
+
+
+def _has_medication_stop_advice(lowered: str) -> bool:
+    return any(
+        _STOP_MEDICATION_RE.search(s)
+        and any(cue in s for cue in _ADVICE_CUES)
+        and not _negated(s)
+        and not _defers_to_doctor(s)
+        for s in _sentences(lowered)
+    )
+
+
+def _defers_to_doctor(sentence: str) -> bool:
+    # "bác sĩ có thể chỉnh liều cho bạn" hands the decision to the doctor.
+    return "bác sĩ" in sentence or "doctor" in sentence
+
+
+def _has_dose_change_advice(lowered: str) -> bool:
+    for s in _sentences(lowered):
+        if _defers_to_doctor(s):
+            continue
+        if _DOSE_CHANGE_RE.search(s) and any(cue in s for cue in _ADVICE_CUES) and not _negated(s):
+            return True
+        if _MAKE_UP_DOSE_RE.search(s) and not _MAKE_UP_NEGATED_RE.search(s):
+            return True
+    return False
+
+
+def _has_personal_meal_causal_claim(lowered: str) -> bool:
+    """"Phở là nguyên nhân làm đường huyết của bạn tăng" — meal data shows an
+    association; hedged wording ("có thể", "thường đi kèm") is fine."""
+    hedges = ("có thể", "thường đi kèm", "liên quan", "may ", "might", "associated")
+    return any(
+        _PERSONAL_CAUSAL_RE.search(s) and not any(h in s for h in hedges) and not _negated(s)
+        for s in _sentences(lowered)
+    )
+
 
 # --- 4d: system-prompt leakage ----------------------------------------------
 _SYSTEM_PROMPT_LINES: list[str] = [
@@ -437,8 +570,18 @@ def _scan(state: AgentState, lowered_response: str) -> list[str]:
         failures.append("diagnosis_phrasing")
     if _has_personalized_dosage_directive(lowered_response):
         failures.append("personalized_dosage_directive")
-    if any(pattern in lowered_response for pattern in _CAUSAL_OVERREACH_PATTERNS):
+    if any(pattern in lowered_response for pattern in _CAUSAL_OVERREACH_PATTERNS) or _has_personal_meal_causal_claim(
+        lowered_response
+    ):
         failures.append("causal_overreach")
+    if _has_carb_based_dose_advice(lowered_response):
+        failures.append("carb_based_dose_advice")
+    if _has_meal_skipping_advice(lowered_response):
+        failures.append("meal_skipping_advice")
+    if _has_medication_stop_advice(lowered_response):
+        failures.append("medication_stop_advice")
+    if _has_dose_change_advice(lowered_response):
+        failures.append("dose_change_advice")
     if _has_system_prompt_leak(lowered_response):
         failures.append("system_prompt_leak")
     if _has_compliance_marker(lowered_response):

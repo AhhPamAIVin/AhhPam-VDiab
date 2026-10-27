@@ -15,12 +15,10 @@ from __future__ import annotations
 
 import base64
 import logging
-import re
-
-from pydantic import ValidationError
 
 from codebase.models.agents.json_output import parse_json_object
-from codebase.models.agents.nodes.meal.schemas import MAX_MEAL_ITEMS, MealItemDraft, MealPhotoRecognition
+from codebase.models.agents.nodes.meal.parsing import clean_text, validate_items
+from codebase.models.agents.nodes.meal.schemas import MAX_MEAL_ITEMS, MealPhotoRecognition
 from codebase.models.agents.prompts.meal_photo import (
     MEAL_PHOTO_HINT_TEMPLATE,
     MEAL_PHOTO_SYSTEM_PROMPT,
@@ -34,47 +32,17 @@ NODE_NAME = "recognize_meal_photo"
 # "low" sends a 512px version: enough to tell dishes apart at a fraction of
 # the image tokens, and bounds the latency of a request the patient waits on.
 _IMAGE_DETAIL = "low"
-_CONTROL_CHARS_RE = re.compile(r"[\x00-\x1f\x7f]")
 
 
 class MealPhotoRecognitionError(RuntimeError):
     """The model call failed or its reply was unusable."""
 
 
-def _clean_text(value: object) -> str | None:
-    """One line: control characters out, whitespace collapsed."""
-    if not isinstance(value, str):
-        return None
-    return " ".join(_CONTROL_CHARS_RE.sub(" ", value).split()) or None
-
-
-def _parse_items(raw_items: object) -> list[MealItemDraft]:
-    items: list[MealItemDraft] = []
-    if not isinstance(raw_items, list):
-        return items
-    for raw in raw_items:
-        if not isinstance(raw, dict):
-            continue
-        quantity = raw.get("quantity")
-        try:
-            item = MealItemDraft(
-                name=_clean_text(raw.get("name")) or "",
-                quantity=quantity if isinstance(quantity, (int, float)) and not isinstance(quantity, bool) else None,
-                unit=_clean_text(raw.get("unit")),
-            )
-        except ValidationError:
-            continue
-        items.append(item)
-        if len(items) == MAX_MEAL_ITEMS:
-            break
-    return items
-
-
 def parse_recognition(content: object, *, model: str) -> MealPhotoRecognition:
     parsed = parse_json_object(content)
     if parsed is None or not isinstance(parsed.get("is_food"), bool):
         raise MealPhotoRecognitionError("reply is not the requested JSON object")
-    items = _parse_items(parsed.get("items")) if parsed["is_food"] else []
+    items = validate_items(parsed.get("items")) if parsed["is_food"] else []
     # "Food" with nothing nameable is no draft at all.
     return MealPhotoRecognition(is_food=bool(items), items=items, model=model)
 
@@ -84,7 +52,7 @@ async def recognize_from_photo(image: bytes, media_type: str, *, hint: str | Non
     model = str(getattr(llm, "model_name", "") or "unknown")
     data_url = f"data:{media_type};base64,{base64.b64encode(image).decode('ascii')}"
     user_content: list[dict] = [{"type": "text", "text": MEAL_PHOTO_USER_TEXT}]
-    if hint and (clean_hint := _clean_text(hint)):
+    if hint and (clean_hint := clean_text(hint)):
         user_content.append({"type": "text", "text": MEAL_PHOTO_HINT_TEMPLATE.format(hint=clean_hint)})
     user_content.append({"type": "image_url", "image_url": {"url": data_url, "detail": _IMAGE_DETAIL}})
     try:

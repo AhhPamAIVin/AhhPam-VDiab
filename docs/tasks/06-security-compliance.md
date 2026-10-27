@@ -60,6 +60,7 @@
 ### 6.5 Quyền dữ liệu & retention
 - [ ] Bệnh nhân xuất dữ liệu của mình (JSON/CSV) và yêu cầu xóa tài khoản (có quy trình bác sĩ/admin xác nhận).
 - [ ] Chính sách retention (ảnh bữa ăn, chat, snapshot AI) — viết trong `docs/` và job dọn dẹp tương ứng.
+      *Ảnh bữa ăn không còn được lưu (Epic 1, 2026-10-27) — chỉ còn chat và snapshot AI.*
 
 ### 6.6 CI
 - [ ] Thêm secret scan (vd `gitleaks`) và dependency audit (`pip-audit`, `npm audit`) vào `.github/workflows/ci.yml`.

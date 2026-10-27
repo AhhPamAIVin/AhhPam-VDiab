@@ -38,5 +38,10 @@ class User(SQLModel, table=True):
     meal_photo_ai_consent: bool = Field(
         default=False, sa_column=Column(Boolean, nullable=False, server_default="false")
     )
+    # Epic 2: receive the weekly report notification (in-app + Zalo). The
+    # report itself is still generated and viewable when this is off.
+    weekly_report_enabled: bool = Field(
+        default=True, sa_column=Column(Boolean, nullable=False, server_default="true")
+    )
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)

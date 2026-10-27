@@ -48,5 +48,7 @@ class AgentSummarySnapshot(SQLModel, table=True):
     limitations: list[str] = Field(default_factory=list, sa_column=Column(JSON))
     data_used: list[str] = Field(default_factory=list, sa_column=Column(JSON))
     data_completeness: dict = Field(default_factory=dict, sa_column=Column(JSON))
+    # Doctor snapshots only (Epic 4.2): {"changes"|"meals"|"medication_adherence": [lines]}.
+    sections: dict = Field(default_factory=dict, sa_column=Column(JSON))
 
     generated_at: datetime = Field(default_factory=datetime.utcnow)

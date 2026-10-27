@@ -19,6 +19,9 @@ class NotificationType(StrEnum):
     # glucose reading is evaluated WATCH. See
     # docs/ML_PERSONALIZED_WATCH_SYSTEM_PLAN.md section 6 (Giai doan E).
     GLUCOSE_ALERT = "glucose_alert"
+    # Event-driven too: one per patient and week when reports/service.py
+    # generates the weekly report (Epic 2).
+    WEEKLY_REPORT = "weekly_report"
 
 
 class NotificationStatus(StrEnum):
@@ -107,6 +110,38 @@ class NotificationPreference(SQLModel, table=True):
     is_custom: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow)
     updated_at: datetime = Field(default_factory=datetime.utcnow)
+
+
+class SuggestionStatus(StrEnum):
+    PENDING = "pending"
+    ACCEPTED = "accepted"
+    DECLINED = "declined"
+
+
+class ReminderTimeSuggestion(SQLModel, table=True):
+    """A proposed new time for one reminder (Epic 3.3), from how late the
+    patient has actually been responding (notifications/smart_reminders.py).
+    Never applied without the patient: only an ACCEPTED suggestion changes
+    NotificationPreference.time_of_day."""
+
+    __tablename__ = "reminder_time_suggestions"
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    patient_id: UUID = Field(foreign_key="users.id", index=True)
+    preference_id: UUID = Field(foreign_key="notification_preferences.id", index=True)
+    # Not "current_time": that is an SQL keyword (CURRENT_TIME).
+    previous_time: time
+    suggested_time: time
+    late_count: int  # responses > 30 min after the reminder, among...
+    sample_count: int  # ...the latest responses looked at
+    status: SuggestionStatus = Field(
+        default=SuggestionStatus.PENDING,
+        sa_column=Column(
+            SAEnum(SuggestionStatus, name="reminder_suggestion_status"), nullable=False, server_default="PENDING"
+        ),
+    )
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    decided_at: datetime | None = Field(default=None)
 
 
 class ZaloLinkCode(SQLModel, table=True):

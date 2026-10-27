@@ -70,6 +70,8 @@ from codebase.backend.agent.schemas import (
 from codebase.backend.auth.dependencies import require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.db import get_session
+from codebase.backend.health import meal_analysis
+from codebase.backend.insights.feedback import rejected_insight_ids
 from codebase.backend.patients.access import ensure_patient_access
 from codebase.backend.summaries.service import ensure_snapshot, refresh_patient_summaries
 from codebase.models.agents.checkpoint import checkpointer
@@ -198,6 +200,7 @@ async def summarize(
         limitations=snapshot.limitations,
         suggested_doctor_questions=snapshot.suggested_doctor_questions,
         relevant_insights=_relevant_insights_for_summary(session, current_user),
+        sections=snapshot.sections or {},
     )
 
 
@@ -213,7 +216,8 @@ def _relevant_insights_for_summary(session: Session, current_user: User) -> list
     if current_user.role != UserRole.PATIENT:
         return []
     insights = get_patient_insights(session, current_user.id, source_kind=["weekly_batch", "chat"])
-    return [insight["text"] for insight in insights]
+    rejected = rejected_insight_ids(session, current_user.id)  # Epic 4.4
+    return [insight["text"] for insight in insights if insight["id"] not in rejected]
 
 
 def _patient_parser_drafts(current_user: User, message: str) -> list:
@@ -360,6 +364,11 @@ def _progress_after(node: str, update: dict) -> str | None:
         if needs_health:
             return _PROGRESS_HEALTH
         return _PROGRESS_DOCS if needs_docs else _PROGRESS_DRAFT
+    if node == "agent_plan":
+        # Per-tool progress already went out as custom events while it ran.
+        if update.get("canned_response") or update.get("answered_directly"):
+            return None
+        return _PROGRESS_DRAFT
     if node == "check_data_quality":
         return _PROGRESS_DRAFT
     if node == "synthesize_dispatch":
@@ -390,9 +399,16 @@ async def chat_stream(
         yield _sse("progress", {"stage": "start", "message": _PROGRESS_START})
         final_state: dict = {}
         try:
-            async for mode, chunk in agent.astream(graph_input, config=config, stream_mode=["updates", "values"]):
+            async for mode, chunk in agent.astream(
+                graph_input, config=config, stream_mode=["updates", "values", "custom"]
+            ):
                 if mode == "values":
                     final_state = chunk
+                    continue
+                if mode == "custom":
+                    # nodes/agent_plan.py, one line per tool it calls (Epic 8).
+                    if isinstance(chunk, dict) and chunk.get("progress"):
+                        yield _sse("progress", {"stage": "agent_tool", "message": chunk["progress"]})
                     continue
                 for node, update in chunk.items():
                     message = _progress_after(node, update or {})
@@ -434,6 +450,8 @@ def handle_record_action(
         record_type = interaction.draft.get("record_type")
         if record_type in {"glucose", "blood_pressure", "meal", "activity"}:
             background_tasks.add_task(refresh_patient_summaries, patient_id=current_user.id)
+        if record_type == "meal" and interaction.saved_record_id is not None:
+            background_tasks.add_task(meal_analysis.analyze_meal_in_background, meal_id=interaction.saved_record_id)
     return AgentRecordActionResponse(response=response, interaction=interaction)
 
 

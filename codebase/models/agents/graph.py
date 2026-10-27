@@ -14,11 +14,21 @@ from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
 
+from codebase.backend.config import get_settings
 from codebase.models.agents.checkpoint import checkpointer
+from codebase.models.agents.nodes.agent_plan import agent_plan
 from codebase.models.agents.nodes.check_data_quality import check_data_quality
 from codebase.models.agents.nodes.classify_intent import classify_intent
 from codebase.models.agents.nodes.fetch_data import fetch_data
 from codebase.models.agents.nodes.guardrail import guardrail_check
+from codebase.models.agents.nodes.meal.analysis import (
+    MealAnalysisState,
+    aggregate_node,
+    entry_step,
+    lookup_nutrition_node,
+    parse_meal_items_node,
+    persist_analysis_node,
+)
 from codebase.models.agents.nodes.plan_response import plan_response
 from codebase.models.agents.nodes.reflect import reflect_node
 from codebase.models.agents.nodes.resolve_context import resolve_context
@@ -62,7 +72,18 @@ def _after_classify_intent(state: AgentState) -> str | list[str]:
         return "respond"
     if state.get("intent") == "SUMMARY":
         return _GATHER_BRANCHES
-    return "plan_response"
+    return "agent_plan" if _uses_patient_agent(state) else "plan_response"
+
+
+def _uses_patient_agent(state: AgentState) -> bool:
+    """Epic 8: patient chat goes through the tool-calling agent; doctors,
+    summaries and the flag turned off keep the planner."""
+    return (
+        get_settings().patient_agent_enabled
+        and state.get("user_role") == "patient"
+        and state.get("request_kind") == "chat"
+        and state.get("patient_id") is not None
+    )
 
 
 def _after_plan_response(state: AgentState) -> str | list[str]:
@@ -107,6 +128,7 @@ def build_graph() -> StateGraph:
         ("resolve_context", resolve_context),
         ("classify_intent", classify_intent),
         ("plan_response", plan_response),
+        ("agent_plan", agent_plan),
         ("retrieve_knowledge", retrieve_knowledge),
         ("fetch_data", fetch_data),
         ("check_data_quality", check_data_quality),
@@ -122,6 +144,9 @@ def build_graph() -> StateGraph:
     graph.add_conditional_edges("resolve_context", _after_resolve_context)
     graph.add_conditional_edges("classify_intent", _after_classify_intent)
     graph.add_conditional_edges("plan_response", _after_plan_response)
+    # Same exits as the planner: reviewed reply -> respond, direct answer ->
+    # guardrail, otherwise the gather join (a no-op for what the agent fetched).
+    graph.add_conditional_edges("agent_plan", _after_plan_response)
     graph.add_edge("fetch_data", "check_data_quality")
     # Join: synthesize_dispatch waits for all three branches to finish.
     graph.add_edge(["retrieve_knowledge", "check_data_quality", "summarize_history"], "synthesize_dispatch")
@@ -170,5 +195,30 @@ def build_reflect_graph() -> StateGraph:
     graph.set_entry_point("reflect")
     graph.add_edge("reflect", "upsert_insight")
     graph.add_edge("upsert_insight", END)
+
+    return graph.compile()
+
+
+def build_meal_analysis_graph() -> StateGraph:
+    """Meal analysis graph (Epic 1.3): parse_meal_items -> lookup_nutrition
+    -> aggregate -> persist_analysis, one MealRecord per run. Like
+    build_reflect_graph(), no checkpointer: each run is one-shot. A patient
+    edit enters at lookup_nutrition with its own items (entry_step), so a
+    correction never goes back through the model. The DB session comes from
+    config["configurable"]["session"], as in the respond graph."""
+    graph = StateGraph(MealAnalysisState)
+
+    graph.add_node("parse_meal_items", timed_node("parse_meal_items", parse_meal_items_node))
+    graph.add_node("lookup_nutrition", timed_node("lookup_nutrition", lookup_nutrition_node))
+    graph.add_node("aggregate", timed_node("aggregate", aggregate_node))
+    graph.add_node("persist_analysis", timed_node("persist_analysis", persist_analysis_node))
+
+    graph.set_conditional_entry_point(
+        entry_step, {"parse_meal_items": "parse_meal_items", "lookup_nutrition": "lookup_nutrition"}
+    )
+    graph.add_edge("parse_meal_items", "lookup_nutrition")
+    graph.add_edge("lookup_nutrition", "aggregate")
+    graph.add_edge("aggregate", "persist_analysis")
+    graph.add_edge("persist_analysis", END)
 
     return graph.compile()

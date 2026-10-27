@@ -26,6 +26,7 @@ from uuid import UUID
 from langchain_core.runnables import RunnableConfig
 from sqlmodel import Session
 
+from codebase.backend.insights.feedback import is_rejected
 from codebase.backend.insights.models import InsightConfidence, InsightStatus, PatientInsight
 from codebase.models.agents.prompts.reflect import REFLECT_MERGE_TEMPLATE
 from codebase.models.agents.state import ReflectState
@@ -116,7 +117,7 @@ async def upsert_insight(
     now: datetime | None = None,
     collection: Any | None = None,
     embeddings_client: Any | None = None,
-) -> dict[str, Any]:
+) -> dict[str, Any] | None:
     """§7.3 steps 3-4: similarity-match `candidate` (a proposed insight dict
     — {category, text, evidence, confidence}, see nodes/reflect.py) against
     the patient's ACTIVE insights, scoped to `(patient_id, source_kind)`
@@ -129,7 +130,9 @@ async def upsert_insight(
     never a duplicate row for an already-known pattern.
 
     Returns the resulting row as a plain dict (`PatientInsight.model_dump()`),
-    same convention as patient_tools.py's tool functions.
+    same convention as patient_tools.py's tool functions — or None when the
+    candidate matches an insight a doctor rejected (Epic 4.4): nothing is
+    written then.
     """
     now = now or datetime.utcnow()
     collection = collection or get_insights_collection()
@@ -142,6 +145,11 @@ async def upsert_insight(
 
     if best is not None and best["score"] >= SIMILARITY_THRESHOLD:
         existing = session.get(PatientInsight, UUID(best["insight_id"]))
+        if existing is not None and is_rejected(session, existing.id):
+            # Epic 4.4: the doctor rejected this pattern — neither revive it
+            # by updating it nor re-propose it as a new insight.
+            logger.info("reflect: candidate matches a doctor-rejected insight, skipped")
+            return None
         if existing is not None:
             merged_text = await _merge_text(existing, candidate)
             existing.version += 1
@@ -206,5 +214,6 @@ async def upsert_insight_node(state: ReflectState, config: RunnableConfig) -> di
             candidate=candidate,
             source_note_id=state.get("source_note_id"),
         )
-        results.append(result)
+        if result is not None:
+            results.append(result)
     return {"insights": results}

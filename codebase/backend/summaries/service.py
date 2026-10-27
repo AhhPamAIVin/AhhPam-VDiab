@@ -165,6 +165,7 @@ async def generate_and_store_snapshot(
         "limitations": state.get("limitations", []),
         "data_used": state.get("data_used", []),
         "data_completeness": state.get("data_completeness", {}),
+        "sections": state.get("summary_sections", {}),
         "generated_at": datetime.utcnow(),
     }
 

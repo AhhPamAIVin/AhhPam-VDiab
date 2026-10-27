@@ -212,7 +212,19 @@ def _format_chunks_block(chunks: list[RetrievedChunk]) -> str:
 _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
     ("profile", "Hồ sơ bệnh nhân"),
     ("records", "Bản ghi sức khỏe (đường huyết / huyết áp / bữa ăn / vận động)"),
+    (
+        "meal_glucose_response",
+        "Món ăn / mức carb thường đi kèm đường huyết sau ăn cao (30 ngày, chỉ nhóm có từ 3 bữa trở lên; "
+        "là liên quan thống kê, KHÔNG phải nguyên nhân — chỉ nói \"thường đi kèm\", không nói \"gây ra\")",
+    ),
     ("medications", "Thuốc đang dùng"),
+    (
+        "medication_adherence",
+        "Tuân thủ thuốc 30 ngày (day_rate_pct = % ngày đủ thuốc; glucose_by_adherence chỉ là liên quan, KHÔNG "
+        "phải nguyên nhân; không khuyên đổi liều/ngừng thuốc)",
+    ),
+    ("appointments", "Lịch khám (upcoming=True là lịch sắp tới)"),
+    ("weekly_report", "Báo cáo tuần gần nhất (số liệu tính sẵn; tip là việc nên làm đã được duyệt)"),
     ("assigned_doctor", "Bác sĩ điều trị được phân công"),
     # Last on purpose, same recency reasoning as assigned_doctor above — this
     # is check_data_quality.py's calculate_health_metrics output (count/avg/
@@ -251,7 +263,7 @@ _RECORD_TYPE_LABELS: tuple[tuple[str, str], ...] = (
 # patient their 18:36 reading was taken "lúc 11:36", and a 14:59 one "lúc 7:59
 # sáng". Converted here in code instead (prompt rendering only — tool_results
 # itself, which metrics_tools/synthesize_summary read, is left untouched).
-_RECORD_TIME_FIELDS = ("measured_at", "meal_time", "activity_time")
+_RECORD_TIME_FIELDS = ("measured_at", "meal_time", "activity_time", "scheduled_at")
 
 
 def _vn_time(value: datetime) -> str:
@@ -314,6 +326,10 @@ def _format_patient_data_block(tool_results: dict | None) -> str:
             continue
         if key == "records" and isinstance(tool_results[key], dict):
             lines.append(f"- {label}:\n{_format_records_block(tool_results[key])}")
+        elif key == "appointments" and isinstance(tool_results[key], list):
+            rows = tool_results[key]
+            body = "\n".join(f"    - {_localize_row(row)}" for row in rows) or "    (không có lịch khám nào)"
+            lines.append(f"- {label}:\n{body}")
         else:
             lines.append(f"- {label}: {tool_results[key]}")
     # Any future tool_results key this list hasn't been updated for yet still
