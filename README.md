@@ -43,7 +43,7 @@ Modular monolith: 1 FastAPI backend + 1 Next.js SPA (UI theo vai trò Patient/Do
 │   │   ├── agent/         #   router gọi AI Agent (/agent/chat, /agent/summary)
 │   │   └── security/      #   SQL-injection guard middleware
 │   ├── models/
-│   │   ├── agents/        # LangGraph graph.py, state, nodes/ (nodes/meal/ = Epic 1), tools/ (nutrition_data/ = bảng dinh dưỡng món Việt)
+│   │   ├── agents/        # LangGraph graph.py, state, nodes/ (agent_plan = agent chat bệnh nhân, nodes/meal/ = Epic 1), tools/ (agent_tools = registry tool của agent, nutrition_data/ = bảng dinh dưỡng món Việt)
 │   │   └── rag/           # ingest.py, chunking.py, vector_store.py, embeddings.py — nạp data/knowledge_base/ vào Qdrant
 │   └── frontend/          # Next.js App Router SPA
 │       ├── app/            #   route theo vai trò: (app)/dashboard, doctor, admin, ai, health, medication...

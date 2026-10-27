@@ -108,7 +108,7 @@ Một service, chia module theo domain (không tách service riêng trong MVP):
 
 ### 3. AI Agent (LangGraph)
 
-- **Agent Type:** ReAct-style tool-calling loop, bọc thêm 2 guardrail node (in/out) bắt buộc — không phải multi-agent, một graph duy nhất dùng chung cho AI Consultation (F3, Patient) và AI Summary (F4, Doctor).
+- **Agent Type:** một LangGraph graph dùng chung cho AI Consultation (F3) và AI Summary (F4), bọc 2 lớp an toàn bắt buộc (cổng tất định đầu vào `classify_intent`, `guardrail_check` đầu ra). **Chat bệnh nhân (Epic 8):** node `agent_plan` gọi tool (`tools/agent_tools.py` — bản ghi sức khỏe, thuốc, bác sĩ, lịch khám, tương quan bữa ăn ↔ đường huyết, tìm tài liệu, cùng các tool kết thúc lượt bằng câu soạn sẵn) thay cho planner cố định; kết quả vào cùng state rồi `synthesize_qa` → `verify_citations` → `guardrail_check` như cũ, nên văn bản tự do của agent không tới người dùng. Mặc định một lời gọi LLM ở bước này (dừng sau vòng tool thành công đầu tiên). Bác sĩ, tóm tắt và khi tắt `PATIENT_AGENT_ENABLED` dùng planner `plan_response` (một lời gọi LLM trả JSON bật/tắt hai nhánh thu thập). Mô tả node 1–9 bên dưới là thiết kế gốc; tên node thực tế xem `codebase/models/agents/graph.py`.
 - **State (rút gọn):** `role, patient_id, query, tool_calls[], tool_results[], retrieved_chunks[], draft_response, citations[], decline_reason, response`.
 - **Nodes:**
   1. `receive_input` — resolve `patient_id` + `role` từ JWT (không tin theo input người dùng gõ), parse câu hỏi.

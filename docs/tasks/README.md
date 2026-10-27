@@ -12,7 +12,7 @@ Mỗi epic một file. Mỗi task có checklist, file dự kiến sửa và acce
 | 5 | Hiệu năng & chất lượng AI | [05-ai-performance-quality.md](05-ai-performance-quality.md) | P1 (song song) | M | — | Gần xong — mọi task đã làm; p95 10.3–11.8s chưa đạt ≤ 10s |
 | 6 | Nền tảng bảo mật & tuân thủ | [06-security-compliance.md](06-security-compliance.md) | P0 trước dữ liệu thật | M | — | Đang làm — 6.2 xong |
 | 7 | Người thân hỗ trợ (caregiver) | [07-caregiver-access.md](07-caregiver-access.md) | P3 | L | 6 (audit log) | Chưa bắt đầu |
-| 8 | Chatbot bệnh nhân thành agent đa chức năng | [08-patient-agent.md](08-patient-agent.md) | P1 | L | 1, 5 | Đang làm |
+| 8 | Chatbot bệnh nhân thành agent đa chức năng | [08-patient-agent.md](08-patient-agent.md) | P1 | L | 1, 5 | v1 xong, bật mặc định; eval lịch 29/10; 8.6 chưa làm |
 
 ## Thứ tự đề xuất
 

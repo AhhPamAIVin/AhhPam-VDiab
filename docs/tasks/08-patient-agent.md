@@ -1,6 +1,6 @@
 # Epic 8 — Chatbot bệnh nhân thành agent đa chức năng
 
-**Ưu tiên:** P1 · **Độ lớn:** L · **Phụ thuộc:** 1 (tool bữa ăn), 5 (đo latency) · **Trạng thái:** Đang làm
+**Ưu tiên:** P1 · **Độ lớn:** L · **Phụ thuộc:** 1 (tool bữa ăn), 5 (đo latency) · **Trạng thái:** v1 xong (8.1–8.4), bật mặc định; eval đầy đủ lịch 2026-10-29; 8.6 chưa làm
 
 ## Mục tiêu
 
@@ -25,36 +25,54 @@ năng mới chỉ là **thêm một tool vào registry** — trong khi giữ ngu
 ## Task
 
 ### 8.1 Tool registry
-- [ ] `codebase/models/agents/tools/agent_tools.py`: `AgentTool(name, description, args_model, handler,
+- [x] `codebase/models/agents/tools/agent_tools.py`: `AgentTool(name, description, args_model, handler,
       terminal)`; handler nhận `(state, session, args)` và trả `(state_update, observation)`. Thêm chức năng
       mới = thêm một `AgentTool`.
-- [ ] Mỗi tool tự giới hạn phạm vi (khoảng ngày ≤ 30, k tài liệu cố định), output gửi lại LLM là bản rút gọn.
+- [x] Mỗi tool tự giới hạn phạm vi (khoảng ngày ≤ 30, k tài liệu cố định), output gửi lại LLM là bản rút gọn.
+      *Observation chỉ là số đếm/tiêu đề; dữ liệu đầy đủ đi thẳng vào state cho `synthesize_qa`.*
 - **AC:** test từng tool trên DB test; tool không nhận `patient_id` trong args.
 
 ### 8.2 Node `agent_plan` + định tuyến
-- [ ] Vòng tool calling (`bind_tools`), tối đa N vòng (config), tool song song trong một vòng.
-- [ ] Thay `plan_response` cho **chat của bệnh nhân** khi `PATIENT_AGENT_ENABLED`; bác sĩ và tóm tắt giữ luồng cũ.
-- [ ] Kết quả gom vào đúng các key state hiện có (`tool_results`, `retrieved_chunks`, `date_range`) để
+- [x] Vòng tool calling (`bind_tools`), tối đa N vòng (config), tool song song trong một vòng.
+      *`nodes/agent_plan.py`. Mặc định **dừng sau vòng đầu nếu mọi tool chạy được** (1 lời gọi LLM/lượt như
+      planner — đo ở 8.5: thêm vòng "XONG" làm mỗi lượt chậm gấp đôi); vòng sau chỉ để thử lại tool lỗi/sai
+      tham số. `PATIENT_AGENT_REFLECT=true` cho agent xem kết quả rồi gọi thêm (đa bước, +1 lời gọi).*
+- [x] Thay `plan_response` cho **chat của bệnh nhân** khi `PATIENT_AGENT_ENABLED`; bác sĩ và tóm tắt giữ luồng cũ.
+- [x] Kết quả gom vào đúng các key state hiện có (`tool_results`, `retrieved_chunks`, `date_range`) để
       `check_data_quality`/`synthesize_qa`/`guardrail` dùng lại; `fetch_data`/`retrieve_knowledge` no-op khi agent
       đã thu thập.
-- [ ] Mọi key theo lượt được đặt lại tường minh (state sống qua checkpointer giữa các lượt).
+- [x] Mọi key theo lượt được đặt lại tường minh (state sống qua checkpointer giữa các lượt).
+      *`agent_gathered`/`agent_tool_calls` do cả hai planner đặt lại mỗi lượt.*
 - **AC:** test đồ thị với LLM giả: chào hỏi → câu soạn sẵn; câu hỏi dữ liệu → tool → câu trả lời có số liệu từ
   tool; LLM lỗi → luồng cũ.
+  *`tests/test_backend/test_patient_agent.py` (21 case: registry, vòng lặp, fallback, `/agent/chat` đầu-cuối,
+  bác sĩ và cờ tắt vẫn đi planner). Fast-path chào hỏi của planner vẫn chạy trước agent. Agent không gọi tool nào
+  → về mặc định "lấy hết" của planner, không bao giờ trả lời câu hỏi sức khỏe mà không có dữ liệu.*
 
 ### 8.3 Tool v1
-- [ ] `get_health_records(days | start_date/end_date)`, `get_medications`, `get_my_doctor`,
+- [x] `get_health_records(days | start_date/end_date)`, `get_medications`, `get_my_doctor`,
       `get_appointments` (mới — trước đây trợ lý không đọc được lịch khám), `get_meal_glucose_response`,
       `search_knowledge(query)`.
-- [ ] Tool điều khiển: `reply_social(kind)`, `request_new_appointment`, `out_of_scope`, `answer_directly(answer)`
+- [x] Tool điều khiển: `reply_social(kind)`, `request_new_appointment`, `out_of_scope`, `answer_directly(answer)`
       — dùng lại câu soạn sẵn của `plan_response`.
+      *Ghi chỉ số qua chat không cần tool riêng: `synthesize_qa` đã trả `record_candidates`, router kiểm chứng
+      với nguyên văn tin nhắn rồi mới tạo thẻ xác nhận.*
 
 ### 8.4 Streaming
-- [ ] SSE: sự kiện tiến trình theo tool agent vừa gọi ("đang xem lịch khám…").
+- [x] SSE: sự kiện tiến trình theo tool agent vừa gọi ("đang xem lịch khám…").
+      *`get_stream_writer()` trong node + `stream_mode="custom"` ở `/agent/chat/stream`.*
 
 ### 8.5 Đánh giá & bật mặc định
-- [ ] Chạy thật vài câu đại diện qua agent và so với luồng cũ (đúng tool, latency).
+- [x] Chạy thật vài câu đại diện qua agent và so với luồng cũ (đúng tool, latency).
+      *2026-10-27, proxy hiện tại, 8 câu (dữ liệu giả, tìm tài liệu được stub): agent chọn đúng 8/8 — kể cả
+      "Món nào làm đường huyết sau ăn của tôi tăng?" (planner cũ chỉ tra tài liệu, bỏ dữ liệu cá nhân) và "Khi nào
+      tôi tái khám?" (planner cũ không có dữ liệu lịch khám). Thời gian bước lập kế hoạch: agent 1.2–9.5s
+      (trung vị ~2.8s), planner 1.7–7.4s (trung vị ~4.6s); proxy dao động mạnh (một lần đo trước đó planner mất
+      20s) nên đây chưa phải số p95.*
 - [ ] Golden scenarios / E2E chạy lại với agent bật — **lịch 2026-10-29** cùng các eval khác.
-- [ ] Quyết định giá trị mặc định của `PATIENT_AGENT_ENABLED` dựa trên số đo.
+- [x] Quyết định giá trị mặc định của `PATIENT_AGENT_ENABLED` dựa trên số đo.
+      *Bật mặc định (8/8 đúng tool, không chậm hơn). Tắt bằng `PATIENT_AGENT_ENABLED=false` nếu eval 29/10 xấu
+      đi. Pytest ghim cờ tắt cho các test hợp đồng của planner (`tests/conftest.py`).*
 
 ### 8.6 Tool tiếp theo (sau v1)
 - [ ] Gửi ảnh bữa ăn ngay trong chat (`recognize_from_photo` đã là hàm độc lập).

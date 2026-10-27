@@ -36,6 +36,7 @@ nên làm tuần tới. Hỗ trợ mục tiêu F2 trong PRD (bệnh nhân hiểu
 - [ ] `codebase/backend/summaries/weekly_stats.py`: % số đo trong mục tiêu (theo `CarePlanTarget` đang
       hiệu lực), trung bình/min/max theo `meal_context`, chênh lệch so tuần trước, số ngày có ghi nhật ký.
 - [ ] Mục bữa ăn (khi Epic 1.4 xong): top món đi kèm glucose sau ăn cao (n ≥ 3).
+      *Đã gỡ chặn: dùng `health/meal_response.py::meal_glucose_response`.*
 - [ ] Mục thuốc (khi Epic 3.1 xong): % tuân thủ tuần.
 - **AC:** unit test trên dữ liệu cố định; không gọi LLM.
 

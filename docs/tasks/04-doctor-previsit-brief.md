@@ -35,7 +35,9 @@ và chờ** — kèm bữa ăn, tuân thủ thuốc và insight; bác sĩ phản
 ### 4.2 Mở rộng nội dung brief
 - [ ] `synthesize_summary.py` nhánh bác sĩ: mục "Bữa ăn liên quan tăng đường huyết" (Epic 1.4),
       "Tuân thủ thuốc" (Epic 3.1), "Thay đổi kể từ lần khám trước".
+      *Mục bữa ăn đã có (Epic 1.4, `_build_meal_response_lines`); còn "Tuân thủ thuốc" và "Thay đổi kể từ lần khám trước".*
 - [ ] Template in trong `patient-detail-page.tsx` thêm các mục tương ứng.
+      *Mục "Bữa ăn liên quan tăng đường huyết" đã có trong bản in (Epic 1.5).*
 - **AC:** thiếu dữ liệu mục nào thì ghi rõ "chưa đủ dữ liệu", không bỏ trống im lặng.
 
 ### 4.3 Dashboard bác sĩ
