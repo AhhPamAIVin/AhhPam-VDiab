@@ -309,6 +309,33 @@ async def test_patient_can_turn_report_notifications_off(client: AsyncClient, pa
 
 
 @pytest.mark.asyncio
+async def test_zalo_links_the_report_when_the_app_url_is_set(session: Session, monkeypatch):
+    from codebase.backend.config import get_settings
+
+    monkeypatch.setattr(get_settings(), "zalo_bot_enabled", True)
+    monkeypatch.setattr(get_settings(), "frontend_public_url", "https://app.vdiab.vn/")
+    patient = _user(session, "link@diab.example.com", zalo_chat_id="chat-2")
+    sent = AsyncMock()
+    with patch("codebase.backend.reports.service.ZaloBotNotifier") as notifier:
+        notifier.return_value.send_message = sent
+        await _generate(session, patient)
+    assert sent.await_args.args[1].endswith("Xem chi tiết: https://app.vdiab.vn/reports")
+
+
+@pytest.mark.asyncio
+async def test_review_export_rows(session: Session, patient: User):
+    from scripts.export_weekly_report_review import COLUMNS, review_rows
+
+    await _generate(session, patient)
+    [row] = review_rows(session, 10)
+    assert list(row) == COLUMNS
+    assert row["case_id"] == "WR-001" and row["category"] == "WEEKLY_REPORT"
+    assert row["response"].startswith(service.NO_DATA_SUMMARY)
+    assert patient.email not in row["prompt"] and str(patient.id) not in row["prompt"]
+    assert row["clinician_pass"] == "" and row["reviewer"] == ""
+
+
+@pytest.mark.asyncio
 async def test_agent_tool_reads_the_latest_report(session: Session, patient: User):
     await _generate(session, patient)
     outcome = TOOLS_BY_NAME["get_weekly_report"].handler(

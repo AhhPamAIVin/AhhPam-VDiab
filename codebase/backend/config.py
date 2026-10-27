@@ -74,6 +74,9 @@ class Settings(BaseSettings):
     weekly_reports_enabled: bool = True
     weekly_report_day_of_week: Literal["mon", "tue", "wed", "thu", "fri", "sat", "sun"] = "sun"
     weekly_report_hour: int = Field(default=8, ge=0, le=23)
+    # Public URL of the patient app, for links in messages sent outside it
+    # (Zalo). Empty: messages say where to look instead of linking.
+    frontend_public_url: str = ""
 
     # Database
     db_host: str = "localhost"

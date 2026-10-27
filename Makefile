@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden eval-watch-classifier eval-personal-data-faithfulness eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -243,6 +243,11 @@ eval-golden-scenarios:
 # in-memory SQLite and Qdrant. Each expectation is PASS / FAIL / NOT_SUPPORTED.
 eval-ai-summary-golden:
 	python -m eval.respond_agent.ai_summary_golden $(EVAL_ARGS)
+
+# Weekly reports for clinician review (Epic 2.6) -> docs/evaluation/weekly_report_review.csv
+# (same columns as human_review.csv). EVAL_ARGS="--generate" runs last week's job first.
+export-weekly-report-review:
+	python -m scripts.export_weekly_report_review $(EVAL_ARGS)
 
 # Offline eval/CI gate for the personalized-WATCH ML classifier surface
 # (data/NHANES/final/train_watch_model.py, train_threshold_regression.py,

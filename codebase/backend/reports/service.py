@@ -109,10 +109,10 @@ async def _deliver(session: Session, patient: User, report: PatientWeeklyReport,
     if patient.zalo_chat_id and get_settings().zalo_bot_enabled:
         # A pointer only: health figures stay in the app (no separate consent
         # to send them over Zalo).
+        base_url = get_settings().frontend_public_url.rstrip("/")
+        where = f"Xem chi tiết: {base_url}/reports" if base_url else "Mở ứng dụng VDiab, mục Báo cáo tuần, để xem chi tiết."
         try:
-            await ZaloBotNotifier().send_message(
-                patient.zalo_chat_id, f"{title}\nMở ứng dụng VDiab, mục Báo cáo tuần, để xem chi tiết."
-            )
+            await ZaloBotNotifier().send_message(patient.zalo_chat_id, f"{title}\n{where}")
         except (ZaloConfigurationError, ZaloAPIError):
             logger.warning("weekly report zalo push failed")
 
