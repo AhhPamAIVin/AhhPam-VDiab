@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Lightbulb, Loader2, Sparkles, Stethoscope } from "lucide-react";
-import { api, type PatientInsight } from "@/lib/api";
+import { Check, Lightbulb, Loader2, Sparkles, Stethoscope, X } from "lucide-react";
+import { api, type InsightVerdict, type PatientInsight } from "@/lib/api";
 import { cn, parseUtcTimestamp } from "@/lib/utils";
 
 const confidenceConfig: Record<PatientInsight["confidence"], { label: string; className: string }> = {
@@ -22,6 +22,99 @@ function categoryLabel(category: string): string {
     .join(" ");
 }
 
+function InsightFeedbackControls({
+  insight,
+  saving,
+  rejecting,
+  comment,
+  onComment,
+  onConfirm,
+  onStartReject,
+  onCancelReject,
+  onReject,
+}: {
+  insight: PatientInsight;
+  saving: boolean;
+  rejecting: boolean;
+  comment: string;
+  onComment: (value: string) => void;
+  onConfirm: () => void;
+  onStartReject: () => void;
+  onCancelReject: () => void;
+  onReject: () => void;
+}) {
+  const outdated = insight.verdict_version !== null && insight.verdict_version < insight.version;
+  return (
+    <div className="mt-3 border-t border-border pt-3">
+      {insight.verdict && (
+        <p
+          className={cn(
+            "mb-2 text-xs font-medium",
+            insight.verdict === "confirmed" ? "text-[#2D9D97]" : "text-red-600",
+          )}
+        >
+          {insight.verdict === "confirmed"
+            ? "Bạn đã xác nhận nhận định này phù hợp."
+            : "Bạn đã bác bỏ nhận định này — bệnh nhân không còn thấy và AI không đề xuất lại."}
+          {insight.verdict_comment ? ` Lý do: ${insight.verdict_comment}` : ""}
+          {outdated ? " (Nội dung đã được AI cập nhật sau khi bạn đánh giá.)" : ""}
+        </p>
+      )}
+      {rejecting ? (
+        <div className="space-y-2">
+          <textarea
+            value={comment}
+            onChange={(event) => onComment(event.target.value)}
+            maxLength={1000}
+            rows={2}
+            placeholder="Lý do bác bỏ (không bắt buộc)"
+            aria-label="Lý do bác bỏ"
+            className="w-full rounded-xl border border-border bg-background px-3 py-2 text-sm outline-none focus:border-primary"
+          />
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={onReject}
+              disabled={saving}
+              className="rounded-lg bg-red-600 px-3 py-1.5 text-xs font-medium text-white disabled:opacity-60"
+            >
+              {saving ? "Đang lưu..." : "Bác bỏ"}
+            </button>
+            <button
+              type="button"
+              onClick={onCancelReject}
+              className="rounded-lg px-3 py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted"
+            >
+              Hủy
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={saving || (insight.verdict === "confirmed" && !outdated)}
+            className="inline-flex items-center gap-1 rounded-lg border border-[#43B5AE]/50 px-3 py-1.5 text-xs font-medium text-[#2D9D97] hover:bg-[#DFF7F3] disabled:opacity-50"
+          >
+            <Check className="h-3.5 w-3.5" />
+            Phù hợp
+          </button>
+          <button
+            type="button"
+            onClick={onStartReject}
+            disabled={saving || (insight.verdict === "rejected" && !outdated)}
+            className="inline-flex items-center gap-1 rounded-lg border border-red-200 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-50 disabled:opacity-50"
+          >
+            <X className="h-3.5 w-3.5" />
+            Không phù hợp
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function PatientInsightsPanel({
   patientId,
   audience = "doctor",
@@ -36,6 +129,26 @@ export function PatientInsightsPanel({
   const [insights, setInsights] = useState<PatientInsight[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  // Epic 4.4: the doctor's confirm/reject — rejecting asks for an optional reason first.
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [comment, setComment] = useState("");
+  const [savingId, setSavingId] = useState<string | null>(null);
+  const [feedbackError, setFeedbackError] = useState<string | null>(null);
+
+  const sendFeedback = async (insight: PatientInsight, verdict: InsightVerdict, reason?: string) => {
+    setSavingId(insight.id);
+    setFeedbackError(null);
+    try {
+      const updated = await api.setInsightFeedback(patientId, insight.id, verdict, reason);
+      setInsights((current) => current.map((item) => (item.id === updated.id ? updated : item)));
+      setRejectingId(null);
+      setComment("");
+    } catch (reason) {
+      setFeedbackError(reason instanceof Error ? reason.message : "Không lưu được phản hồi.");
+    } finally {
+      setSavingId(null);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -89,9 +202,9 @@ export function PatientInsightsPanel({
           </div>
         )}
 
-        {error && !loading && (
+        {(error || feedbackError) && !loading && (
           <p role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
+            {error || feedbackError}
           </p>
         )}
 
@@ -152,8 +265,24 @@ export function PatientInsightsPanel({
                     <p className="mt-3 text-xs text-muted-foreground">
                       {sameDay
                         ? `Ghi nhận ${lastConfirmed.toLocaleDateString("vi-VN")}`
-                        : `Ghi nhận ${firstObserved.toLocaleDateString("vi-VN")} · Xác nhận gần nhất ${lastConfirmed.toLocaleDateString("vi-VN")}`}
+                        : `Ghi nhận ${firstObserved.toLocaleDateString("vi-VN")} · AI ghi nhận lại gần nhất ${lastConfirmed.toLocaleDateString("vi-VN")}`}
                     </p>
+                    {audience === "doctor" && (
+                      <InsightFeedbackControls
+                        insight={insight}
+                        saving={savingId === insight.id}
+                        rejecting={rejectingId === insight.id}
+                        comment={comment}
+                        onComment={setComment}
+                        onConfirm={() => void sendFeedback(insight, "confirmed")}
+                        onStartReject={() => {
+                          setRejectingId(insight.id);
+                          setComment("");
+                        }}
+                        onCancelReject={() => setRejectingId(null)}
+                        onReject={() => void sendFeedback(insight, "rejected", comment)}
+                      />
+                    )}
                   </div>
                 </div>
               </article>

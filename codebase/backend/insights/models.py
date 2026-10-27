@@ -2,7 +2,7 @@ from datetime import datetime
 from enum import StrEnum
 from uuid import UUID, uuid4
 
-from sqlmodel import JSON, Column, Field, SQLModel
+from sqlmodel import JSON, Column, Field, SQLModel, UniqueConstraint
 from sqlmodel import Enum as SAEnum
 
 
@@ -98,3 +98,34 @@ class PatientInsight(SQLModel, table=True):
     )
     first_observed_at: datetime
     last_confirmed_at: datetime
+
+
+class InsightVerdict(StrEnum):
+    CONFIRMED = "confirmed"
+    REJECTED = "rejected"
+
+
+class InsightFeedback(SQLModel, table=True):
+    """A doctor's verdict on one AI insight (Epic 4.4). A separate table, not
+    new InsightStatus values: upsert_insight.py versions insights in place and
+    its similarity match reads status, so a verdict living there would be
+    lost or overwritten on the next reflect run.
+
+    One row per (insight, doctor), changed in place when the doctor changes
+    their mind. `insight_version` is the version the doctor judged — a later
+    reflect update shows up as a newer version than the verdict. An insight
+    whose latest verdict is REJECTED is hidden from the patient and never
+    updated again by reflect (insights/feedback.py)."""
+
+    __tablename__ = "insight_feedback"
+    __table_args__ = (UniqueConstraint("insight_id", "doctor_id", name="uq_insight_feedback_insight_doctor"),)
+
+    id: UUID = Field(default_factory=uuid4, primary_key=True)
+    insight_id: UUID = Field(foreign_key="patient_insights.id", index=True)
+    patient_id: UUID = Field(foreign_key="users.id", index=True)
+    doctor_id: UUID = Field(foreign_key="users.id", index=True)
+    verdict: InsightVerdict = Field(sa_column=Column(SAEnum(InsightVerdict, name="insight_verdict"), nullable=False))
+    comment: str | None = Field(default=None, max_length=1000)
+    insight_version: int
+    created_at: datetime = Field(default_factory=datetime.utcnow)
+    updated_at: datetime = Field(default_factory=datetime.utcnow)

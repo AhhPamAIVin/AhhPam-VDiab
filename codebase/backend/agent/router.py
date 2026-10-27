@@ -71,6 +71,7 @@ from codebase.backend.auth.dependencies import require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.db import get_session
 from codebase.backend.health import meal_analysis
+from codebase.backend.insights.feedback import rejected_insight_ids
 from codebase.backend.patients.access import ensure_patient_access
 from codebase.backend.summaries.service import ensure_snapshot, refresh_patient_summaries
 from codebase.models.agents.checkpoint import checkpointer
@@ -215,7 +216,8 @@ def _relevant_insights_for_summary(session: Session, current_user: User) -> list
     if current_user.role != UserRole.PATIENT:
         return []
     insights = get_patient_insights(session, current_user.id, source_kind=["weekly_batch", "chat"])
-    return [insight["text"] for insight in insights]
+    rejected = rejected_insight_ids(session, current_user.id)  # Epic 4.4
+    return [insight["text"] for insight in insights if insight["id"] not in rejected]
 
 
 def _patient_parser_drafts(current_user: User, message: str) -> list:

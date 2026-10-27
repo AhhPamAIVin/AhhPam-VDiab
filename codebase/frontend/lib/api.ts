@@ -382,7 +382,14 @@ export interface PatientInsight {
   reviewed: boolean;
   first_observed_at: string;
   last_confirmed_at: string;
+  // Latest doctor verdict (Epic 4.4); always null in a patient's own view.
+  verdict: InsightVerdict | null;
+  verdict_comment: string | null;
+  verdict_version: number | null;
+  verdict_at: string | null;
 }
+
+export type InsightVerdict = "confirmed" | "rejected";
 
 export interface MedicationRecord {
   id: string;
@@ -960,6 +967,16 @@ export const api = {
   patientInsights: (patientId: string) =>
     apiRequest<PatientInsight[]>(
       "/doctor/patients/" + encodeURIComponent(patientId) + "/insights",
+    ),
+  setInsightFeedback: (
+    patientId: string,
+    insightId: string,
+    verdict: InsightVerdict,
+    comment?: string,
+  ) =>
+    apiRequest<PatientInsight>(
+      `/doctor/patients/${encodeURIComponent(patientId)}/insights/${encodeURIComponent(insightId)}/feedback`,
+      { method: "PUT", body: JSON.stringify({ verdict, comment: comment || null }) },
     ),
   createClinicalNote: (patientId: string, data: ClinicalNoteInput) =>
     apiRequest<ClinicalNote>(
