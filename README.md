@@ -114,7 +114,7 @@ Bật khi `.env` có `LANGFUSE_PUBLIC_KEY` + `LANGFUSE_SECRET_KEY` (để trốn
 (`docker-compose.langfuse.yml`) tự tạo project `vdiab-agent` với đúng 2 key trong `.env` ở lần boot đầu,
 nên không cần copy key thủ công. Mỗi lượt `/agent/chat` là một trace (session = chat thread), mọi lời gọi
 LLM khác (insights, summary, script) cũng được trace. Dùng Langfuse Cloud: đặt
-`LANGFUSE_HOST=https://cloud.langfuse.com` và key của project. Trace chứa dữ liệu bệnh nhân — giữ self-host.
+`LANGFUSE_HOST=https://cloud.langfuse.com` và key của project. Trace chứa dữ liệu bệnh nhân — giữ self-host. Ở production nội dung trace luôn bị che (`LANGFUSE_REDACT_CONTENT`), và backend không khởi động nếu `LANGCHAIN_TRACING_V2=true`.
 
 ### Frontend
 
@@ -150,6 +150,9 @@ Copy từ `.env.example` sang `.env` (không commit `.env`). Nguồn sự thật
 | `CORS_ORIGINS` | | `http://localhost:3100` | Danh sách origin được phép, phân tách bởi dấu phẩy — phải khớp cổng frontend thật sự chạy. |
 | `LOG_LEVEL` | | `INFO` | `DEBUG` \| `INFO` \| `WARNING` \| `ERROR`. |
 | `LANGFUSE_PUBLIC_KEY` / `LANGFUSE_SECRET_KEY` / `LANGFUSE_HOST` | | — / — / `http://localhost:3300` | Langfuse — trace mọi lượt gọi Agent/LLM. Để trống key = tắt. |
+| `LANGFUSE_REDACT_CONTENT` | | trống | `true`: thay nội dung prompt/câu trả lời trong trace bằng `[redacted]`. Trống = bật khi `APP_ENV=production`. Xem [docs/DATA_FLOWS.md](docs/DATA_FLOWS.md). |
+| `RETENTION_ENABLED` / `RETENTION_CHAT_DAYS` / `RETENTION_AI_SUMMARY_DAYS` | | `true` / `365` / `730` | Job dọn dữ liệu hết hạn hằng ngày; `0` = giữ vĩnh viễn. Xem [docs/DATA_RETENTION.md](docs/DATA_RETENTION.md). |
+| `BACKUP_PASSPHRASE` / `BACKUP_DIR` / `BACKUP_KEEP` / `BACKUP_REMOTE` | khi sao lưu | — / `./backups` / `72` / — | `scripts/backup_db.sh` (`make backup`). Xem [docs/BACKUP_RESTORE.md](docs/BACKUP_RESTORE.md). |
 | `LANGCHAIN_API_KEY` / `LANGCHAIN_PROJECT` / `LANGCHAIN_TRACING_V2` | | — | LangSmith (legacy) — chỉ khi chạy eval không có `--local`; các target `make eval-*` mặc định chấm cục bộ. |
 
 > Docker Compose override: khi chạy `make up` (backend trong container), `docker-compose.yml` tự ghi đè `DB_HOST=db` / `DB_PORT=5432` để backend nối tới service `db` trong cùng network thay vì `localhost` — không cần sửa `.env` cho việc này.

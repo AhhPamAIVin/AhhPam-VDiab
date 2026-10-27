@@ -1,7 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlmodel import Session
 
+from codebase.backend.audit import service as audit
 from codebase.backend.auth import service
 from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
@@ -23,8 +24,23 @@ def login(
     form_data: OAuth2PasswordRequestForm = Depends(),
     session: Session = Depends(get_session),
 ) -> TokenResponse:
-    """Authenticate with email (as the OAuth2 'username' field) and password."""
-    user = service.authenticate_user(session, email=form_data.username, password=form_data.password)
+    """Authenticate with email (as the OAuth2 'username' field) and password.
+    Both outcomes are audited; a failure names the account when the email
+    exists (the email itself is never stored), so repeated failures against
+    one account are visible."""
+    try:
+        user = service.authenticate_user(session, email=form_data.username, password=form_data.password)
+    except HTTPException:
+        known = service.find_user_by_email(session, form_data.username)
+        audit.record(
+            session,
+            "auth.login",
+            actor_id=known.id if known else None,
+            actor_role=known.role.value if known else "anonymous",
+            outcome="failure",
+        )
+        raise
+    audit.record(session, "auth.login", actor_id=user.id, actor_role=user.role.value)
     return TokenResponse(access_token=service.issue_token_for(user))
 
 

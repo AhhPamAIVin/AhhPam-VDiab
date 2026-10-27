@@ -64,6 +64,65 @@ jobs:
           path: eval/results/ci-latest.json
           if-no-files-found: ignore
 
+  # Task 6.6: secrets and vulnerable dependencies. GitHub-hosted, so nothing
+  # left over on the self-hosted runner changes the result.
+  security:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # Only the commits this push/PR adds: a finding blocks the change that
+      # introduces it. A full-history scan is a one-off — docs/SECURITY_CI.md.
+      - name: Secret scan (gitleaks)
+        env:
+          GITLEAKS_VERSION: "8.28.0"
+          EVENT_NAME: ${{ github.event_name }}
+          PR_BASE: ${{ github.event.pull_request.base.sha }}
+          PR_HEAD: ${{ github.event.pull_request.head.sha }}
+          PUSH_BEFORE: ${{ github.event.before }}
+          PUSH_AFTER: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          cd "$RUNNER_TEMP"
+          base="https://github.com/gitleaks/gitleaks/releases/download/v${GITLEAKS_VERSION}"
+          curl -fsSLO "$base/gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
+          curl -fsSLO "$base/gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          sha256sum --check --ignore-missing "gitleaks_${GITLEAKS_VERSION}_checksums.txt"
+          tar -xzf "gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz" gitleaks
+          cd "$GITHUB_WORKSPACE"
+          if [ "$EVENT_NAME" = "pull_request" ]; then
+            range="$PR_BASE..$PR_HEAD"
+          elif [ -n "$PUSH_BEFORE" ] && [ "$PUSH_BEFORE" != "0000000000000000000000000000000000000000" ]; then
+            range="$PUSH_BEFORE..$PUSH_AFTER"
+          else
+            range="$PUSH_AFTER~1..$PUSH_AFTER"
+          fi
+          echo "scanning $range"
+          "$RUNNER_TEMP/gitleaks" git --config .gitleaks.toml --log-opts="$range" --redact --verbose --exit-code 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      # Audits exactly what requirements.txt resolves to (metadata only, no
+      # install). Ignored, eval-only (ragas, used by `make eval-*` on a
+      # developer machine, never imported by the backend):
+      #   PYSEC-2026-3046/3047 ragas — file/URL reads in multimodal metrics we don't use
+      #   PYSEC-2026-2447 diskcache (via ragas) — pickle in a local cache dir; needs write access to it
+      # Re-check when ragas is upgraded (requirements.txt explains the pin).
+      - name: Dependency audit (Python)
+        run: |
+          set -euo pipefail
+          python -m pip install --quiet --upgrade pip pip-audit
+          python -m pip install --dry-run --ignore-installed --quiet --report "$RUNNER_TEMP/resolved.json" -r requirements.txt
+          python -c "import json,sys; r=json.load(open(sys.argv[1], encoding='utf-8')); print('\n'.join(f\"{i['metadata']['name']}=={i['metadata']['version']}\" for i in r['install']))" \
+            "$RUNNER_TEMP/resolved.json" >"$RUNNER_TEMP/resolved.txt"
+          pip-audit -r "$RUNNER_TEMP/resolved.txt" --no-deps --disable-pip --progress-spinner off \
+            --ignore-vuln PYSEC-2026-3046 --ignore-vuln PYSEC-2026-3047 --ignore-vuln PYSEC-2026-2447
+
   # The test suite runs on SQLite; native enum types and index drift only
   # exist on Postgres, which is where the startup schema repair in db.py
   # matters. GitHub-hosted runner for the service container.
@@ -127,6 +186,10 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      # Task 6.6: what ships to the browser/server; dev tooling is audited by hand.
+      - name: Dependency audit
+        run: npm audit --omit=dev --audit-level=high
 
       - name: Type-check
         run: npx tsc --noEmit -p tsconfig.json

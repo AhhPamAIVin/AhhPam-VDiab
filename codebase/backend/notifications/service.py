@@ -124,7 +124,7 @@ def _push_glucose_alert(chat_id: str | None, *, title: str, message: str) -> Non
     try:
         asyncio.run(ZaloBotNotifier().send_message(chat_id, f"{title}\n{message}"))
     except (ZaloConfigurationError, ZaloAPIError):
-        logger.warning("glucose alert Zalo push failed for chat_id=%s", chat_id)
+        logger.warning("glucose alert Zalo push failed")
 
 
 def create_glucose_alert_notification(

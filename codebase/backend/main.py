@@ -1,4 +1,5 @@
 import logging
+import os
 import threading
 from contextlib import asynccontextmanager
 
@@ -12,6 +13,8 @@ from codebase.backend.agent.chat_suggestions import router as chat_suggestions_r
 from codebase.backend.agent.router import router as agent_router
 from codebase.backend.agent.summary_metrics import router as summary_metrics_router
 from codebase.backend.appointments.router import router as appointments_router
+from codebase.backend.audit.context import AuditContextMiddleware
+from codebase.backend.audit.router import router as audit_router
 from codebase.backend.auth.router import router as auth_router
 from codebase.backend.config import get_settings
 from codebase.backend.db import create_db_and_tables
@@ -28,6 +31,8 @@ from codebase.backend.notifications.router import router as notifications_router
 from codebase.backend.notifications.scheduler import shutdown_scheduler, start_scheduler
 from codebase.backend.notifications.zalo_link_listener import start_zalo_link_listener, stop_zalo_link_listener
 from codebase.backend.patients.router import router as patients_router
+from codebase.backend.privacy.router import admin_router as privacy_admin_router
+from codebase.backend.privacy.router import router as privacy_router
 from codebase.backend.reports.router import router as reports_router
 from codebase.backend.security.rate_limit import limit_agent
 from codebase.backend.security.sql_injection_guard import SQLInjectionGuardMiddleware
@@ -43,13 +48,30 @@ def _warm_up_embeddings() -> None:
         logging.getLogger(__name__).exception("embedding model warm-up failed")
 
 
-def check_production_settings(settings) -> None:
-    """Refuse to start a production backend against an unauthenticated Qdrant:
-    the patient_insights collection holds patient data (Epic 5.7 / 6.4)."""
-    if settings.app_env == "production" and not settings.qdrant_location and not settings.qdrant_api_key:
+_LANGSMITH_SWITCHES = ("LANGCHAIN_TRACING_V2", "LANGCHAIN_TRACING", "LANGSMITH_TRACING", "LANGSMITH_TRACING_V2")
+
+
+def check_production_settings(settings, environ=os.environ) -> None:
+    """Refuse to start a production backend that would leak patient data:
+    - against an unauthenticated Qdrant (patient_insights holds patient data,
+      Epic 5.7 / 6.4);
+    - with LangSmith tracing switched on through the environment: LangChain
+      then ships every prompt and answer to LangSmith's cloud, unredacted
+      (task 6.4). docker-compose's env_file exports .env into the container,
+      so a LANGCHAIN_TRACING_V2=true left there is enough. Langfuse
+      (self-hosted, content redacted in production) is the tracing path."""
+    if settings.app_env != "production":
+        return
+    if not settings.qdrant_location and not settings.qdrant_api_key:
         raise RuntimeError(
             "QDRANT_API_KEY must be set when APP_ENV=production (and the Qdrant server started with "
             "QDRANT__SERVICE__API_KEY) — see docs/OPERATIONS_RUNBOOK.md."
+        )
+    enabled = [name for name in _LANGSMITH_SWITCHES if environ.get(name, "").strip().lower() in {"1", "true", "yes"}]
+    if enabled:
+        raise RuntimeError(
+            f"{', '.join(enabled)} must not be enabled when APP_ENV=production — LangSmith would receive "
+            "patient data. Use Langfuse (docs/DATA_FLOWS.md)."
         )
 
 
@@ -86,6 +108,10 @@ logging.basicConfig(
     level=settings.log_level,
     format="%(asctime)s %(levelname)s %(name)s: %(message)s",
 )
+# httpx logs every request URL at INFO, and the Zalo Bot API carries its
+# token in the URL path (notifications/zalo.py) — task 6.4 log review.
+logging.getLogger("httpx").setLevel(max(logging.WARNING, logging.getLogger().level))
+logging.getLogger("httpcore").setLevel(max(logging.WARNING, logging.getLogger().level))
 
 app.add_middleware(
     CORSMiddleware,
@@ -95,9 +121,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.add_middleware(SQLInjectionGuardMiddleware)
+# Added last = outermost: every request, including ones the inner middlewares
+# reject, runs inside its audit context (request id, client IP, actor).
+app.add_middleware(AuditContextMiddleware)
 
 app.include_router(auth_router, prefix="/api/v1/auth", tags=["auth"])
 app.include_router(admin_router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(audit_router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(privacy_admin_router, prefix="/api/v1/admin", tags=["admin"])
+app.include_router(privacy_router, prefix="/api/v1/privacy", tags=["privacy"])
 app.include_router(patients_router, prefix="/api/v1/doctor", tags=["patients"])
 app.include_router(insights_router, prefix="/api/v1/doctor", tags=["insights"])
 app.include_router(appointments_router, prefix="/api/v1/appointments", tags=["appointments"])

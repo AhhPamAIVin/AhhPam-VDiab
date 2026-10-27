@@ -1,0 +1,77 @@
+{
+  "description": "Epic 8: recording from chat. Each case: the patient's message and the records that must be drafted (empty = nothing may be recorded). Keys checked when present: value (±0.01), unit, meal_context, systolic, diastolic, duration_minutes, meal_type, description_contains, medication_contains, has_time (a time was resolved, or deliberately not). A key absent from an expectation is not checked.",
+  "cases": [
+    {"id": "A1", "group": "glucose", "message": "Đường huyết sau ăn của tôi 180", "expected": [{"record_type": "glucose", "value": 180, "unit": "mg/dL", "meal_context": "AFTER_MEAL"}]},
+    {"id": "A2", "group": "glucose", "message": "Sáng nay lúc đói tôi đo đường huyết được 126", "expected": [{"record_type": "glucose", "value": 126, "unit": "mg/dL", "meal_context": "FASTING", "has_time": false}]},
+    {"id": "A3", "group": "glucose", "message": "Tôi vừa đo đường huyết, kết quả 145 mg/dL", "expected": [{"record_type": "glucose", "value": 145, "unit": "mg/dL", "has_time": true}]},
+    {"id": "A4", "group": "glucose", "message": "Đường huyết trước khi đi ngủ của tôi là 132", "expected": [{"record_type": "glucose", "value": 132, "meal_context": "BEFORE_SLEEP"}]},
+    {"id": "A5", "group": "glucose", "message": "Đường máu của tôi hiện tại là 98", "expected": [{"record_type": "glucose", "value": 98, "unit": "mg/dL", "has_time": true}]},
+    {"id": "A6", "group": "glucose", "message": "Mình đo đường huyết trước bữa trưa được 110", "expected": [{"record_type": "glucose", "value": 110, "meal_context": "BEFORE_MEAL"}]},
+    {"id": "A7", "group": "glucose", "message": "kết quả đo đường huyết hôm nay của tôi là 7.8 mmol/L", "expected": [{"record_type": "glucose", "value": 7.8, "unit": "mmol/L"}]},
+    {"id": "A8", "group": "glucose", "message": "Đường huyết 2 tiếng sau ăn tối của em là 210", "expected": [{"record_type": "glucose", "value": 210, "meal_context": "AFTER_MEAL"}]},
+
+    {"id": "B1", "group": "unaccented", "message": "dg sau an 180", "expected": [{"record_type": "glucose", "value": 180, "unit": "mg/dL", "meal_context": "AFTER_MEAL"}]},
+    {"id": "B2", "group": "unaccented", "message": "duong huyet luc doi sang nay 6.5", "expected": [{"record_type": "glucose", "value": 6.5, "unit": "mmol/L", "meal_context": "FASTING"}]},
+    {"id": "B3", "group": "unaccented", "message": "dh vừa đo 156", "expected": [{"record_type": "glucose", "value": 156, "has_time": true}]},
+    {"id": "B4", "group": "unaccented", "message": "dg truoc an trua 118", "expected": [{"record_type": "glucose", "value": 118, "meal_context": "BEFORE_MEAL"}]},
+    {"id": "B5", "group": "unaccented", "message": "em do dg dc 140 sau an", "expected": [{"record_type": "glucose", "value": 140, "meal_context": "AFTER_MEAL"}]},
+    {"id": "B6", "group": "unaccented", "message": "ha cua toi 135/85", "expected": [{"record_type": "blood_pressure", "systolic": 135, "diastolic": 85}]},
+    {"id": "B7", "group": "unaccented", "message": "huyet ap cua toi 128/82", "expected": [{"record_type": "blood_pressure", "systolic": 128, "diastolic": 82}]},
+    {"id": "B8", "group": "unaccented", "message": "duong mau cua toi 8 phay 1", "expected": [{"record_type": "glucose", "value": 8.1, "unit": "mmol/L"}]},
+
+    {"id": "C1", "group": "units", "message": "Đường huyết của tôi 7 phẩy 2", "expected": [{"record_type": "glucose", "value": 7.2, "unit": "mmol/L"}]},
+    {"id": "C2", "group": "units", "message": "Tôi đo đường huyết được 30", "expected": [{"record_type": "glucose", "value": 30, "unit": null}]},
+    {"id": "C3", "group": "units", "message": "đường huyết lúc đói của tôi 5,9 mmol", "expected": [{"record_type": "glucose", "value": 5.9, "unit": "mmol/L", "meal_context": "FASTING"}]},
+    {"id": "C4", "group": "units", "message": "chỉ số đường của tôi 250 mg/dl sau ăn", "expected": [{"record_type": "glucose", "value": 250, "unit": "mg/dL", "meal_context": "AFTER_MEAL"}]},
+    {"id": "C5", "group": "units", "message": "đường huyết tôi đo được 11", "expected": [{"record_type": "glucose", "value": 11, "unit": "mmol/L"}]},
+
+    {"id": "D1", "group": "time", "message": "Hôm qua lúc 9 giờ tối tôi đo đường huyết được 160", "expected": [{"record_type": "glucose", "value": 160, "has_time": true}]},
+    {"id": "D2", "group": "time", "message": "Đường huyết của tôi 30 phút trước là 150", "expected": [{"record_type": "glucose", "value": 150, "has_time": true}]},
+    {"id": "D3", "group": "time", "message": "Sáng nay tôi đo đường huyết 135", "expected": [{"record_type": "glucose", "value": 135, "has_time": false}]},
+    {"id": "D4", "group": "time", "message": "Tối qua 21h30 đường huyết của tôi 142", "expected": [{"record_type": "glucose", "value": 142, "has_time": true}]},
+    {"id": "D5", "group": "time", "message": "hôm qua 7h sáng lúc đói đường huyết của tôi 120", "expected": [{"record_type": "glucose", "value": 120, "meal_context": "FASTING", "has_time": true}]},
+    {"id": "D6", "group": "time", "message": "Lúc nãy tôi đo đường huyết được 170", "expected": [{"record_type": "glucose", "value": 170, "has_time": false}]},
+    {"id": "D7", "group": "time", "message": "Đường huyết của tôi bây giờ là 112", "expected": [{"record_type": "glucose", "value": 112, "has_time": true}]},
+
+    {"id": "E1", "group": "blood_pressure", "message": "Huyết áp của tôi sáng nay 130/85", "expected": [{"record_type": "blood_pressure", "systolic": 130, "diastolic": 85}]},
+    {"id": "E2", "group": "blood_pressure", "message": "huyết áp của tôi 140 trên 90", "expected": [{"record_type": "blood_pressure", "systolic": 140, "diastolic": 90}]},
+    {"id": "E3", "group": "blood_pressure", "message": "Tôi vừa đo huyết áp được 118/76", "expected": [{"record_type": "blood_pressure", "systolic": 118, "diastolic": 76, "has_time": true}]},
+    {"id": "E4", "group": "blood_pressure", "message": "Huyết áp hôm qua lúc 8h tối của tôi 150/95", "expected": [{"record_type": "blood_pressure", "systolic": 150, "diastolic": 95, "has_time": true}]},
+    {"id": "E5", "group": "blood_pressure", "message": "Huyết áp của tôi tâm thu 125 tâm trương 80", "expected": [{"record_type": "blood_pressure", "systolic": 125, "diastolic": 80}]},
+
+    {"id": "F1", "group": "meal", "message": "Trưa nay tôi ăn 2 bát phở bò", "expected": [{"record_type": "meal", "description_contains": "phở bò", "meal_type": "lunch"}]},
+    {"id": "F2", "group": "meal", "message": "Bữa sáng tôi ăn một ổ bánh mì trứng và ly cà phê sữa", "expected": [{"record_type": "meal", "description_contains": "bánh mì", "meal_type": "breakfast"}]},
+    {"id": "F3", "group": "meal", "message": "Tối qua tôi ăn cơm với cá kho và rau muống luộc", "expected": [{"record_type": "meal", "description_contains": "cá kho", "meal_type": "dinner"}]},
+    {"id": "F4", "group": "meal", "message": "toi vua an 1 dia com tam", "expected": [{"record_type": "meal", "description_contains": "com tam", "has_time": true}]},
+    {"id": "F5", "group": "meal", "message": "Tôi vừa ăn nhẹ một quả chuối", "expected": [{"record_type": "meal", "description_contains": "chuối"}]},
+    {"id": "F6", "group": "meal", "message": "Hôm nay tôi ăn bún chả", "expected": [{"record_type": "meal", "description_contains": "bún chả"}]},
+
+    {"id": "G1", "group": "activity", "message": "Tôi vừa đi bộ 30 phút", "expected": [{"record_type": "activity", "duration_minutes": 30, "has_time": true}]},
+    {"id": "G2", "group": "activity", "message": "Chiều nay tôi đạp xe 45 phút", "expected": [{"record_type": "activity", "duration_minutes": 45}]},
+    {"id": "G3", "group": "activity", "message": "sang nay toi di bo 1 tieng", "expected": [{"record_type": "activity", "duration_minutes": 60}]},
+    {"id": "G4", "group": "activity", "message": "Tối qua tôi tập yoga 20 phút", "expected": [{"record_type": "activity", "duration_minutes": 20}]},
+
+    {"id": "H1", "group": "medication", "message": "Sáng nay tôi quên uống metformin", "expected": [{"record_type": "medication_note", "medication_contains": "metformin"}]},
+    {"id": "H2", "group": "medication", "message": "toi quen uong thuoc metformin toi qua", "expected": [{"record_type": "medication_note", "medication_contains": "metformin"}]},
+    {"id": "H3", "group": "medication", "message": "Hôm qua tôi bỏ liều metformin buổi tối", "expected": [{"record_type": "medication_note", "medication_contains": "metformin"}]},
+
+    {"id": "I1", "group": "compound", "message": "Sáng nay đường huyết lúc đói của tôi 128, huyết áp 125/80", "expected": [{"record_type": "glucose", "value": 128, "meal_context": "FASTING"}, {"record_type": "blood_pressure", "systolic": 125, "diastolic": 80}]},
+    {"id": "I2", "group": "compound", "message": "Trưa nay tôi ăn cơm gà, 2 tiếng sau đo đường huyết 190", "expected": [{"record_type": "meal", "description_contains": "cơm gà"}, {"record_type": "glucose", "value": 190}]},
+    {"id": "I3", "group": "compound", "message": "dg luc doi cua toi 6.8, di bo 30 phut", "expected": [{"record_type": "glucose", "value": 6.8, "unit": "mmol/L", "meal_context": "FASTING"}, {"record_type": "activity", "duration_minutes": 30}]},
+    {"id": "I4", "group": "compound", "message": "Tôi quên uống metformin và đường huyết của tôi bây giờ là 210", "expected": [{"record_type": "medication_note", "medication_contains": "metformin"}, {"record_type": "glucose", "value": 210, "has_time": true}]},
+    {"id": "I5", "group": "compound", "message": "Đường huyết sau ăn của tôi 175 mà tôi thấy hơi mệt, có sao không?", "expected": [{"record_type": "glucose", "value": 175, "meal_context": "AFTER_MEAL"}]},
+
+    {"id": "J1", "group": "negative", "message": "Đường huyết 180 có cao không?", "expected": []},
+    {"id": "J2", "group": "negative", "message": "Nếu đường huyết của tôi 250 thì phải làm sao?", "expected": []},
+    {"id": "J3", "group": "negative", "message": "Mẹ tôi đo đường huyết được 200", "expected": []},
+    {"id": "J4", "group": "negative", "message": "Tối nay tôi định ăn phở", "expected": []},
+    {"id": "J5", "group": "negative", "message": "Đường huyết lúc đói bao nhiêu là bình thường?", "expected": []},
+    {"id": "J6", "group": "negative", "message": "Ăn chuối có làm tăng đường huyết không?", "expected": []},
+    {"id": "J7", "group": "negative", "message": "Tuần này đường huyết trung bình của tôi bao nhiêu?", "expected": []},
+    {"id": "J8", "group": "negative", "message": "Giả sử huyết áp 140/90 thì có nguy hiểm không", "expected": []},
+    {"id": "J9", "group": "negative", "message": "Chồng tôi vừa đi bộ 30 phút", "expected": []},
+    {"id": "J10", "group": "negative", "message": "Tôi nên ăn gì vào bữa sáng?", "expected": []},
+    {"id": "J11", "group": "negative", "message": "Bác sĩ dặn đường huyết sau ăn phải dưới 180", "expected": []},
+    {"id": "J12", "group": "negative", "message": "Hôm qua đường huyết của tôi bao nhiêu?", "expected": []}
+  ]
+}

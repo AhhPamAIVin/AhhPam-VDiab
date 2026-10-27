@@ -22,7 +22,11 @@ def _messages_update(state: AgentState, final_response: str) -> dict:
     there's nothing conversational to append to."""
     if state.get("request_kind") != "chat" or not final_response:
         return {}
-    return {"messages": [AIMessage(content=final_response)]}
+    # The AI-assessment box rides along out of band, so a reopened chat shows
+    # it again without it becoming part of the conversation text.
+    assessment = None if state.get("canned_response") else state.get("assessment")
+    extra = {"ai_assessment": assessment} if assessment else {}
+    return {"messages": [AIMessage(content=final_response, additional_kwargs=extra)]}
 
 
 async def respond(state: AgentState) -> dict:
@@ -46,6 +50,7 @@ async def respond(state: AgentState) -> dict:
         # message as if it were grounded in retrieved guideline chunks.
         return {
             "response": response,
+            "assessment": None,
             "record_candidates": [],
             "data_used": [],
             "sources": [],

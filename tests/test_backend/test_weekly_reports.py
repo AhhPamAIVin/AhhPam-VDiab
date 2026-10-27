@@ -382,4 +382,6 @@ async def test_agent_tool_reads_the_latest_report(session: Session, patient: Use
     )
     report = outcome.state_update["tool_results"]["weekly_report"]
     assert report["week"] == "18/10/2026–24/10/2026"
-    assert report["tip"]
+    assert report["stats"]
+    # The report's "việc nên làm" tip is advice: the chat assistant never sees it (Epic 8).
+    assert "tip" not in report

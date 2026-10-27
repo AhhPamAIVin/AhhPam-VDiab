@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin backup restore backup-drill logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-record-extraction eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -88,6 +88,17 @@ db-reset:
 	docker compose rm -f db
 	-docker volume rm diab_db
 	docker compose up -d db
+
+# Encrypted backup / restore / restore drill (task 6.3, docs/BACKUP_RESTORE.md).
+# Need BACKUP_PASSPHRASE in the environment; DB_* as in .env, or PG_CONTAINER.
+backup:
+	bash scripts/backup_db.sh
+
+restore:
+	bash scripts/restore_db.sh $(RUN)
+
+backup-drill:
+	bash scripts/backup_restore_drill.sh
 
 # Bootstrap the first Admin account from ADMIN_SEED_* in .env. Safe to re-run.
 seed-admin:
@@ -269,5 +280,10 @@ eval-watch-classifier:
 # does the LLM correctly REPORT the real data the tools handed it.
 eval-personal-data-faithfulness:
 	python -m eval.respond_agent.personal_data_faithfulness $(EVAL_ARGS)
+
+# Recording from chat (Epic 8): eval/data/record_extraction_cases.json (63 Vietnamese
+# messages) through the real agent_plan, vs the old regex parser. Real LLM calls.
+eval-record-extraction:
+	python -m eval.respond_agent.record_extraction $(EVAL_ARGS)
 
 eval-all: eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden eval-watch-classifier eval-personal-data-faithfulness

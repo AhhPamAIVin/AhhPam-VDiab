@@ -13,6 +13,56 @@ export interface ApiUser {
   created_at: string;
 }
 
+export interface AuditEvent {
+  id: string;
+  ts: string;
+  actor_id: string | null;
+  actor_role: string;
+  actor_name: string | null;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  patient_id: string | null;
+  patient_name: string | null;
+  request_id: string | null;
+  ip: string | null;
+  outcome: "success" | "failure" | "denied" | string;
+  detail: string | null;
+}
+
+export interface AuditEventPage {
+  items: AuditEvent[];
+  total: number;
+}
+
+export interface AuditEventFilters {
+  action?: string;
+  actor_id?: string;
+  patient_id?: string;
+  outcome?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export type DeletionRequestStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export interface DeletionRequest {
+  id: string;
+  patient_id: string;
+  status: DeletionRequestStatus;
+  requested_at: string;
+  decided_at: string | null;
+  decision_note: string | null;
+  deleted_rows: number | null;
+}
+
+export interface AdminDeletionRequest extends DeletionRequest {
+  patient_name: string | null;
+  patient_email: string | null;
+}
+
 export interface GlucoseRecord {
   id: string;
   patient_id: string;
@@ -505,6 +555,8 @@ export interface AgentInteraction {
 
 export interface AgentChatResponse {
   response: string;
+  // Patient chat: the AI's evaluation of the data, shown in a labelled box.
+  ai_assessment?: string | null;
   data_used: string[];
   sources: AgentSourceCitation[];
   limitations: string[];
@@ -531,6 +583,7 @@ export interface ChatSession {
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  ai_assessment?: string | null;
 }
 
 export interface ChatSessionMessagesResponse {
@@ -651,6 +704,21 @@ export async function apiRequest<T>(
   if (!response.ok) await throwForResponse(response);
   if (response.status === 204) return undefined as T;
   return response.json() as Promise<T>;
+}
+
+// A file the server sends as an attachment (Content-Disposition), e.g. the
+// patient's data export.
+export async function apiDownload(
+  path: string,
+): Promise<{ blob: Blob; filename: string | null }> {
+  const headers = new Headers();
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(`${API_BASE}${path}`, { headers });
+  if (!response.ok) await throwForResponse(response);
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const match = /filename="([^"]+)"/.exec(disposition);
+  return { blob: await response.blob(), filename: match ? match[1] : null };
 }
 
 // POST /agent/chat/stream (SSE): `progress` events while the agent works, then
@@ -864,6 +932,14 @@ export const api = {
       method: "POST",
       body: form,
     });
+  },
+  // A meal photo sent in the chat: recognized, then offered as a meal draft
+  // card in that conversation (POST /agent/meal-photo). Never stored.
+  agentMealPhoto: (file: File, sessionId?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (sessionId) form.append("session_id", sessionId);
+    return apiRequest<AgentChatResponse>("/agent/meal-photo", { method: "POST", body: form });
   },
   weeklyReports: () => apiRequest<WeeklyReportListItem[]>("/reports/weekly"),
   weeklyReport: (reportId: string) =>
@@ -1151,5 +1227,36 @@ export const api = {
     apiRequest<ApiUser>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),
+    }),
+  // Task 6.1 — read-only audit trail (admin).
+  auditEvents: (filters: AuditEventFilters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== "") params.set(key, String(value));
+    }
+    return apiRequest<AuditEventPage>(`/admin/audit-events?${params.toString()}`);
+  },
+  // Task 6.5 — patient data rights.
+  exportMyData: (format: "json" | "csv") =>
+    apiDownload(`/privacy/me/export?format=${format}`),
+  myDeletionRequest: () =>
+    apiRequest<DeletionRequest | null>("/privacy/me/deletion-request"),
+  requestAccountDeletion: () =>
+    apiRequest<DeletionRequest>("/privacy/me/deletion-request", { method: "POST" }),
+  cancelAccountDeletion: () =>
+    apiRequest<DeletionRequest>("/privacy/me/deletion-request/cancel", { method: "POST" }),
+  deletionRequests: (status?: DeletionRequestStatus) =>
+    apiRequest<AdminDeletionRequest[]>(
+      `/admin/deletion-requests${status ? `?status=${status}` : ""}`,
+    ),
+  approveDeletionRequest: (id: string, note?: string) =>
+    apiRequest<DeletionRequest>(`/admin/deletion-requests/${encodeURIComponent(id)}/approve`, {
+      method: "POST",
+      body: JSON.stringify({ note: note || null }),
+    }),
+  rejectDeletionRequest: (id: string, note?: string) =>
+    apiRequest<DeletionRequest>(`/admin/deletion-requests/${encodeURIComponent(id)}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ note: note || null }),
     }),
 };

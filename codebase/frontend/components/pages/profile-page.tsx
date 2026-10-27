@@ -29,6 +29,7 @@ import {
   Type,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PatientDataRightsCard } from "@/components/patient-data-rights-card";
 import {
   getPatientFontSize,
   savePatientFontSize,
@@ -350,6 +351,8 @@ export function ProfilePage() {
               </div>
             </div>
           </section>
+
+          {user?.role === "patient" && <PatientDataRightsCard />}
 
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="border-b border-border px-5 py-4">

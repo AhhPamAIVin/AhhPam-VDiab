@@ -48,6 +48,7 @@ from codebase.backend.auth.models import User, UserRole
 from codebase.backend.config import get_settings
 from codebase.backend.db import engine
 from codebase.backend.health.models import ActivityRecord, GlucoseRecord, MealRecord
+from codebase.backend.privacy.retention import run_retention_tick
 from codebase.backend.reports.service import run_weekly_report_tick
 from codebase.models.agents.nodes.reflect import reflect
 
@@ -261,6 +262,15 @@ def start_scheduler() -> BackgroundScheduler:
             _run_previsit_brief_tick,
             CronTrigger(minute=5, timezone=tz),  # hourly, off the top of the hour
             id="previsit_brief_tick",
+            replace_existing=True,
+            max_instances=1,
+            coalesce=True,
+        )
+    if settings.retention_enabled:
+        scheduler.add_job(
+            run_retention_tick,
+            CronTrigger(hour=settings.retention_hour, minute=30, timezone=tz),
+            id="retention_tick",
             replace_existing=True,
             max_instances=1,
             coalesce=True,

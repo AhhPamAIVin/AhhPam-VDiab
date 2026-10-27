@@ -125,7 +125,8 @@ async def _llm_classifies_as(*, system_prompt: str, user_content: str, field: st
 
     value = _parse_bool_field(content, field)
     if value is None:
-        logger.warning("%s safety LLM got unparseable output, allowing submission: %r", log_label, content)
+        # Length only: the output can echo what the patient typed (task 6.4).
+        logger.warning("%s safety LLM got unparseable output (%d chars), allowing submission", log_label, len(content))
     return value
 
 

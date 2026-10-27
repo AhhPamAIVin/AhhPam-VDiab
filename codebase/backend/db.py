@@ -13,7 +13,10 @@ settings = get_settings()
 # pool_pre_ping: a pooled connection the server closed (the idle-in-transaction
 # timeout below, or the pooler) is replaced at checkout instead of failing the
 # request that happens to draw it.
-engine = create_engine(settings.database_url, echo=False, pool_pre_ping=True)
+# hide_parameters: a failed statement's error text (logged with its traceback
+# by main.py's exception handler) leaves out the bound values — a glucose
+# value, a note, a name (task 6.4: no PHI in logs).
+engine = create_engine(settings.database_url, echo=False, pool_pre_ping=True, hide_parameters=True)
 
 
 @event.listens_for(engine, "connect")
@@ -58,10 +61,14 @@ def create_db_and_tables() -> None:
     Postgres enum values, and index drift (see each helper) — additive or
     relaxing only; never drops/renames/alters existing columns.
     """
+    from codebase.backend.audit.models import ensure_append_only
+
     SQLModel.metadata.create_all(engine)
     _add_missing_columns()
     _add_missing_enum_values()
     _repair_indexes()
+    with engine.begin() as conn:
+        ensure_append_only(conn)
 
 
 def _repair_indexes() -> None:

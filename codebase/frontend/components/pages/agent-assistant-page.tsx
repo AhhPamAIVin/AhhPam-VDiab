@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   AlertTriangle,
   Bot,
+  Camera,
   CheckCircle2,
   ChevronRight,
   Copy,
@@ -50,6 +51,10 @@ type Message = {
   sources?: AgentSourceCitation[];
   limitations?: string[];
   handoff?: boolean;
+  // The AI's evaluation of the patient's data — shown apart, labelled as AI.
+  aiAssessment?: string | null;
+  // Local preview of a meal photo the patient sent (object URL, never uploaded for storage).
+  photoUrl?: string;
   // Set only for the "Tóm tắt sức khỏe" quick-reply — lets MessageBubble embed
   // the same structured AgentSummaryContent used on the dashboard instead of
   // a flattened text blob. Both come from a fetch already done in
@@ -94,6 +99,7 @@ const mapRestoredMessage = (message: ChatMessage, index: number): Message => ({
   id: `restored-${index}`,
   role: message.role,
   content: message.content,
+  aiAssessment: message.ai_assessment,
   time: "",
 });
 
@@ -111,6 +117,7 @@ export function AgentAssistantPage() {
   // the previous chips in place rather than clearing them.
   const [suggestedQuestions, setSuggestedQuestions] = useState<string[]>(suggestions);
   const bottomRef = useRef<HTMLDivElement>(null);
+  const photoInput = useRef<HTMLInputElement>(null);
   const tts = useTtsPlayback();
   const autoRead = useTtsAutoRead();
   const {
@@ -149,6 +156,54 @@ export function AgentAssistantPage() {
         // Keep whatever chips are already shown — a failed suggestion
         // fetch must never disrupt the chat itself.
       });
+  };
+
+  // Epic 8.6: a meal photo becomes a meal draft card in this conversation.
+  // Same consent as the meals page, asked the first time; the photo is shown
+  // only as a local preview and is never stored.
+  const sendMealPhoto = async (file: File) => {
+    if (loading) return;
+    setError(null);
+    try {
+      const me = await api.me();
+      if (!me.meal_photo_ai_consent) {
+        const agreed = window.confirm(
+          "Ảnh sẽ được gửi tới dịch vụ AI để nhận diện món ăn, không được lưu lại. Bạn đồng ý chứ?",
+        );
+        if (!agreed) return;
+        await api.updateMe({ meal_photo_ai_consent: true });
+      }
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Không thể kiểm tra quyền gửi ảnh.");
+      return;
+    }
+    const preview = URL.createObjectURL(file);
+    setMessages((items) => [
+      ...items,
+      { id: "q-" + Date.now(), role: "user", content: "📷 Ảnh bữa ăn", photoUrl: preview, time: now() },
+    ]);
+    setLoading(true);
+    setProgress("Đang nhận diện món ăn trong ảnh…");
+    try {
+      const result = await api.agentMealPhoto(file, activeSessionId ?? undefined);
+      registerSessionId(result.session_id);
+      setMessages((items) => [
+        ...items,
+        {
+          id: "a-" + Date.now(),
+          role: "assistant",
+          content: result.response,
+          time: now(),
+          interaction: result.interaction,
+          interactions: result.interactions ?? [],
+        },
+      ]);
+    } catch (reason) {
+      setError(reason instanceof Error ? reason.message : "Không phân tích được ảnh.");
+    } finally {
+      setLoading(false);
+      setProgress(null);
+    }
   };
 
   const sendMessage = async (raw: string) => {
@@ -200,6 +255,7 @@ export function AgentAssistantPage() {
           sources: result.sources,
           limitations: result.limitations,
           handoff: result.handoff,
+          aiAssessment: result.ai_assessment,
           interaction: result.interaction,
           interactions:
             result.interactions?.length > 0
@@ -549,6 +605,27 @@ export function AgentAssistantPage() {
             placeholder="Nhập câu hỏi về sức khỏe của bạn..."
             className="max-h-28 min-w-0 flex-1 resize-none bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground disabled:opacity-60 sm:px-3"
           />
+          <input
+            ref={photoInput}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              event.target.value = "";
+              if (file) void sendMealPhoto(file);
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => photoInput.current?.click()}
+            disabled={loading}
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-muted-foreground hover:bg-muted disabled:opacity-40"
+            aria-label="Gửi ảnh bữa ăn"
+            title="Gửi ảnh bữa ăn"
+          >
+            <Camera className="h-4 w-4" />
+          </button>
           <VoiceInputButton
             onFinal={(text) => void sendMessage(text)}
             onClarification={handleVoiceClarification}
@@ -593,6 +670,10 @@ function MessageBubble({
       <div className="flex justify-end gap-2">
         <div className="max-w-[88%] sm:max-w-[82%]">
           <div className="break-words whitespace-pre-wrap rounded-2xl rounded-br-sm bg-primary px-3 py-2.5 text-sm leading-relaxed text-primary-foreground sm:px-4 sm:py-3">
+            {message.photoUrl && (
+              // eslint-disable-next-line @next/next/no-img-element -- local object URL preview
+              <img src={message.photoUrl} alt="Ảnh bữa ăn" className="mb-2 max-h-48 rounded-xl object-cover" />
+            )}
             {message.content}
           </div>
           <p className="mt-1 text-right text-[11px] text-muted-foreground sm:text-xs">
@@ -622,6 +703,15 @@ function MessageBubble({
             <ChatAnswerCards content={message.content} />
           )}
         </div>
+        {message.aiAssessment && (
+          <div className="break-words rounded-xl border border-violet-200 bg-violet-50 px-3 py-2 text-sm text-violet-900 dark:border-violet-900 dark:bg-violet-950/40 dark:text-violet-100">
+            <p className="mb-1 flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wide text-violet-700 dark:text-violet-300">
+              <Sparkles className="h-3.5 w-3.5" />
+              Nhận định do AI tạo — không phải lời khuyên y khoa
+            </p>
+            {message.aiAssessment}
+          </div>
+        )}
         {(message.interactions || (message.interaction ? [message.interaction] : [])).map(
           (interaction) => (
             <RecordInteractionCard
@@ -753,6 +843,8 @@ const recordTypeLabels: Record<string, string> = {
   meal: "Bữa ăn",
   activity: "Vận động",
   medication_note: "Ghi chú dùng thuốc",
+  delete_record: "Xóa bản ghi nhập nhầm",
+  medication_taken: "Uống thuốc",
 };
 
 const recordFieldLabels: Record<string, string> = {
@@ -768,6 +860,7 @@ const recordFieldLabels: Record<string, string> = {
   meal_time: "Thời gian ăn",
   activity_time: "Thời gian vận động",
   meal_context: "Hoàn cảnh đo",
+  summary: "Nội dung",
 };
 
 const enumLabels: Record<string, string> = {
@@ -789,6 +882,7 @@ const missingFieldPrompts: Record<string, string> = {
   meal_time: "Bạn dùng bữa vào lúc nào?",
   activity_time: "Bạn thực hiện hoạt động này vào lúc nào?",
   medication_id: "Bạn đang nói tới thuốc nào?",
+  unit: "Chỉ số này tính theo đơn vị nào?",
 };
 
 function displayDraftValue(field: string, value: unknown, draft: Record<string, unknown>) {
@@ -842,6 +936,7 @@ function RecordInteractionCard({
   ) => void;
 }) {
   const recordType = String(interaction.draft.record_type || "");
+  const isDeletion = recordType === "delete_record";
   const missingField = interaction.field || "";
   const missingFieldLabel = recordFieldLabels[missingField] || "Thông tin bổ sung";
   const missingFieldPrompt =
@@ -883,11 +978,15 @@ function RecordInteractionCard({
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-xs font-semibold text-foreground">
-            {interaction.type === "record_saved"
-              ? "Đã lưu vào hồ sơ"
-              : interaction.type === "confirm_record"
-                ? "Hoàn tất ghi chép · Xác nhận"
-                : "Hoàn tất ghi chép · Bổ sung thông tin"}
+            {recordType === "delete_record"
+              ? interaction.type === "record_saved"
+                ? "Đã xóa khỏi hồ sơ"
+                : "Xác nhận xóa bản ghi"
+              : interaction.type === "record_saved"
+                ? "Đã lưu vào hồ sơ"
+                : interaction.type === "confirm_record"
+                  ? "Hoàn tất ghi chép · Xác nhận"
+                  : "Hoàn tất ghi chép · Bổ sung thông tin"}
           </p>
           <p className="text-[11px] text-muted-foreground">
             {recordTypeLabels[recordType] || "Bản ghi sức khỏe"}
@@ -1040,17 +1139,22 @@ function RecordInteractionCard({
       {interaction.type === "confirm_record" && (
         <div className="border-t border-primary/15 px-3 py-3">
           <p className="mb-2.5 text-xs text-muted-foreground">
-            Thông tin đã đủ. Vui lòng kiểm tra lại trước khi lưu vào hồ sơ.
+            {isDeletion
+              ? "Bản ghi này sẽ bị xóa khỏi hồ sơ. Vui lòng kiểm tra lại."
+              : "Thông tin đã đủ. Vui lòng kiểm tra lại trước khi lưu vào hồ sơ."}
           </p>
           <div className="flex gap-2">
             <button
               type="button"
               disabled={busy}
               onClick={() => onAction({ action: "confirm" })}
-              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-3 py-2.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+              className={cn(
+                "flex flex-1 items-center justify-center gap-2 rounded-xl px-3 py-2.5 text-xs font-semibold disabled:opacity-50",
+                isDeletion ? "bg-red-600 text-white" : "bg-primary text-primary-foreground",
+              )}
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              {busy ? "Đang lưu..." : "Xác nhận và lưu"}
+              {busy ? "Đang xử lý..." : isDeletion ? "Xác nhận xóa" : "Xác nhận và lưu"}
             </button>
             <button
               type="button"
@@ -1058,7 +1162,7 @@ function RecordInteractionCard({
               onClick={() => onAction({ action: "cancel" })}
               className="rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-muted-foreground disabled:opacity-50"
             >
-              Không lưu
+              {isDeletion ? "Giữ lại" : "Không lưu"}
             </button>
           </div>
         </div>

@@ -371,7 +371,9 @@ def test_search_logs_structured_retrieval_line(monkeypatch, ephemeral_collection
 
     payload = json.loads(records[0].getMessage())
     assert payload["tool_name"] == "search_approved_knowledge"
-    assert payload["tool_input"] == {"query": "metformin có dùng được khi suy thận không?", "k": 1}
+    # Length only — the question text never reaches the log (task 6.4).
+    assert payload["tool_input"] == {"query_chars": len("metformin có dùng được khi suy thận không?"), "k": 1}
+    assert "metformin" not in records[0].getMessage()
     assert payload["embedding_model"] == kt.get_settings().embedding_model
     assert len(payload["tool_output"]) == 1
 
