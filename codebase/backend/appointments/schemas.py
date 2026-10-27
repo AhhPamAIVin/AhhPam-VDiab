@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Literal
 from uuid import UUID
 
 from sqlmodel import Field, SQLModel
@@ -36,3 +37,42 @@ class AppointmentPublic(SQLModel):
     created_by: UUID
     created_at: UtcDatetime
     updated_at: UtcDatetime
+
+
+# "ready": up to date · "stale": made before the appointment was rescheduled ·
+# "failed": last attempt failed (retried hourly) · "pending": none yet.
+BriefState = Literal["ready", "stale", "failed", "pending"]
+
+
+class PrevisitBriefPublic(SQLModel):
+    id: UUID
+    appointment_id: UUID
+    patient_id: UUID
+    state: BriefState
+    appointment_scheduled_at: UtcDatetime
+    previous_visit_at: UtcDatetime | None
+    period_start: UtcDatetime
+    period_end: UtcDatetime
+    period_days: int
+    summary: str
+    trends: list[str]
+    attention_points: list[str]
+    limitations: list[str]
+    sections: dict[str, list[str]]
+    data_completeness: dict
+    generated_at: UtcDatetime
+    seen_at: UtcDatetime | None
+
+
+class UpcomingAppointmentPublic(SQLModel):
+    """One row of the doctor's "Lịch khám sắp tới" block (Epic 4.3)."""
+
+    id: UUID
+    patient_id: UUID
+    patient_name: str
+    scheduled_at: UtcDatetime
+    reason: str | None
+    brief_state: BriefState
+    brief_generated_at: UtcDatetime | None
+    brief_unseen: bool
+    attention_count: int | None  # None until a brief exists

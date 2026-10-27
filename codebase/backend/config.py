@@ -78,6 +78,16 @@ class Settings(BaseSettings):
     # (Zalo). Empty: messages say where to look instead of linking.
     frontend_public_url: str = ""
 
+    # Pre-visit brief (Epic 4): an hourly job prepares the doctor's summary
+    # for every scheduled appointment in the next lead_hours. It covers the
+    # time since the last visit (default_days when there is none, 7-90 days)
+    # and is regenerated when the appointment moves, or when new data has
+    # come in and the brief is at least refresh_hours old.
+    previsit_briefs_enabled: bool = True
+    previsit_brief_lead_hours: int = Field(default=48, ge=1, le=168)
+    previsit_brief_refresh_hours: int = Field(default=6, ge=1, le=48)
+    previsit_brief_default_days: int = Field(default=30, ge=7, le=90)
+
     # Database
     db_host: str = "localhost"
     db_port: int = Field(default=5533, ge=1, le=65535)

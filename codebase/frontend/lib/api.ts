@@ -340,9 +340,45 @@ export interface AppointmentInput {
   notes?: string | null;
 }
 
+// Epic 4 — codebase/backend/appointments/schemas.py. "stale": made before the
+// appointment was rescheduled; "failed": last attempt failed (retried hourly).
+export type BriefState = "ready" | "stale" | "failed" | "pending";
+
 // "changes" / "meals" / "medication_adherence" — each never empty for a
 // doctor summary (a "Chưa đủ dữ liệu" line instead).
 export type SummarySections = Partial<Record<"changes" | "meals" | "medication_adherence", string[]>>;
+
+export interface PrevisitBrief {
+  id: string;
+  appointment_id: string;
+  patient_id: string;
+  state: BriefState;
+  appointment_scheduled_at: string;
+  previous_visit_at: string | null;
+  period_start: string;
+  period_end: string;
+  period_days: number;
+  summary: string;
+  trends: string[];
+  attention_points: string[];
+  limitations: string[];
+  sections: SummarySections;
+  data_completeness: Record<string, unknown>;
+  generated_at: string;
+  seen_at: string | null;
+}
+
+export interface UpcomingAppointment {
+  id: string;
+  patient_id: string;
+  patient_name: string;
+  scheduled_at: string;
+  reason: string | null;
+  brief_state: BriefState;
+  brief_generated_at: string | null;
+  brief_unseen: boolean;
+  attention_count: number | null;
+}
 
 export interface ClinicalNote {
   id: string;
@@ -1035,6 +1071,18 @@ export const api = {
   deleteAppointment: (appointmentId: string) =>
     apiRequest<void>(`/appointments/${encodeURIComponent(appointmentId)}`, {
       method: "DELETE",
+    }),
+  upcomingAppointments: (days = 7) =>
+    apiRequest<UpcomingAppointment[]>(`/appointments/upcoming?days=${days}`),
+  previsitBrief: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief`),
+  generatePrevisitBrief: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief`, {
+      method: "POST",
+    }),
+  markPrevisitBriefSeen: (appointmentId: string) =>
+    apiRequest<PrevisitBrief>(`/appointments/${encodeURIComponent(appointmentId)}/brief/seen`, {
+      method: "POST",
     }),
   agentChat: (message: string, patientId?: string, sessionId?: string) =>
     apiRequest<AgentChatResponse>("/agent/chat", {

@@ -37,6 +37,7 @@ import { PatientInsightsPanel } from "@/components/patient-insights-panel";
 import { PatientMealsPanel } from "@/components/patient-meals-panel";
 import { MedicationAdherencePanel } from "@/components/medication-adherence-panel";
 import { AgentSummaryCard } from "@/components/agent-summary-card";
+import { PrevisitBriefCard } from "@/components/previsit-brief-card";
 import { Pagination } from "@/components/ui/pagination";
 import { ChatAnswerCards } from "@/components/chat-answer-cards";
 import { AgentChatSidebar } from "@/components/agent-chat-sidebar";
@@ -1052,6 +1053,7 @@ export function PatientDetailPage({
             ))}
           </div>
 
+          <PrevisitBriefCard patientId={patientId} patientName={patient.name} />
           <AgentSummaryCard patientId={patientId} days={RANGE_DAYS[glucoseRange]} />
           {/* Trend chart */}
           <div className="bg-card rounded-2xl p-5 border border-border">

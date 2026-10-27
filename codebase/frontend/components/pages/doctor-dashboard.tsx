@@ -15,8 +15,8 @@ import {
   Clock,
   ClipboardList,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { api, Appointment } from "@/lib/api";
+import { cn, parseUtcTimestamp } from "@/lib/utils";
+import { api, Appointment, type BriefState, type UpcomingAppointment } from "@/lib/api";
 import { useAuth } from "@/lib/auth-context";
 import { Pagination } from "@/components/ui/pagination";
 import { Select } from "antd";
@@ -65,11 +65,20 @@ const alertConfig = {
   },
 };
 
+// Epic 4.3 — brief status on the "Lịch khám sắp tới" block.
+const briefStateConfig: Record<BriefState, { label: string; className: string }> = {
+  ready: { label: "Đã có brief", className: "bg-[#EAF8F6] text-[#238D87] border-[#43B5AE]/40" },
+  stale: { label: "Đổi giờ — chờ tạo lại", className: "bg-amber-50 text-amber-700 border-amber-200" },
+  failed: { label: "Lỗi — đang thử lại", className: "bg-red-50 text-red-700 border-red-200" },
+  pending: { label: "Chưa có brief", className: "bg-muted text-muted-foreground border-border" },
+};
+
 export function DoctorDashboard({ onViewPatient }: DoctorDashboardProps) {
   const { user } = useAuth();
   const searchParams = useSearchParams();
   const [patients, setPatients] = useState<typeof doctorPatients>([]);
   const [appointments, setAppointments] = useState<DoctorAppointment[]>([]);
+  const [upcoming, setUpcoming] = useState<UpcomingAppointment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
@@ -83,12 +92,14 @@ export function DoctorDashboard({ onViewPatient }: DoctorDashboardProps) {
     const load = async () => {
       setLoading(true);
       setError(null);
-      const [patientsResult, appointmentsResult] = await Promise.allSettled([
+      const [patientsResult, appointmentsResult, upcomingResult] = await Promise.allSettled([
         api.patients(),
         api.appointments(),
+        api.upcomingAppointments(7),
       ]);
 
       if (cancelled) return;
+      setUpcoming(upcomingResult.status === "fulfilled" ? upcomingResult.value : []);
 
       if (patientsResult.status === "fulfilled") {
         const mapped = await Promise.all(
@@ -207,6 +218,20 @@ export function DoctorDashboard({ onViewPatient }: DoctorDashboardProps) {
   const patientNames = new Map(
     patients.map((patient) => [patient.id, patient.name]),
   );
+  // Priority: current alert level, then how many attention points the brief
+  // found (unknown last), then the soonest appointment.
+  const alertRank = { critical: 0, warning: 1, normal: 2 } as const;
+  const patientAlert = new Map(patients.map((patient) => [patient.id, patient.alertLevel]));
+  const rankedUpcoming = [...upcoming].sort((a, b) => {
+    const alertA = alertRank[(patientAlert.get(a.patient_id) ?? "normal") as keyof typeof alertRank];
+    const alertB = alertRank[(patientAlert.get(b.patient_id) ?? "normal") as keyof typeof alertRank];
+    return (
+      alertA - alertB ||
+      (b.attention_count ?? -1) - (a.attention_count ?? -1) ||
+      parseUtcTimestamp(a.scheduled_at).getTime() - parseUtcTimestamp(b.scheduled_at).getTime()
+    );
+  });
+  const unseenBriefs = upcoming.filter((item) => item.brief_unseen).length;
   const requestedSection = searchParams.get("section") || "overview";
   const section = requestedSection === "patients" ? "overview" : requestedSection;
 
@@ -298,6 +323,14 @@ export function DoctorDashboard({ onViewPatient }: DoctorDashboardProps) {
                 {today.length} lịch hôm nay
               </span>
             </div>
+            {unseenBriefs > 0 && (
+              <div className="flex items-center gap-1.5">
+                <ClipboardList className="w-4 h-4 text-white/80" />
+                <span className="text-sm text-white/90 font-medium">
+                  {unseenBriefs} brief tái khám mới
+                </span>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -446,23 +479,48 @@ export function DoctorDashboard({ onViewPatient }: DoctorDashboardProps) {
             <section className="rounded-2xl border border-border bg-card p-5">
               <div className="mb-4 flex items-center gap-2">
                 <CalendarDays className="h-4 w-4 text-primary" />
-                <div><h3 className="font-semibold text-foreground">Lịch hôm nay</h3><p className="text-xs text-muted-foreground">Các lịch tái khám sắp tới</p></div>
-                <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-primary">{today.length}</span>
+                <div>
+                  <h3 className="font-semibold text-foreground">Lịch khám sắp tới</h3>
+                  <p className="text-xs text-muted-foreground">7 ngày tới · ưu tiên theo mức cảnh báo và số điểm cần chú ý trong brief</p>
+                </div>
+                <span className="ml-auto rounded-full bg-accent px-2 py-0.5 text-xs font-medium text-primary">{rankedUpcoming.length}</span>
               </div>
-              {today.length === 0 ? (
-                <p className="rounded-xl bg-muted p-6 text-center text-sm text-muted-foreground">Không có lịch tái khám nào hôm nay.</p>
+              {rankedUpcoming.length === 0 ? (
+                <p className="rounded-xl bg-muted p-6 text-center text-sm text-muted-foreground">Không có lịch tái khám nào trong 7 ngày tới.</p>
               ) : (
                 <div className="space-y-2">
-                  {today.map((appointment) => (
-                    <div key={appointment.id} className="flex items-center gap-3 rounded-xl bg-muted p-3">
-                      <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-accent"><Clock className="h-4 w-4 text-primary" /></div>
-                      <div className="min-w-0 flex-1">
-                        <p className="truncate text-sm font-medium text-foreground">{patientNames.get(appointment.patient) || appointment.patient}</p>
-                        <p className="truncate text-xs text-muted-foreground">{appointment.type}</p>
-                      </div>
-                      <p className="text-sm font-semibold text-foreground">{appointment.time}</p>
-                    </div>
-                  ))}
+                  {rankedUpcoming.map((item) => {
+                    const at = parseUtcTimestamp(item.scheduled_at);
+                    const alert = alertConfig[(patientAlert.get(item.patient_id) ?? "normal") as keyof typeof alertConfig];
+                    const brief = briefStateConfig[item.brief_state];
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => onViewPatient(item.patient_id)}
+                        className="flex w-full items-center gap-3 rounded-xl bg-muted p-3 text-left transition-colors hover:bg-muted/70"
+                      >
+                        <div className="flex h-9 w-9 flex-shrink-0 items-center justify-center rounded-xl bg-accent"><Clock className="h-4 w-4 text-primary" /></div>
+                        <div className="min-w-0 flex-1">
+                          <p className="flex items-center gap-1.5 truncate text-sm font-medium text-foreground">
+                            <span className={cn("h-2 w-2 shrink-0 rounded-full", alert.dot)} title={alert.label} />
+                            {item.patient_name || patientNames.get(item.patient_id) || item.patient_id}
+                          </p>
+                          <p className="truncate text-xs text-muted-foreground">
+                            {item.reason || "Tái khám"}
+                            {item.attention_count !== null && ` · ${item.attention_count} điểm cần chú ý`}
+                          </p>
+                        </div>
+                        <span className={cn("hidden whitespace-nowrap rounded-full border px-2 py-0.5 text-[11px] font-medium sm:inline", brief.className)}>
+                          {item.brief_unseen ? "Brief mới" : brief.label}
+                        </span>
+                        <div className="text-right">
+                          <p className="text-sm font-semibold text-foreground">{at.toLocaleTimeString("vi-VN", { hour: "2-digit", minute: "2-digit" })}</p>
+                          <p className="text-[11px] text-muted-foreground">{at.toLocaleDateString("vi-VN")}</p>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
               )}
             </section>
