@@ -149,6 +149,12 @@ class AgentState(TypedDict, total=False):
     # planners (state lives on across turns through the checkpointer).
     agent_gathered: bool
     agent_tool_calls: list[str]
+    # Validated record drafts from the agent's draft_records tool (Epic 8);
+    # reset every turn by both planners, like agent_gathered.
+    agent_record_drafts: list[dict]
+    # Patient chat: synthesize_qa's evaluation of the data, shipped apart from
+    # `response` and labelled as AI-generated (reset every turn by the planners).
+    assessment: str | None
     data_used: list[str]
     sources: list[SourceCitation]
     limitations: list[str]

@@ -38,7 +38,7 @@ from zoneinfo import ZoneInfo
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 
 from codebase.backend.config import get_settings
-from codebase.models.agents.prompts.qa import QA_TEMPLATE
+from codebase.models.agents.prompts.qa import PATIENT_ADVICE_POLICY, QA_TEMPLATE
 from codebase.models.agents.prompts.system import SYSTEM_PROMPT
 from codebase.models.agents.state import AgentState, RetrievedChunk, SourceCitation
 from codebase.models.llm import get_llm
@@ -52,6 +52,21 @@ UNCONFIRMED_GROUNDING_LIMITATION = (
     "Không xác nhận được câu trả lời bám sát các nguồn đã truy xuất — vui lòng "
     "xác nhận lại với bác sĩ điều trị."
 )
+
+
+def _parse_assessment(raw: str) -> str | None:
+    """The envelope's AI-assessment box (patient chat), or None."""
+    candidate_json = raw.strip()
+    if candidate_json.startswith("```"):
+        candidate_json = re.sub(r"^```(?:json)?\s*|\s*```$", "", candidate_json, flags=re.I)
+    try:
+        payload = json.loads(candidate_json)
+    except (json.JSONDecodeError, TypeError):
+        return None
+    assessment = payload.get("assessment") if isinstance(payload, dict) else None
+    if not isinstance(assessment, str):
+        return None
+    return assessment.strip() or None
 
 
 def _parse_qa_output(raw: str) -> tuple[str, list[dict]]:
@@ -224,7 +239,24 @@ _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
         "phải nguyên nhân; không khuyên đổi liều/ngừng thuốc)",
     ),
     ("appointments", "Lịch khám (upcoming=True là lịch sắp tới)"),
-    ("weekly_report", "Báo cáo tuần gần nhất (số liệu tính sẵn; tip là việc nên làm đã được duyệt)"),
+    ("weekly_report", "Báo cáo tuần gần nhất (số liệu tính sẵn)"),
+    (
+        "health_stats",
+        "Thống kê do hệ thống tính (hien_tai = khoảng được hỏi, truoc_do = khoảng liền trước; dùng đúng các con số "
+        "này, không tự tính lại)",
+    ),
+    ("medication_taken", "Xác nhận uống thuốc hôm nay"),
+    ("record_deletion", "Yêu cầu xóa bản ghi nhập nhầm"),
+    (
+        "ai_insights",
+        "Nhận xét tự động dài hạn do AI phát hiện (CHƯA phải ý kiến bác sĩ) — chỉ được nêu trong trường "
+        "\"assessment\", không đưa vào \"answer\"",
+    ),
+    (
+        "pending_record_drafts",
+        "Bản ghi bệnh nhân vừa kể, đã soạn nháp và CHỜ bệnh nhân xác nhận ở thẻ bên dưới (chưa lưu) — chỉ nói "
+        "ngắn rằng đã chuẩn bị để bệnh nhân xác nhận, không đánh giá các chỉ số này",
+    ),
     ("assigned_doctor", "Bác sĩ điều trị được phân công"),
     # Last on purpose, same recency reasoning as assigned_doctor above — this
     # is check_data_quality.py's calculate_health_metrics output (count/avg/
@@ -569,6 +601,7 @@ async def synthesize_qa(state: AgentState) -> dict:
         time_context_block=_time_context_block(),
         patient_data_block=_format_patient_data_block(state.get("tool_results")),
         role_context_block=_format_role_context_block(state.get("user_role")),
+        advice_policy_block=PATIENT_ADVICE_POLICY if state.get("user_role") == "patient" else "",
     )
 
     # state["messages"] includes the current turn as its last element (router.py
@@ -587,6 +620,11 @@ async def synthesize_qa(state: AgentState) -> dict:
     )
     raw_response = (getattr(result, "content", None) or str(result) or "").strip()
     response_text, record_candidates = _parse_qa_output(raw_response)
+    # Patient chat: the model's evaluation of the data, shown apart and
+    # labelled as AI-generated. Anyone else gets it folded into the answer.
+    assessment = _parse_assessment(raw_response)
+    if assessment and state.get("user_role") != "patient":
+        response_text, assessment = f"{response_text}\n\n{assessment}", None
 
     # Citations: a chunk is cited only when the model declared it in
     # used_chunk_ids AND the word-overlap check confirms the answer really
@@ -613,6 +651,7 @@ async def synthesize_qa(state: AgentState) -> dict:
 
     return {
         "response": response_text,
+        "assessment": assessment,
         "record_candidates": record_candidates,
         "sources": sources,
         "data_used": data_used,

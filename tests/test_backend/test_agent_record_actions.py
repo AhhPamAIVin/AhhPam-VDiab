@@ -86,7 +86,9 @@ def test_llm_activity_candidate_validates_converted_duration():
     assert draft["duration_minutes"] == 90
 
 
-def test_llm_glucose_candidate_uses_web_default_unit_when_missing():
+def test_llm_glucose_candidate_unit_comes_from_plausibility_not_the_model():
+    # 7 mg/dL is not a reading anyone alive reports: unstated, it is mmol/L —
+    # even when the model claims mg/dL.
     draft = draft_from_record_candidates(
         "Đường huyết của tôi là 7",
         [{
@@ -98,7 +100,44 @@ def test_llm_glucose_candidate_uses_web_default_unit_when_missing():
     )
 
     assert draft is not None
-    assert draft["unit"] == "mg/dL"
+    assert draft["unit"] == "mmol/L"
+
+
+@pytest.mark.parametrize(
+    ("message", "value", "unit"),
+    [
+        ("Đường huyết của tôi là 180", 180, "mg/dL"),
+        ("Đường huyết của tôi là 6.5", 6.5, "mmol/L"),
+        ("Đường huyết của tôi là 30", 30, None),  # 30 mg/dL or 30 mmol/L: asked
+        ("Đường huyết của tôi là 30 mg/dL", 30, "mg/dL"),
+    ],
+)
+def test_unstated_glucose_unit_is_plausibility_or_asked(message, value, unit):
+    draft = draft_from_record_candidates(
+        message, [{"record_type": "glucose", "fields": {"value": value}, "evidence": message}], now=NOW
+    )
+    assert draft is not None and draft["unit"] == unit
+
+
+def test_spoken_decimal_counts_as_evidence():
+    message = "đường huyết của tôi 7 phẩy 2"
+    draft = draft_from_record_candidates(
+        message, [{"record_type": "glucose", "fields": {"value": 7.2}, "evidence": message}], now=NOW
+    )
+    assert draft is not None and draft["value"] == 7.2 and draft["unit"] == "mmol/L"
+
+
+@pytest.mark.parametrize(
+    ("draft", "urgent"),
+    [
+        ({"record_type": "glucose", "value": 15, "unit": "mmol/L"}, True),  # 270 mg/dL
+        ({"record_type": "glucose", "value": 7, "unit": "mmol/L"}, False),  # 126 mg/dL, was flagged as < 54
+        ({"record_type": "glucose", "value": 50, "unit": "mg/dL"}, True),
+        ({"record_type": "glucose", "value": 140, "unit": "mg/dL"}, False),
+    ],
+)
+def test_danger_thresholds_respect_the_unit(draft, urgent):
+    assert requires_safety_response(draft) is urgent
 
 
 def test_deterministic_glucose_parser_preserves_explicit_mmol_unit():

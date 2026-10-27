@@ -76,6 +76,9 @@ class AgentChatRequest(BaseModel):
 
 class AgentChatResponse(BaseModel):
     response: str
+    # Patient chat: the AI's evaluation of the patient's data, kept out of
+    # `response` so the UI can show it in a box labelled as AI-generated.
+    ai_assessment: str | None = None
     data_used: list[str] = []
     sources: list[SourceCitation] = []
     limitations: list[str] = []
@@ -115,6 +118,7 @@ class ChatSessionPublic(BaseModel):
 class ChatMessagePublic(BaseModel):
     role: Literal["user", "assistant"]
     content: str
+    ai_assessment: str | None = None
 
 
 class ChatSessionMessagesResponse(BaseModel):

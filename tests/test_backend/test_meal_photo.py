@@ -250,3 +250,54 @@ def test_old_database_gains_new_meal_columns(monkeypatch):
     assert {"portion", "input_source"} <= {c["name"] for c in inspector.get_columns("meal_records")}
     assert "meal_photo_ai_consent" in {c["name"] for c in inspector.get_columns("users")}
     assert "meal_analyses" in inspector.get_table_names()
+
+
+# --- the same photo sent in the chat (Epic 8.6) -------------------------------------
+
+
+async def _chat_photo(client: AsyncClient, headers, content: bytes = PNG, **data):
+    return await client.post(
+        "/api/v1/agent/meal-photo", files={"file": ("meal.png", content, "image/png")}, data=data, headers=headers
+    )
+
+
+@pytest.mark.asyncio
+async def test_chat_photo_becomes_a_meal_card_and_saves_as_a_photo_meal(
+    client: AsyncClient, session: Session, consented_patient: User, monkeypatch
+):
+    _vision_llm(monkeypatch, PHO_REPLY)
+    headers = await _headers(client, consented_patient)
+
+    response = await _chat_photo(client, headers)
+    assert response.status_code == 200, response.text
+    body = response.json()
+    interaction = body["interactions"][0]
+    assert "phở bò" in interaction["draft"]["description"] and interaction["type"] == "single_choice"
+
+    action_id = interaction["pending_action_id"]
+    for field, value in (("meal_type", "lunch"), ("meal_time", datetime.now(UTC).isoformat())):
+        filled = await client.post(
+            f"/api/v1/agent/record-actions/{action_id}",
+            json={"action": "provide_field", "field": field, "value": value},
+            headers=headers,
+        )
+        assert filled.status_code == 200, filled.text
+    saved = await client.post(f"/api/v1/agent/record-actions/{action_id}", json={"action": "confirm"}, headers=headers)
+    assert saved.status_code == 200, saved.text
+    meal = session.exec(select(MealRecord)).one()
+    assert meal.input_source == "photo" and "phở bò" in meal.description
+
+
+@pytest.mark.asyncio
+async def test_chat_photo_needs_the_same_consent(client: AsyncClient, patient: User, monkeypatch):
+    get_llm = _vision_llm(monkeypatch, PHO_REPLY)
+    response = await _chat_photo(client, await _headers(client, patient))
+    assert response.status_code == 403
+    get_llm.assert_not_called()
+
+
+@pytest.mark.asyncio
+async def test_chat_photo_of_no_food_gets_no_card(client: AsyncClient, consented_patient: User, monkeypatch):
+    _vision_llm(monkeypatch, json.dumps({"is_food": False, "items": [{"name": "cái ghế"}]}))
+    body = (await _chat_photo(client, await _headers(client, consented_patient))).json()
+    assert body["interactions"] == [] and "không nhận ra" in body["response"]

@@ -34,6 +34,7 @@ from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
 from langchain_core.runnables import RunnableConfig
 from pydantic import ValidationError
 
+from codebase.backend.agent.record_actions import requires_safety_response, urgent_value_response
 from codebase.backend.config import get_settings
 from codebase.models.agents.nodes.plan_response import (
     appointment_plan,
@@ -66,7 +67,7 @@ def _openai_tool(tool: AgentTool) -> dict:
 
 
 def _not_gathered(result: dict) -> dict:
-    return {**result, "agent_gathered": False, "agent_tool_calls": []}
+    return {**result, "agent_gathered": False, "agent_tool_calls": [], "agent_record_drafts": [], "assessment": None}
 
 
 def _terminal_result(tool: AgentTool, args: dict) -> dict | None:
@@ -127,9 +128,11 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
         return _not_gathered(fast)
 
     settings = get_settings()
-    today = datetime.now(UTC).astimezone(ZoneInfo(settings.reminder_timezone)).strftime("%d/%m/%Y")
+    local_now = datetime.now(UTC).astimezone(ZoneInfo(settings.reminder_timezone))
     messages: list = [
-        SystemMessage(content=AGENT_SYSTEM_PROMPT.format(today=today)),
+        SystemMessage(
+            content=AGENT_SYSTEM_PROMPT.format(today=local_now.strftime("%d/%m/%Y"), now=local_now.strftime("%H:%M"))
+        ),
         HumanMessage(
             content=AGENT_USER_TEMPLATE.format(
                 history_block=history_block((state.get("messages") or [])[:-1]), message=message
@@ -138,11 +141,13 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
     ]
     gathered: dict = {
         "patient_id": state["patient_id"],
+        "message": message,
         "date_range_override": state.get("date_range_override"),
         "tool_results": {},
         "retrieved_chunks": [],
         "date_range": None,
         "knowledge_query": None,
+        "record_drafts": [],
         "called": [],
     }
     session = config["configurable"]["session"]
@@ -168,7 +173,13 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
             result = _terminal_result(TOOLS_BY_NAME[terminal["name"]], terminal.get("args") or {})
             if result is None:
                 break
-            return {**result, "agent_gathered": False, "agent_tool_calls": [*gathered["called"], terminal["name"]]}
+            return {
+                **result,
+                "agent_gathered": False,
+                "agent_tool_calls": [*gathered["called"], terminal["name"]],
+                "agent_record_drafts": [],
+                "assessment": None,
+            }
         messages.append(reply)
         all_ok = True
         for call in calls:
@@ -182,6 +193,21 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
         # Nothing gathered (model failure, or it answered without any tool):
         # never let a health question reach synthesis with no data.
         return _not_gathered(fallback_plan(message))
+
+    urgent = next((d for d in gathered["record_drafts"] if requires_safety_response(d)), None)
+    if urgent is not None:
+        # A reported value outside the safe range: the fixed referral is the
+        # whole answer (no model-written text about it), and it is what the
+        # conversation history keeps. The card to save the value still comes.
+        return {
+            **fallback_plan(message),
+            "canned_response": urgent_value_response(urgent),
+            "handoff": True,
+            "agent_gathered": True,
+            "agent_tool_calls": gathered["called"],
+            "agent_record_drafts": gathered["record_drafts"],
+            "assessment": None,
+        }
 
     searched = "search_knowledge" in gathered["called"]
     tool_results = gathered["tool_results"]
@@ -201,4 +227,8 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
         "date_range": gathered["date_range"],
         "agent_gathered": True,
         "agent_tool_calls": gathered["called"],
+        # Validated drafts (draft_records); agent/router.py turns them into
+        # confirmation cards after the guardrail, instead of the regex parser.
+        "agent_record_drafts": gathered["record_drafts"],
+        "assessment": None,
     }

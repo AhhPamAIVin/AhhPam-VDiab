@@ -1,5 +1,5 @@
 import logging
-from datetime import UTC, date, datetime
+from datetime import UTC, date, datetime, timedelta
 from uuid import UUID
 from zoneinfo import ZoneInfo
 
@@ -13,6 +13,7 @@ from codebase.backend.health.models import (
     DoctorWatchLabel,
     DoctorWatchReview,
     GlucoseRecord,
+    MealAnalysis,
     MealContext,
     MealInputSource,
     MealRecord,
@@ -329,3 +330,60 @@ def list_activity_records(
     if end_date is not None:
         statement = statement.where(col(ActivityRecord.activity_time) <= end_date)
     return list(session.exec(statement.order_by(col(ActivityRecord.activity_time).desc())).all())
+
+
+# --- patient-entered mistakes (chat "lúc nãy ghi nhầm") ----------------------
+# A patient may remove a record they entered themselves, recently — to fix a
+# typo, not to rewrite history. Never a doctor-entered record, never one a
+# doctor already reviewed (clinician ground truth, doctor_watch_reviews).
+SELF_DELETE_WINDOW = timedelta(days=7)
+SELF_DELETABLE_MODELS: dict[str, type] = {
+    "glucose": GlucoseRecord,
+    "blood_pressure": BloodPressureRecord,
+    "meal": MealRecord,
+    "activity": ActivityRecord,
+}
+
+
+def self_deletable_records(session: Session, *, patient_id: UUID, record_type: str, now: datetime | None = None) -> list:
+    """Newest first: what the patient may still remove themselves."""
+    model = SELF_DELETABLE_MODELS[record_type]
+    cutoff = (now or datetime.utcnow()) - SELF_DELETE_WINDOW
+    rows = session.exec(
+        select(model)
+        .where(model.patient_id == patient_id, model.created_by == patient_id, model.created_at >= cutoff)
+        .order_by(col(model.created_at).desc())
+    ).all()
+    if model is GlucoseRecord:
+        reviewed = set(
+            session.exec(
+                select(DoctorWatchReview.glucose_record_id).where(DoctorWatchReview.patient_id == patient_id)
+            ).all()
+        )
+        rows = [row for row in rows if row.id not in reviewed]
+    return list(rows)
+
+
+def delete_own_record(session: Session, *, patient_id: UUID, record_type: str, record_id: UUID) -> None:
+    """Delete one record the patient entered within SELF_DELETE_WINDOW. The
+    audit trail records it (audit/service.py hook); dependent rows that only
+    exist for this record (a meal's analysis) go with it."""
+    from fastapi import HTTPException, status
+
+    model = SELF_DELETABLE_MODELS.get(record_type)
+    allowed = (
+        {row.id for row in self_deletable_records(session, patient_id=patient_id, record_type=record_type)}
+        if model
+        else set()
+    )
+    if record_id not in allowed:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="Bản ghi này không thể tự xóa (không do bạn nhập, đã quá 7 ngày, hoặc bác sĩ đã xem xét).",
+        )
+    record = session.get(model, record_id)
+    if model is MealRecord:
+        for analysis in session.exec(select(MealAnalysis).where(MealAnalysis.meal_id == record_id)).all():
+            session.delete(analysis)
+    session.delete(record)
+    session.commit()

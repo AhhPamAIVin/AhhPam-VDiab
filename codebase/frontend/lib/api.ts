@@ -555,6 +555,8 @@ export interface AgentInteraction {
 
 export interface AgentChatResponse {
   response: string;
+  // Patient chat: the AI's evaluation of the data, shown in a labelled box.
+  ai_assessment?: string | null;
   data_used: string[];
   sources: AgentSourceCitation[];
   limitations: string[];
@@ -581,6 +583,7 @@ export interface ChatSession {
 export interface ChatMessage {
   role: "user" | "assistant";
   content: string;
+  ai_assessment?: string | null;
 }
 
 export interface ChatSessionMessagesResponse {
@@ -929,6 +932,14 @@ export const api = {
       method: "POST",
       body: form,
     });
+  },
+  // A meal photo sent in the chat: recognized, then offered as a meal draft
+  // card in that conversation (POST /agent/meal-photo). Never stored.
+  agentMealPhoto: (file: File, sessionId?: string) => {
+    const form = new FormData();
+    form.append("file", file);
+    if (sessionId) form.append("session_id", sessionId);
+    return apiRequest<AgentChatResponse>("/agent/meal-photo", { method: "POST", body: form });
   },
   weeklyReports: () => apiRequest<WeeklyReportListItem[]>("/reports/weekly"),
   weeklyReport: (reportId: string) =>

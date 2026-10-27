@@ -286,6 +286,51 @@ def _has_dose_change_advice(lowered: str) -> bool:
     return False
 
 
+# --- 4h: any personal advice (patient chat, Epic 8) ------------------------
+# The patient assistant reports, compares and explains; it never tells the
+# patient what to do. Advice = a sentence addressed to the patient ("bạn
+# nên/cần/hãy…") or an imperative ("Hãy…", "Nên…", "Tránh…"). Allowed: sending
+# the patient to their doctor / 115, and how to use the app (confirm a card,
+# share a detail). General knowledge stays allowed as attributed reporting
+# ("Theo Bộ Y tế, người bệnh nên…") — it is not addressed to the patient.
+_ADDRESSED_ADVICE_RE = re.compile(
+    r"\bbạn\s+(?:(?:rất\s+|chỉ\s+)?nên|cần|hãy|phải|đừng|không nên|chớ|có thể thử|nên thử|thử|cố gắng|"
+    r"hạn chế|tránh|ưu tiên)\b"
+)
+_IMPERATIVE_START_RE = re.compile(r"^\W*(?:hãy|nên|đừng|tránh|hạn chế|thử|cố gắng|ưu tiên|tốt nhất là)\b")
+_ADVISING_VERB_RE = re.compile(
+    r"\b(?:khuyên bạn|lời khuyên|(?:mình|tôi|chúng tôi)\s+(?:khuyên|gợi ý|đề nghị|khuyến nghị))\b"
+)
+_REFERRAL_CUES = ("bác sĩ", "115", "cấp cứu", "cơ sở y tế", "nhân viên y tế", "doctor")
+# Asking the patient for a detail, or how to use the assistant itself.
+_APP_ACTION_RE = re.compile(
+    r"\b(?:xác nhận|bấm|chọn|nhập|cung cấp|cho mình biết|cho tôi biết|chia sẻ|nói rõ|kể thêm|ghi lại vào|"
+    r"thẻ bên dưới|ứng dụng|trang)\b"
+)
+
+
+# Sentence ends, plus list items: normalize_for_pattern_match has already
+# folded newlines into spaces, and advice often comes as "- Hạn chế …".
+_ADVICE_SPLIT_RE = re.compile(r"(?<=[.!?;:])\s+|\s+[-•*+]\s+|\s+\d+[.)]\s+|\n+")
+
+
+def has_personal_advice(lowered: str) -> bool:
+    for sentence in (part for part in _ADVICE_SPLIT_RE.split(lowered) if part.strip()):
+        if any(cue in sentence for cue in _REFERRAL_CUES) or _APP_ACTION_RE.search(sentence):
+            continue
+        advising = _ADVISING_VERB_RE.search(sentence)
+        # "Mình không đưa lời khuyên…" is the refusal the prompt asks for.
+        if advising and "không" in sentence[: advising.start()]:
+            advising = None
+        if _ADDRESSED_ADVICE_RE.search(sentence) or _IMPERATIVE_START_RE.search(sentence) or advising:
+            return True
+    return False
+
+
+def _applies_no_advice_rule(state: AgentState) -> bool:
+    return state.get("user_role") == "patient" and state.get("intent") == "QA"
+
+
 def _has_personal_meal_causal_claim(lowered: str) -> bool:
     """"Phở là nguyên nhân làm đường huyết của bạn tăng" — meal data shows an
     association; hedged wording ("có thể", "thường đi kèm") is fine."""
@@ -590,6 +635,8 @@ def _scan(state: AgentState, lowered_response: str) -> list[str]:
         failures.append("uncited_retrieval_drift")
     if _has_unsupported_claim_with_no_grounding(state, lowered_response):
         failures.append("direct_answer_unsupported_claim")
+    if _applies_no_advice_rule(state) and has_personal_advice(lowered_response):
+        failures.append("personal_advice")
     return failures
 
 
@@ -600,11 +647,14 @@ async def guardrail_check(state: AgentState) -> dict:
     claims. See module docstring for the retry/fallback contract and the
     HITL ambiguous-target carve-out."""
     response_text = state.get("response", "") or ""
+    # The AI-assessment box (patient chat) ships too, so it is scanned with
+    # the answer — every check applies to it.
+    assessment = state.get("assessment") or ""
     # normalize_for_pattern_match, not plain .lower() — same reasoning as
     # classify_intent.py: a poisoned/jailbroken draft could otherwise slip an
     # embedded-instruction-compliance or system-prompt-leak marker past this
     # scan via zero-width characters or irregular whitespace.
-    lowered = normalize_for_pattern_match(response_text)
+    lowered = normalize_for_pattern_match(f"{response_text}\n{assessment}" if assessment else response_text)
 
     failures = _scan(state, lowered)
     if not failures:
@@ -645,6 +695,7 @@ async def guardrail_check(state: AgentState) -> dict:
         # on this response — no further synthesize_dispatch retry will run,
         # so ship the safe fallback now instead of the still-failing draft.
         result["response"] = _FALLBACK_RESPONSE
+        result["assessment"] = None
         result["sources"] = []
         result["limitations"] = [
             "Không thể xác nhận câu trả lời đạt yêu cầu an toàn sau khi thử lại — "

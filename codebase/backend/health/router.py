@@ -6,7 +6,6 @@ from sqlmodel import Session
 
 from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
-from codebase.backend.config import get_settings
 from codebase.backend.db import get_session
 from codebase.backend.health import meal_analysis, meal_photo, service
 from codebase.backend.health.content_safety import (
@@ -43,7 +42,6 @@ from codebase.backend.health.schemas import (
 from codebase.backend.patients.access import ensure_patient_access
 from codebase.backend.security.rate_limit import limit_agent
 from codebase.backend.summaries.service import refresh_patient_summaries
-from codebase.models.agents.nodes.meal.recognize_from_photo import MealPhotoRecognitionError, recognize_from_photo
 
 router = APIRouter()
 
@@ -255,32 +253,7 @@ async def analyze_meal_photo(
 
     Patient-only: the consent to send the photo out is the patient's own.
     Shares the per-user /agent/* rate limit, since every call is an LLM call."""
-    if not get_settings().meal_photo_analysis_enabled:
-        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Tính năng phân tích ảnh đang tắt.")
-    if not current_user.meal_photo_ai_consent:
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Bạn cần đồng ý gửi ảnh cho AI phân tích trước khi dùng tính năng này.",
-        )
-    try:
-        image, media_type = await meal_photo.read_photo(file)
-    except meal_photo.UnsupportedImageError:
-        raise HTTPException(
-            status_code=status.HTTP_415_UNSUPPORTED_MEDIA_TYPE,
-            detail="Chỉ nhận ảnh JPG, PNG hoặc WebP.",
-        ) from None
-    except meal_photo.ImageTooLargeError:
-        raise HTTPException(
-            status_code=status.HTTP_413_CONTENT_TOO_LARGE,
-            detail="Ảnh không được vượt quá 10MB.",
-        ) from None
-    try:
-        recognition = await recognize_from_photo(image, media_type, hint=hint)
-    except MealPhotoRecognitionError:
-        raise HTTPException(
-            status_code=status.HTTP_502_BAD_GATEWAY,
-            detail="Chưa phân tích được ảnh lúc này. Bạn có thể nhập món ăn bằng tay.",
-        ) from None
+    recognition = await meal_photo.recognize_upload(file, hint, current_user)
     return MealPhotoAnalysisPublic(
         recognized=recognition.is_food,
         description=recognition.description,

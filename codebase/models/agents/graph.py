@@ -89,6 +89,8 @@ def _uses_patient_agent(state: AgentState) -> bool:
 def _after_plan_response(state: AgentState) -> str | list[str]:
     if state.get("intent") in _PLAN_SHORT_CIRCUIT_INTENTS:
         return "respond"
+    if state.get("canned_response"):  # agent_plan's fixed referral for a dangerous reported value
+        return "respond"
     if state.get("answered_directly"):  # plan_response answered directly — no tool call needed
         return "guardrail_check"
     return _GATHER_BRANCHES

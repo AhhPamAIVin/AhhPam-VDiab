@@ -330,7 +330,7 @@ async def plan_response(state: AgentState) -> dict:
     # agent_gathered is reset every turn: a stale True from an earlier
     # agent turn on this thread would turn fetch_data/retrieve_knowledge
     # into no-ops for this one.
-    return {**await _plan(state), "agent_gathered": False, "agent_tool_calls": []}
+    return {**await _plan(state), "agent_gathered": False, "agent_tool_calls": [], "agent_record_drafts": [], "assessment": None}
 
 
 async def _plan(state: AgentState) -> dict:

@@ -43,7 +43,7 @@ from datetime import datetime
 from typing import Literal
 from uuid import UUID, uuid4
 
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
 from fastapi.responses import StreamingResponse
 from langchain_core.messages import AIMessage, HumanMessage
 from sqlmodel import Session, select
@@ -55,6 +55,8 @@ from codebase.backend.agent.record_actions import (
     create_pending_action,
     drafts_from_record_candidates,
     interaction_for,
+    requires_safety_response,
+    urgent_value_response,
 )
 from codebase.backend.agent.schemas import (
     AgentChatRequest,
@@ -281,7 +283,13 @@ def _finalize_chat(
     # get a save card, even if the permissive record parser found a draft.
     record_drafts = []
     llm_candidates = result.get("record_candidates") or []
-    if current_user.role == UserRole.PATIENT and result.get("intent") == "QA":
+    if current_user.role == UserRole.PATIENT and result.get("intent") == "QA" and result.get("agent_gathered"):
+        # Patient agent (Epic 8): the model read the message and code already
+        # checked every value against it (draft_records). Its "nothing to
+        # record" is final — the regex parser would only add false positives
+        # the model rightly rejected (questions, hypotheticals).
+        record_drafts = list(result.get("agent_record_drafts") or [])
+    elif current_user.role == UserRole.PATIENT and result.get("intent") == "QA":
         # Prefer deterministic extraction when it recognized the statement;
         # an LLM candidate must not overwrite absent fields with guesses such
         # as AFTER_MEAL or an inferred clock time.
@@ -312,13 +320,26 @@ def _finalize_chat(
         interaction = interactions[0] if interactions else None
 
     response_text = result.get("response", "")
+    handoff = result.get("handoff", False)
+    # Only this turn's synthesized answer has one; a canned reply never does.
+    assessment = result.get("assessment") if result.get("intent") == "QA" and not result.get("canned_response") else None
+    urgent = [draft for draft in record_drafts if requires_safety_response(draft)]
+    if urgent and result.get("intent") == "QA":
+        # A value outside the safe range gets a fixed, reviewed referral —
+        # never model-written advice about what to do with it. The agent path
+        # already answered with it inside the graph (so the stored history
+        # matches); this also covers the regex-parser fallback path.
+        response_text = urgent_value_response(urgent[0])
+        assessment = None
+        handoff = True
 
     return AgentChatResponse(
         response=response_text,
+        ai_assessment=assessment,
         data_used=result.get("data_used", []),
         sources=result.get("sources", []),
         limitations=result.get("limitations", []),
-        handoff=result.get("handoff", False),
+        handoff=handoff,
         session_id=chat_session.id,
         interaction=interaction,
         interactions=interactions,
@@ -431,6 +452,49 @@ async def chat_stream(
     )
 
 
+@router.post("/meal-photo", response_model=AgentChatResponse)
+async def chat_meal_photo(
+    file: UploadFile = File(...),
+    session_id: UUID | None = Form(default=None),
+    current_user: User = Depends(require_roles(UserRole.PATIENT)),
+    session: Session = Depends(get_session),
+) -> AgentChatResponse:
+    """A meal photo sent in the chat (Epic 8.6): recognized exactly as on the
+    meals page (the patient's own consent, the photo never stored), then
+    offered as a meal draft in the usual confirmation card. No agent call —
+    there is nothing for the model to decide about a photo of a meal."""
+    from codebase.backend.health import meal_photo
+
+    chat_session = _load_or_create_session(
+        session,
+        current_user,
+        AgentChatRequest(message="Ảnh bữa ăn", session_id=session_id),
+    )
+    recognition = await meal_photo.recognize_upload(file, None, current_user)
+    if not recognition.is_food or not recognition.description:
+        return AgentChatResponse(
+            response="Mình không nhận ra món ăn trong ảnh này. Bạn có thể gõ tên món để mình ghi lại.",
+            session_id=chat_session.id,
+        )
+    draft = {
+        "record_type": "meal",
+        "meal_type": None,
+        "meal_time": None,
+        "description": recognition.description,
+        "portion": recognition.portion,
+        "input_source": "photo",
+        "note": None,
+    }
+    pending = create_pending_action(session, patient_id=current_user.id, chat_session=chat_session, draft=draft)
+    interaction = interaction_for(session, pending)
+    return AgentChatResponse(
+        response=f"Mình nhận ra trong ảnh: {recognition.description}. Bạn kiểm tra lại và bổ sung để lưu nhé.",
+        session_id=chat_session.id,
+        interaction=interaction,
+        interactions=[interaction],
+    )
+
+
 @router.post("/record-actions/{action_id}", response_model=AgentRecordActionResponse)
 def handle_record_action(
     action_id: UUID,
@@ -448,7 +512,7 @@ def handle_record_action(
     )
     if interaction is not None and interaction.type == "record_saved":
         record_type = interaction.draft.get("record_type")
-        if record_type in {"glucose", "blood_pressure", "meal", "activity"}:
+        if record_type in {"glucose", "blood_pressure", "meal", "activity", "delete_record"}:
             background_tasks.add_task(refresh_patient_summaries, patient_id=current_user.id)
         if record_type == "meal" and interaction.saved_record_id is not None:
             background_tasks.add_task(meal_analysis.analyze_meal_in_background, meal_id=interaction.saved_record_id)
@@ -516,7 +580,11 @@ async def get_session_messages(
     )
     raw_messages = checkpoint_tuple.checkpoint.get("channel_values", {}).get("messages", []) if checkpoint_tuple else []
     messages = [
-        ChatMessagePublic(role=role, content=message.content)
+        ChatMessagePublic(
+            role=role,
+            content=message.content,
+            ai_assessment=(getattr(message, "additional_kwargs", None) or {}).get("ai_assessment"),
+        )
         for message in raw_messages
         if (role := _message_role(message)) is not None
     ]
