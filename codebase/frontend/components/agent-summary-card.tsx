@@ -165,6 +165,13 @@ export function AgentSummaryContent({ summary, keyMetrics = [], glucoseTrend, ac
         labelColor="text-muted-foreground"
         items={trendItems}
       />
+      {/* Doctor summaries only (Epic 4.2); meal/adherence lines are already in trends. */}
+      <BulletGroup
+        icon={<TrendingUp className="h-3.5 w-3.5 text-primary" />}
+        label="Thay đổi so với giai đoạn trước"
+        labelColor="text-muted-foreground"
+        items={summary.sections?.changes ?? []}
+      />
       <BulletGroup
         icon={<AlertTriangle className="h-3.5 w-3.5 text-[#F7A928]" />}
         label="Cần lưu ý"

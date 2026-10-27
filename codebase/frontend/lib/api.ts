@@ -340,6 +340,10 @@ export interface AppointmentInput {
   notes?: string | null;
 }
 
+// "changes" / "meals" / "medication_adherence" — each never empty for a
+// doctor summary (a "Chưa đủ dữ liệu" line instead).
+export type SummarySections = Partial<Record<"changes" | "meals" | "medication_adherence", string[]>>;
+
 export interface ClinicalNote {
   id: string;
   patient_id: string;
@@ -501,6 +505,7 @@ export interface AgentSummaryResponse {
   limitations: string[];
   suggested_doctor_questions: string[];
   relevant_insights: string[];
+  sections: SummarySections;
   disclaimer: string;
 }
 

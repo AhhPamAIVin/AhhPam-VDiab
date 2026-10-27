@@ -36,6 +36,7 @@ from codebase.models.agents.tools.meal_tools import (
     is_meal_question,
     is_medication_question,
 )
+from codebase.models.agents.tools.metrics_tools import calculate_health_metrics
 from codebase.models.agents.tools.patient_tools import (
     get_assigned_doctor,
     get_health_records,
@@ -45,6 +46,16 @@ from codebase.models.agents.tools.patient_tools import (
 
 DEFAULT_DATE_RANGE_DAYS = 7  # PRD §15.7 default
 MAX_DATE_RANGE_DAYS = 30  # PRD §15.7 cap
+# Epic 4: a pre-visit brief covers the time since the last visit — visits are
+# 1-3 months apart (PRD §2) — so a doctor SUMMARY with an explicit window may
+# span up to 90 days. Chat and the patient summary keep the 30-day cap.
+DOCTOR_SUMMARY_MAX_DAYS = 90
+
+
+def _max_override_days(state: AgentState) -> int:
+    if state.get("intent") == "SUMMARY" and state.get("user_role") == "doctor":
+        return DOCTOR_SUMMARY_MAX_DAYS
+    return MAX_DATE_RANGE_DAYS
 
 
 def _resolve_days(requested: int | None) -> int:
@@ -88,19 +99,20 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
     # about a past period silently got the wrong days with no signal that
     # they were wrong, and the model would correctly-but-unhelpfully report
     # no data for the period actually asked about. Same MAX_DATE_RANGE_DAYS
-    # cap applies either way.
+    # cap applies either way (DOCTOR_SUMMARY_MAX_DAYS for a doctor summary).
     override = state.get("date_range_override")
+    max_days = _max_override_days(state) if override is not None else MAX_DATE_RANGE_DAYS
     if override is not None:
         start, end = override
-        if (end - start) > timedelta(days=MAX_DATE_RANGE_DAYS):
-            start = end - timedelta(days=MAX_DATE_RANGE_DAYS)
+        if (end - start) > timedelta(days=max_days):
+            start = end - timedelta(days=max_days)
     else:
         days = _resolve_days(state.get("date_range_days"))
         end = datetime.utcnow()
         start = end - timedelta(days=days)
 
     profile = get_patient_profile(session, patient_id)
-    records = get_health_records(session, patient_id, start, end)
+    records = get_health_records(session, patient_id, start, end, max_days=max_days)
     medications = get_medication_summary(session, patient_id, start, end)
     assigned_doctor = get_assigned_doctor(session, patient_id)
 
@@ -118,4 +130,15 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
     # Epic 3.2: same rule for medication adherence (30 days).
     if intent == "SUMMARY" or is_medication_question(state.get("message")):
         tool_results["medication_adherence"] = get_medication_adherence(session, patient_id)
+    # Epic 4.2: the equally long window just before this one, for the doctor's
+    # "thay đổi so với giai đoạn trước" lines — for a pre-visit brief that
+    # window ends at the last visit.
+    if intent == "SUMMARY" and state.get("user_role") == "doctor":
+        previous_start = start - (end - start)
+        previous_records = get_health_records(session, patient_id, previous_start, start, max_days=max_days)
+        tool_results["previous_period"] = {
+            "start": previous_start,
+            "end": start,
+            "metrics": calculate_health_metrics(previous_records),
+        }
     return {"tool_results": tool_results, "date_range": (start, end)}

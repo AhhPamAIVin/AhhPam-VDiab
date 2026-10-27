@@ -290,6 +290,126 @@ def _build_meal_response_lines(meal_response: dict | None, role: str) -> list[st
     return lines
 
 
+def _build_meal_section(meal_response: dict | None, role: str) -> list[str]:
+    """Doctor-brief section (Epic 4.2): the meal lines above, or a sentence
+    saying why there are none — never an empty section."""
+    if role != "doctor":
+        return []
+    lines = _build_meal_response_lines(meal_response, role)
+    if lines:
+        return lines
+    meal_response = meal_response or {}
+    days = meal_response.get("days", 30)
+    paired = meal_response.get("meals_paired") or 0
+    if not meal_response.get("by_food") and not meal_response.get("by_carb_load"):
+        return [
+            f"Chưa đủ dữ liệu: {paired} bữa có đo đường huyết sau ăn trong {days} ngày, cần ít nhất "
+            f"{meal_response.get('min_meals_per_group', 3)} bữa cho mỗi món hoặc nhóm carb."
+        ]
+    return [
+        f"Không có món hay nhóm carb nào thường đi kèm ĐH sau ăn vượt mục tiêu ({paired} bữa có đo ĐH sau ăn, "
+        f"{days} ngày)."
+    ]
+
+
+def _build_adherence_section(adherence: dict | None, role: str) -> list[str]:
+    """Doctor-brief section (Epic 4.2), same rule as _build_meal_section."""
+    if role != "doctor":
+        return []
+    lines = _build_adherence_lines(adherence, role)
+    if lines:
+        return lines
+    adherence = adherence or {}
+    days = adherence.get("days", 30)
+    if not adherence.get("medications"):
+        return [f"Chưa có thuốc nào được ghi nhận trong {days} ngày qua."]
+    return [
+        f"Chưa đủ dữ liệu: chưa có ngày nào được xác nhận đủ thuốc hoặc quên thuốc trong {days} ngày "
+        "(nhắc uống thuốc chưa được phản hồi)."
+    ]
+
+
+# Readings each window needs before its average is compared with the other's.
+_MIN_GLUCOSE_FOR_CHANGE = 3
+# One window with fewer than half the other's logged days: the comparison gets a caveat.
+_UNEVEN_LOGGING_RATIO = 0.5
+
+
+def _pct_change_line(label: str, before: dict, now: dict, key: str) -> str | None:
+    if before.get(key) is None or now.get(key) is None:
+        return None
+    return f"{label}: {before[key]}% → {now[key]}% (n={before['count']} → n={now['count']})."
+
+
+def _build_change_lines(metrics: dict, previous: dict | None, role: str) -> list[str]:
+    """Doctor only (Epic 4.2): this window against the equally long window
+    just before it (fetch_data.py's previous_period) — for a pre-visit brief,
+    the time since the last visit against the time before it. Differences of
+    code-computed figures only; no cause, no judgment."""
+    if role != "doctor":
+        return []
+    if not previous:
+        return ["Chưa đủ dữ liệu để so sánh với giai đoạn trước."]
+    before = previous.get("metrics") or {}
+    period = f"{previous['start']:%d/%m/%Y}–{previous['end']:%d/%m/%Y}"
+    now_overall = metrics.get("glucose_overall") or {}
+    before_overall = before.get("glucose_overall") or {}
+    now_count, before_count = now_overall.get("count") or 0, before_overall.get("count") or 0
+    if now_count < _MIN_GLUCOSE_FOR_CHANGE or before_count < _MIN_GLUCOSE_FOR_CHANGE:
+        return [
+            f"Chưa đủ dữ liệu để so sánh với giai đoạn trước ({period}): cần ít nhất {_MIN_GLUCOSE_FOR_CHANGE} lần "
+            f"đo đường huyết mỗi giai đoạn (giai đoạn trước {before_count}, giai đoạn này {now_count})."
+        ]
+
+    delta = now_overall["avg"] - before_overall["avg"]
+    lines = [
+        f"So với giai đoạn trước ({period}): ĐH trung bình {before_overall['avg']} → {now_overall['avg']} mg/dL "
+        f"({delta:+.1f} mg/dL; n={before_count} → n={now_count})."
+    ]
+    # Verified live: 6 logged days against 60 still read as "cải thiện rõ rệt"
+    # in the prose — the caveat goes right under the headline figure, where
+    # the LLM reads it too (it gets these lines in its prompt).
+    now_days, before_days = metrics.get("glucose_days_logged") or 0, before.get("glucose_days_logged") or 0
+    if min(now_days, before_days) < _UNEVEN_LOGGING_RATIO * max(now_days, before_days):
+        lines.append(
+            f"Lưu ý: số ngày có đo chênh lệch nhiều giữa hai giai đoạn ({before_days} → {now_days} ngày) — "
+            "so sánh có thể chưa phản ánh đúng thay đổi thực, chưa đủ căn cứ để kết luận cải thiện hay xấu đi."
+        )
+    fasting_line = _pct_change_line(
+        f"ĐH lúc đói trong mục tiêu {_BYT_FASTING_LOW}-{_BYT_FASTING_HIGH} mg/dL",
+        before.get("fasting") or {}, metrics.get("fasting") or {}, "in_range_pct",
+    )
+    post_line = _pct_change_line(
+        f"ĐH sau ăn > {_BYT_POST_PRANDIAL_TARGET} mg/dL",
+        before.get("post_prandial") or {}, metrics.get("post_prandial") or {}, "over_target_pct",
+    )
+    lines += [line for line in (fasting_line, post_line) if line]
+    for key, label in (("low_glucose_count", "Số lần ĐH < 70 mg/dL"), ("danger_count", "Số lần vượt ngưỡng nguy hiểm")):
+        if before.get(key) or metrics.get(key):
+            lines.append(f"{label}: {before.get(key, 0)} → {metrics.get(key, 0)}.")
+    before_sys, now_sys = before.get("blood_pressure_systolic") or {}, metrics.get("blood_pressure_systolic") or {}
+    before_dia, now_dia = before.get("blood_pressure_diastolic") or {}, metrics.get("blood_pressure_diastolic") or {}
+    if before_sys.get("count") and now_sys.get("count") and before_dia.get("count") and now_dia.get("count"):
+        lines.append(
+            f"Huyết áp trung bình: {before_sys['avg']}/{before_dia['avg']} → {now_sys['avg']}/{now_dia['avg']} mmHg."
+        )
+    lines.append(
+        f"Số ngày có đo ĐH: {before.get('glucose_days_logged', 0)} → {metrics.get('glucose_days_logged', 0)}."
+    )
+    return lines
+
+
+def _build_sections(metrics: dict, tool_results: dict, role: str) -> dict[str, list[str]]:
+    """The pre-visit brief's own sections (Epic 4.2), doctor only."""
+    if role != "doctor":
+        return {}
+    return {
+        "changes": _build_change_lines(metrics, tool_results.get("previous_period"), role),
+        "meals": _build_meal_section(tool_results.get("meal_glucose_response"), role),
+        "medication_adherence": _build_adherence_section(tool_results.get("medication_adherence"), role),
+    }
+
+
 def _build_attention_points(metrics: dict) -> list[str]:
     points: list[str] = []
     post = metrics.get("post_prandial") or {}
@@ -418,6 +538,7 @@ async def synthesize_summary(state: AgentState) -> dict:
     # Independent of glucose sufficiency below — a self-reported adverse reaction or missed-dose
     # pattern is safety-relevant even in a period with no/insufficient glucose logging.
     medication_attention = _build_medication_attention(medications, role)
+    sections = _build_sections(metrics, tool_results, role)
 
     # check_data_quality.py already decided whether there's enough to trend
     # (design doc: "so synthesize_summary.py can say 'insufficient data'
@@ -438,6 +559,7 @@ async def synthesize_summary(state: AgentState) -> dict:
             "suggested_doctor_questions": [],
             "limitations": _build_limitations(completeness) or [_NO_DATA_LIMITATION],
             "data_used": data_used,
+            "summary_sections": sections,
         }
 
     meal_response = tool_results.get("meal_glucose_response")
@@ -459,7 +581,7 @@ async def synthesize_summary(state: AgentState) -> dict:
         role_label=ROLE_LABELS.get(role, ROLE_LABELS["patient"]),
         completeness_str=_format_completeness(completeness),
         medications_str=_format_bullets(_build_medication_lines(medications)),
-        trends_str=_format_bullets(trends),
+        trends_str=_format_bullets(trends + sections.get("changes", [])),
         attention_str=_format_bullets(attention_points),
         limitations_str=_format_bullets(limitations),
         role_instructions=ROLE_INSTRUCTIONS.get(role, ROLE_INSTRUCTIONS["patient"]),
@@ -484,4 +606,5 @@ async def synthesize_summary(state: AgentState) -> dict:
         "suggested_doctor_questions": suggested_questions,
         "limitations": limitations,
         "data_used": data_used,
+        "summary_sections": sections,
     }

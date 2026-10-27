@@ -102,14 +102,17 @@ def _meals_with_analysis(session: Session, meals: list) -> list[dict]:
     return rows
 
 
-def get_health_records(session: Session, patient_id: UUID, start: datetime, end: datetime) -> dict:
+def get_health_records(
+    session: Session, patient_id: UUID, start: datetime, end: datetime, *, max_days: int = MAX_DATE_RANGE_DAYS
+) -> dict:
     """Wrap codebase.backend.health.service.list_glucose_records /
     list_blood_pressure_records / list_meal_records / list_activity_records
     for the given patient + range.
 
     Caps range at 30 days per PRD §15.7 — enforce here, not just at the call
     site, so any future caller of this tool gets the same guarantee fetch_data
-    relies on.
+    relies on. Only the doctor summary (fetch_data.py, Epic 4 pre-visit brief)
+    passes a longer `max_days` explicitly.
 
     Returns {"glucose": [...], "blood_pressure": [...], "meals": [...],
     "activities": [...]}, one dict per record (see _record_to_dict) — this is
@@ -117,8 +120,8 @@ def get_health_records(session: Session, patient_id: UUID, start: datetime, end:
     """
     if start > end:
         start, end = end, start
-    if (end - start) > timedelta(days=MAX_DATE_RANGE_DAYS):
-        start = end - timedelta(days=MAX_DATE_RANGE_DAYS)
+    if (end - start) > timedelta(days=max_days):
+        start = end - timedelta(days=max_days)
 
     glucose = list_glucose_records(session, patient_id, start_date=start, end_date=end)
     blood_pressure = list_blood_pressure_records(session, patient_id, start_date=start, end_date=end)

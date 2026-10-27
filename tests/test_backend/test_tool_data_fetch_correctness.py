@@ -39,7 +39,12 @@ from codebase.backend.medications.models import MedicationNoteType
 from codebase.backend.medications.service import create_medication, create_medication_note
 from codebase.backend.patients.models import PatientAssignment
 from codebase.models.agents.nodes.check_data_quality import check_data_quality
-from codebase.models.agents.nodes.fetch_data import DEFAULT_DATE_RANGE_DAYS, MAX_DATE_RANGE_DAYS, fetch_data
+from codebase.models.agents.nodes.fetch_data import (
+    DEFAULT_DATE_RANGE_DAYS,
+    DOCTOR_SUMMARY_MAX_DAYS,
+    MAX_DATE_RANGE_DAYS,
+    fetch_data,
+)
 from codebase.models.agents.tools.patient_tools import (
     get_assigned_doctor,
     get_health_records,
@@ -628,6 +633,51 @@ async def test_fetch_data_override_capped_at_30_days(session: Session, patient: 
 
 
 @pytest.mark.asyncio
+async def test_doctor_summary_override_spans_up_to_90_days_with_previous_window(session: Session, patient: User):
+    """Epic 4: a pre-visit brief covers the time since the last visit (up to
+    90 days) and compares it with the equally long window before it."""
+    override_end = NOW
+    for days_ago, value, note in ((50, 150.0, "since last visit"), (70, 170.0, "before last visit")):
+        create_glucose_record(
+            session, patient_id=patient.id, value=value, unit="mg/dL",
+            measured_at=NOW - timedelta(days=days_ago), note=note, created_by=patient.id,
+        )
+
+    result = await fetch_data(
+        _state(
+            intent="SUMMARY", user_role="doctor", patient_id=patient.id,
+            date_range_override=(override_end - timedelta(days=60), override_end),
+        ),
+        {"configurable": {"session": session}},
+    )
+
+    start, end = result["date_range"]
+    assert (end - start).days == 60
+    assert [r["note"] for r in result["tool_results"]["records"]["glucose"]] == ["since last visit"]
+    previous = result["tool_results"]["previous_period"]
+    assert (previous["start"], previous["end"]) == (start - timedelta(days=60), start)
+    assert previous["metrics"]["glucose_overall"]["avg"] == 170
+
+    capped = await fetch_data(
+        _state(
+            intent="SUMMARY", user_role="doctor", patient_id=patient.id,
+            date_range_override=(override_end - timedelta(days=200), override_end),
+        ),
+        {"configurable": {"session": session}},
+    )
+    capped_start, capped_end = capped["date_range"]
+    assert (capped_end - capped_start).days == DOCTOR_SUMMARY_MAX_DAYS
+
+
+@pytest.mark.asyncio
+async def test_patient_summary_has_no_previous_window(session: Session, patient: User):
+    result = await fetch_data(
+        _state(intent="SUMMARY", user_role="patient", patient_id=patient.id), {"configurable": {"session": session}}
+    )
+    assert "previous_period" not in result["tool_results"]
+
+
+@pytest.mark.asyncio
 async def test_fetch_data_populates_all_tool_results_from_real_db(session: Session, patient: User, doctor: User):
     session.add(PatientAssignment(doctor_id=doctor.id, patient_id=patient.id, assigned_by=doctor.id))
     create_medication(
@@ -646,7 +696,7 @@ async def test_fetch_data_populates_all_tool_results_from_real_db(session: Sessi
 
     tool_results = result["tool_results"]
     # SUMMARY always carries the meal <-> glucose groups (Epic 1.4) and
-    # medication adherence (Epic 3.2).
+    # medication adherence (Epic 3.2); the previous window is doctor-only.
     assert set(tool_results.keys()) == {
         "profile", "records", "medications", "assigned_doctor", "meal_glucose_response", "medication_adherence",
     }

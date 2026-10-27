@@ -60,6 +60,8 @@ class AgentSummaryResponse(BaseModel):
     limitations: list[str] = []
     suggested_doctor_questions: list[str] = []
     relevant_insights: list[str] = []
+    # Doctor summaries only (Epic 4.2): "changes" / "meals" / "medication_adherence" lines.
+    sections: dict[str, list[str]] = {}
     disclaimer: str = _DISCLAIMER
 
 

@@ -199,6 +199,7 @@ async def summarize(
         limitations=snapshot.limitations,
         suggested_doctor_questions=snapshot.suggested_doctor_questions,
         relevant_insights=_relevant_insights_for_summary(session, current_user),
+        sections=snapshot.sections or {},
     )
 
 

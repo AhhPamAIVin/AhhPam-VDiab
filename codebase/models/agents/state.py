@@ -156,6 +156,9 @@ class AgentState(TypedDict, total=False):
     trends: list[str]
     attention_points: list[str]
     suggested_doctor_questions: list[str]
+    # doctor SUMMARY only (Epic 4.2): pre-visit brief sections, each a list of
+    # deterministic lines — "changes", "meals", "medication_adherence".
+    summary_sections: dict[str, list[str]]
 
 
 class ReflectState(TypedDict, total=False):
