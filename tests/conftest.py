@@ -12,6 +12,10 @@ os.environ["QDRANT_LOCATION"] = ":memory:"
 # Every test logs in again; per-IP login limits would trip across tests.
 # tests/test_backend/test_rate_limit.py turns them back on for itself.
 os.environ["RATE_LIMIT_ENABLED"] = "false"
+# The chat tests pin plan_response's contract with a mocked planner LLM; the
+# patient agent (Epic 8, on by default) would otherwise make a real LLM call.
+# tests/test_backend/test_patient_agent.py turns it on for itself.
+os.environ["PATIENT_AGENT_ENABLED"] = "false"
 
 import pytest
 import pytest_asyncio

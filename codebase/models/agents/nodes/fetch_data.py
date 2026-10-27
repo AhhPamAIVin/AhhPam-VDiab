@@ -55,6 +55,8 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
     intent = state.get("intent")
     if intent not in ("SUMMARY", "QA"):
         return {}
+    if state.get("agent_gathered"):
+        return {}  # nodes/agent_plan.py already fetched what this turn needs
     if intent == "QA" and not state.get("needs_health_data"):
         # Explicitly clear rather than no-op: tool_results/date_range are
         # plain dict fields (no reducer) that persist across turns via the

@@ -52,7 +52,7 @@ async def retrieve_knowledge(state: AgentState) -> dict:
     plan_response.py's rewritten query (or the raw message), skipped
     entirely for SUMMARY or when skip_knowledge_retrieval was set. See
     module docstring for why k is widened past the tool's own default."""
-    if state.get("intent") != "QA":
+    if state.get("intent") != "QA" or state.get("agent_gathered"):
         return {}
     if state.get("skip_knowledge_retrieval"):
         return {"retrieved_chunks": []}

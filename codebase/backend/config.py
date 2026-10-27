@@ -58,6 +58,17 @@ class Settings(BaseSettings):
     meal_response_before_max_minutes: int = Field(default=60, ge=0)
     meal_response_min_n: int = Field(default=3, ge=1)
 
+    # Patient agent (Epic 8): patient chat runs nodes/agent_plan.py (tool
+    # calling, up to patient_agent_max_rounds rounds) instead of the fixed
+    # plan_response planner. Doctors and summaries keep the planner.
+    patient_agent_enabled: bool = True
+    patient_agent_max_rounds: int = Field(default=3, ge=1, le=6)
+    # false: stop after the first round whose tool calls all succeeded (one
+    # LLM call per turn, like the planner); a further round only retries a
+    # failed call. true: always let the model look at the observations and
+    # decide on more tools — multi-step, but one more LLM call per turn.
+    patient_agent_reflect: bool = False
+
     # Database
     db_host: str = "localhost"
     db_port: int = Field(default=5533, ge=1, le=65535)

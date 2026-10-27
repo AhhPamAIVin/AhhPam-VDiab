@@ -143,6 +143,12 @@ class AgentState(TypedDict, total=False):
     # output
     response: str
     record_candidates: list[dict]
+    # Epic 8: the patient agent (nodes/agent_plan.py) already filled
+    # tool_results / retrieved_chunks this turn — fetch_data and
+    # retrieve_knowledge then do nothing. Reset to False every turn by both
+    # planners (state lives on across turns through the checkpointer).
+    agent_gathered: bool
+    agent_tool_calls: list[str]
     data_used: list[str]
     sources: list[SourceCitation]
     limitations: list[str]

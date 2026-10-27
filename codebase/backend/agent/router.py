@@ -361,6 +361,11 @@ def _progress_after(node: str, update: dict) -> str | None:
         if needs_health:
             return _PROGRESS_HEALTH
         return _PROGRESS_DOCS if needs_docs else _PROGRESS_DRAFT
+    if node == "agent_plan":
+        # Per-tool progress already went out as custom events while it ran.
+        if update.get("canned_response") or update.get("answered_directly"):
+            return None
+        return _PROGRESS_DRAFT
     if node == "check_data_quality":
         return _PROGRESS_DRAFT
     if node == "synthesize_dispatch":
@@ -391,9 +396,16 @@ async def chat_stream(
         yield _sse("progress", {"stage": "start", "message": _PROGRESS_START})
         final_state: dict = {}
         try:
-            async for mode, chunk in agent.astream(graph_input, config=config, stream_mode=["updates", "values"]):
+            async for mode, chunk in agent.astream(
+                graph_input, config=config, stream_mode=["updates", "values", "custom"]
+            ):
                 if mode == "values":
                     final_state = chunk
+                    continue
+                if mode == "custom":
+                    # nodes/agent_plan.py, one line per tool it calls (Epic 8).
+                    if isinstance(chunk, dict) and chunk.get("progress"):
+                        yield _sse("progress", {"stage": "agent_tool", "message": chunk["progress"]})
                     continue
                 for node, update in chunk.items():
                     message = _progress_after(node, update or {})
