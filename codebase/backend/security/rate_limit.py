@@ -23,6 +23,7 @@ from fastapi import Depends, HTTPException, Request, status
 from codebase.backend.auth.dependencies import get_current_user
 from codebase.backend.auth.models import User
 from codebase.backend.config import get_settings
+from codebase.backend.security.client_ip import client_ip_from_headers
 
 WINDOW_SECONDS = 60.0
 
@@ -57,14 +58,7 @@ limiter = SlidingWindowLimiter()
 
 
 def client_ip(request: Request) -> str:
-    """Behind the deploy proxy every request comes from the proxy's address,
-    so the left-most X-Forwarded-For entry (the original client) is used when
-    present. A client can spoof that header only to land in a *different*
-    bucket, not to lift the limit on someone else's."""
-    forwarded = request.headers.get("x-forwarded-for")
-    if forwarded:
-        return forwarded.split(",")[0].strip()
-    return request.client.host if request.client else "unknown"
+    return client_ip_from_headers(request.headers, request.client.host if request.client else None)
 
 
 def _enforce(key: str, limit: int) -> None:

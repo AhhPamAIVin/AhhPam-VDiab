@@ -327,12 +327,14 @@ def _log_retrieval(*, query: str, k: int, ranked: list[RetrievedChunk], latency_
     `cited_chunk_ids` field belong to the general tool-call audit trace
     (PRD §30.1) that isn't scaffolded yet and isn't this function's own
     signature — logged here is exactly what §5.8's example carries that
-    *is* available at this call site: query, k, embedding_model, and each
-    returned chunk's id/tier/score/rank."""
+    *is* available at this call site: query (as its length), k,
+    embedding_model, and each returned chunk's id/tier/score/rank."""
     payload = {
         "timestamp": datetime.now(UTC).isoformat().replace("+00:00", "Z"),
         "tool_name": "search_approved_knowledge",
-        "tool_input": {"query": query, "k": k},
+        # The query is built from the patient's own question — its length, not
+        # its text, goes to the application log (task 6.4: no PHI in logs).
+        "tool_input": {"query_chars": len(query), "k": k},
         "embedding_model": get_settings().embedding_model,
         "tool_output": [
             {

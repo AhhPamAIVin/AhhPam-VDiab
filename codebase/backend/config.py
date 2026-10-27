@@ -112,6 +112,16 @@ class Settings(BaseSettings):
     rate_limit_login_per_minute: int = Field(default=5, ge=0)
     rate_limit_agent_per_minute: int = Field(default=20, ge=0)
 
+    # Retention (task 6.5, docs/DATA_RETENTION.md), run daily at
+    # retention_hour (reminder_timezone): chat conversations idle this long,
+    # AI summary snapshots generated this long ago, are deleted. 0 keeps that
+    # kind forever. Health records/medications/clinical notes are never
+    # purged by age.
+    retention_enabled: bool = True
+    retention_chat_days: int = Field(default=365, ge=0)
+    retention_ai_summary_days: int = Field(default=730, ge=0)
+    retention_hour: int = Field(default=3, ge=0, le=23)
+
     # Vector Store — Qdrant server at qdrant_url (see docker-compose.yml,
     # `make db-up`). qdrant_location=":memory:" runs an in-process store with
     # no server (tests). See codebase/models/rag/vector_store.py.
@@ -135,6 +145,9 @@ class Settings(BaseSettings):
     langfuse_public_key: str = ""
     langfuse_secret_key: str = ""
     langfuse_host: str = "http://localhost:3300"
+    # Replace prompt/completion content in every trace (task 6.4). Unset:
+    # on in production, off elsewhere (dev/test data is synthetic).
+    langfuse_redact_content: bool | None = None
 
     # Zalo OA / ZBS notifications. Credentials must only be set via .env.
     zalo_notifications_enabled: bool = False

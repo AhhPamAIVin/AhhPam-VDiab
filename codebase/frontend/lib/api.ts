@@ -13,6 +13,56 @@ export interface ApiUser {
   created_at: string;
 }
 
+export interface AuditEvent {
+  id: string;
+  ts: string;
+  actor_id: string | null;
+  actor_role: string;
+  actor_name: string | null;
+  action: string;
+  resource_type: string | null;
+  resource_id: string | null;
+  patient_id: string | null;
+  patient_name: string | null;
+  request_id: string | null;
+  ip: string | null;
+  outcome: "success" | "failure" | "denied" | string;
+  detail: string | null;
+}
+
+export interface AuditEventPage {
+  items: AuditEvent[];
+  total: number;
+}
+
+export interface AuditEventFilters {
+  action?: string;
+  actor_id?: string;
+  patient_id?: string;
+  outcome?: string;
+  since?: string;
+  until?: string;
+  limit?: number;
+  offset?: number;
+}
+
+export type DeletionRequestStatus = "pending" | "approved" | "rejected" | "cancelled";
+
+export interface DeletionRequest {
+  id: string;
+  patient_id: string;
+  status: DeletionRequestStatus;
+  requested_at: string;
+  decided_at: string | null;
+  decision_note: string | null;
+  deleted_rows: number | null;
+}
+
+export interface AdminDeletionRequest extends DeletionRequest {
+  patient_name: string | null;
+  patient_email: string | null;
+}
+
 export interface GlucoseRecord {
   id: string;
   patient_id: string;
@@ -653,6 +703,21 @@ export async function apiRequest<T>(
   return response.json() as Promise<T>;
 }
 
+// A file the server sends as an attachment (Content-Disposition), e.g. the
+// patient's data export.
+export async function apiDownload(
+  path: string,
+): Promise<{ blob: Blob; filename: string | null }> {
+  const headers = new Headers();
+  const token = getToken();
+  if (token) headers.set("Authorization", `Bearer ${token}`);
+  const response = await fetch(`${API_BASE}${path}`, { headers });
+  if (!response.ok) await throwForResponse(response);
+  const disposition = response.headers.get("Content-Disposition") ?? "";
+  const match = /filename="([^"]+)"/.exec(disposition);
+  return { blob: await response.blob(), filename: match ? match[1] : null };
+}
+
 // POST /agent/chat/stream (SSE): `progress` events while the agent works, then
 // one `final` event with the same AgentChatResponse /agent/chat returns, or an
 // `error` event. The answer only arrives after the server's safety check ran.
@@ -1151,5 +1216,36 @@ export const api = {
     apiRequest<ApiUser>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),
+    }),
+  // Task 6.1 — read-only audit trail (admin).
+  auditEvents: (filters: AuditEventFilters = {}) => {
+    const params = new URLSearchParams();
+    for (const [key, value] of Object.entries(filters)) {
+      if (value !== undefined && value !== "") params.set(key, String(value));
+    }
+    return apiRequest<AuditEventPage>(`/admin/audit-events?${params.toString()}`);
+  },
+  // Task 6.5 — patient data rights.
+  exportMyData: (format: "json" | "csv") =>
+    apiDownload(`/privacy/me/export?format=${format}`),
+  myDeletionRequest: () =>
+    apiRequest<DeletionRequest | null>("/privacy/me/deletion-request"),
+  requestAccountDeletion: () =>
+    apiRequest<DeletionRequest>("/privacy/me/deletion-request", { method: "POST" }),
+  cancelAccountDeletion: () =>
+    apiRequest<DeletionRequest>("/privacy/me/deletion-request/cancel", { method: "POST" }),
+  deletionRequests: (status?: DeletionRequestStatus) =>
+    apiRequest<AdminDeletionRequest[]>(
+      `/admin/deletion-requests${status ? `?status=${status}` : ""}`,
+    ),
+  approveDeletionRequest: (id: string, note?: string) =>
+    apiRequest<DeletionRequest>(`/admin/deletion-requests/${encodeURIComponent(id)}/approve`, {
+      method: "POST",
+      body: JSON.stringify({ note: note || null }),
+    }),
+  rejectDeletionRequest: (id: string, note?: string) =>
+    apiRequest<DeletionRequest>(`/admin/deletion-requests/${encodeURIComponent(id)}/reject`, {
+      method: "POST",
+      body: JSON.stringify({ note: note || null }),
     }),
 };

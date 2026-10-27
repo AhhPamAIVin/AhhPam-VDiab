@@ -2,7 +2,6 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import {
-  BellRing,
   CheckCircle2,
   ClipboardList,
   Eye,
@@ -31,6 +30,8 @@ import { useToast } from "@/components/ui/toast";
 import { cn, parseUtcTimestamp } from "@/lib/utils";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Pagination } from "@/components/ui/pagination";
+import { AdminAuditPanel } from "@/components/admin-audit-panel";
+import { AdminDeletionRequests } from "@/components/admin-deletion-requests";
 
 const PAGE_SIZE = 20;
 
@@ -56,41 +57,6 @@ const roleConfig = {
     style: "bg-purple-50 text-purple-700 border-purple-200",
   },
 };
-
-const auditLogs = [
-  {
-    id: 1,
-    action: "Đăng nhập quản trị",
-    actor: "System Admin",
-    target: "Trang quản trị",
-    time: "Vừa xong",
-    level: "success",
-  },
-  {
-    id: 2,
-    action: "Đồng bộ dữ liệu",
-    actor: "Hệ thống",
-    target: "Cơ sở dữ liệu",
-    time: "15 phút trước",
-    level: "success",
-  },
-  {
-    id: 3,
-    action: "Cảnh báo đăng nhập",
-    actor: "Hệ thống",
-    target: "Thiết bị mới",
-    time: "2 giờ trước",
-    level: "warning",
-  },
-  {
-    id: 4,
-    action: "Sao lưu định kỳ",
-    actor: "Hệ thống",
-    target: "Bản sao lưu #124",
-    time: "Hôm qua",
-    level: "success",
-  },
-];
 
 function Modal({
   title,
@@ -570,7 +536,7 @@ export function AdminDashboard() {
                   <span>
                     <b className="block text-sm">Nhật ký hoạt động</b>
                     <small className="text-muted-foreground">
-                      Theo dõi vận hành
+                      Truy vết truy cập, yêu cầu xóa
                     </small>
                   </span>
                 </button>
@@ -911,50 +877,10 @@ export function AdminDashboard() {
       )}
 
       {!loading && activeTab === "audit" && (
-        <section className="rounded-2xl border border-border bg-card">
-          <div className="border-b border-border p-5">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="font-semibold">Nhật ký hệ thống</h2>
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Dữ liệu minh họa – chờ backend audit log.
-                </p>
-              </div>
-              <span className="rounded-full bg-orange-50 px-3 py-1 text-xs font-medium text-orange-700">
-                Dữ liệu tĩnh
-              </span>
-            </div>
-          </div>
-          <div className="divide-y divide-border">
-            {auditLogs.map((log) => (
-              <div key={log.id} className="flex items-center gap-3 p-4">
-                <div
-                  className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-xl",
-                    log.level === "success"
-                      ? "bg-emerald-50 text-emerald-600"
-                      : "bg-orange-50 text-orange-600",
-                  )}
-                >
-                  {log.level === "success" ? (
-                    <CheckCircle2 className="h-4 w-4" />
-                  ) : (
-                    <BellRing className="h-4 w-4" />
-                  )}
-                </div>
-                <div className="flex-1">
-                  <p className="text-sm font-medium">{log.action}</p>
-                  <p className="text-xs text-muted-foreground">
-                    {log.actor} · {log.target}
-                  </p>
-                </div>
-                <span className="text-xs text-muted-foreground">
-                  {log.time}
-                </span>
-              </div>
-            ))}
-          </div>
-        </section>
+        <div className="space-y-5">
+          <AdminDeletionRequests />
+          <AdminAuditPanel />
+        </div>
       )}
 
       {!loading && activeTab === "settings" && (

@@ -11,6 +11,13 @@ One shared CallbackHandler is attached in two places:
   chat turn shows up as one trace with each node and LLM call nested under it.
 LangChain de-duplicates the same handler instance when it is both inherited
 and attached locally, so nested LLM calls are not double-reported.
+
+PHI (task 6.4): prompts and completions carry patients' health data. With
+redaction on — the default when APP_ENV=production, LANGFUSE_REDACT_CONTENT
+overrides — every input/output/metadata payload is replaced before it leaves
+the process; span names, timings, token usage, model and the pseudonymous
+user/session ids still reach Langfuse, which is what latency and cost
+analysis need.
 """
 
 from __future__ import annotations
@@ -24,9 +31,24 @@ from codebase.backend.config import get_settings
 logger = logging.getLogger("codebase.models.tracing")
 
 
+REDACTED = "[redacted]"
+
+
 def langfuse_enabled() -> bool:
     settings = get_settings()
     return bool(settings.langfuse_public_key and settings.langfuse_secret_key)
+
+
+def redact_content_enabled() -> bool:
+    settings = get_settings()
+    if settings.langfuse_redact_content is not None:
+        return settings.langfuse_redact_content
+    return settings.app_env == "production"
+
+
+def redact_all(*, data: Any, **kwargs: Any) -> Any:
+    """Langfuse mask hook: nothing of a payload leaves, only its absence."""
+    return None if data is None else REDACTED
 
 
 @lru_cache
@@ -49,6 +71,7 @@ def get_langfuse_handler() -> Any | None:
         secret_key=settings.langfuse_secret_key,
         base_url=settings.langfuse_host,
         environment=settings.app_env,
+        mask=redact_all if redact_content_enabled() else None,
     )
     return CallbackHandler(public_key=settings.langfuse_public_key)
 

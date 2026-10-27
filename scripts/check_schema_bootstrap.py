@@ -5,7 +5,8 @@ indexes differently — exactly where the drift bugs fixed in db.py lived
 (missing enum values, a stale UNIQUE index). This script, run against an
 empty Postgres:
 
-1. bootstraps the schema twice (create_db_and_tables must be idempotent);
+1. bootstraps the schema twice (create_db_and_tables must be idempotent),
+   and checks audit_events refuses UPDATE/DELETE/TRUNCATE (task 6.1);
 2. recreates the old drift by hand — the stale UNIQUE index on
    care_plan_targets.patient_id and a notification_type enum without
    GLUCOSE_ALERT — and checks the next bootstrap repairs both.
@@ -18,6 +19,7 @@ from __future__ import annotations
 import sys
 
 from sqlalchemy import inspect, text
+from sqlalchemy.exc import DBAPIError
 
 import codebase.backend.main  # noqa: F401 — registers every model on SQLModel.metadata
 from codebase.backend.db import create_db_and_tables, engine
@@ -37,6 +39,32 @@ def _patient_index_unique() -> bool:
     return bool(indexes["ix_care_plan_targets_patient_id"].get("unique"))
 
 
+def _audit_append_only_problems() -> list[str]:
+    """Task 6.1: the triggers from audit/models.py must block every rewrite."""
+    with engine.begin() as conn:
+        conn.execute(
+            text(
+                "INSERT INTO audit_events (id, ts, actor_role, action, outcome) "
+                "VALUES (gen_random_uuid(), now(), 'system', 'ci.check', 'success')"
+            )
+        )
+    problems = []
+    for statement in (
+        "UPDATE audit_events SET action = 'tampered'",
+        "DELETE FROM audit_events",
+        "TRUNCATE audit_events",
+    ):
+        try:
+            with engine.begin() as conn:
+                conn.execute(text(statement))
+        except DBAPIError as exc:
+            if "append-only" not in str(exc.orig):
+                problems.append(f"{statement!r} failed for another reason: {exc.orig}")
+        else:
+            problems.append(f"{statement!r} was allowed on audit_events")
+    return problems
+
+
 def main() -> int:
     if engine.dialect.name != "postgresql":
         print("needs a Postgres database (DB_HOST/DB_PORT/...)", file=sys.stderr)
@@ -45,6 +73,13 @@ def main() -> int:
     create_db_and_tables()
     create_db_and_tables()
     print("bootstrap twice: ok")
+
+    problems = _audit_append_only_problems()
+    if problems:
+        for problem in problems:
+            print(f"FAIL {problem}", file=sys.stderr)
+        return 1
+    print("audit_events refuses UPDATE/DELETE/TRUNCATE: ok")
 
     # Recreate an old database: notifications typed before GLUCOSE_ALERT
     # existed, and the initial commit's UNIQUE index on patient_id.

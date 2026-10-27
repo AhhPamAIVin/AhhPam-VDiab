@@ -6,6 +6,7 @@ from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlmodel import Session
 
+from codebase.backend.audit.context import set_actor
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.auth.security import decode_access_token
 from codebase.backend.db import get_session
@@ -34,6 +35,7 @@ def get_current_user(
     user = session.get(User, user_id)
     if user is None or not user.is_active or user.token_version != token_version:
         raise _CREDENTIALS_ERROR
+    set_actor(user.id, user.role.value)
     return user
 
 

@@ -139,7 +139,10 @@ async def verify_citations(state: AgentState) -> dict:
 
     used_chunk_ids = _parse_used_chunk_ids(content)
     if used_chunk_ids is None:
-        logger.warning("verify_citations got unparseable output, keeping upstream sources unchanged: %r", content)
+        # Length only: the output can quote the answer, which carries health data (task 6.4).
+        logger.warning(
+            "verify_citations got unparseable output (%d chars), keeping upstream sources unchanged", len(content)
+        )
         return {}
 
     # Defensive against a hallucinated chunk_id that was never actually sent

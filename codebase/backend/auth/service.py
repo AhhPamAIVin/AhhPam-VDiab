@@ -13,9 +13,13 @@ from codebase.backend.auth.security import (
 )
 
 
+def find_user_by_email(session: Session, email: str) -> User | None:
+    return session.exec(select(User).where(User.email == email.lower())).first()
+
+
 def authenticate_user(session: Session, *, email: str, password: str) -> User:
     """Verify email/password and return the user, or raise 401/403."""
-    user = session.exec(select(User).where(User.email == email.lower())).first()
+    user = find_user_by_email(session, email)
     if user is None or not verify_password(password, user.hashed_password):
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")
     if not user.is_active:

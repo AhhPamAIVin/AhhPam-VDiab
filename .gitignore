@@ -71,3 +71,6 @@ supabase/
 # Raw CGMacros meal photos are local source assets and are intentionally not pushed.
 data/CGMacros/**/photos/
 .codex/
+
+# Encrypted DB backups (scripts/backup_db.sh) — belong off-site, never in git
+backups/
