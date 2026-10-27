@@ -1,6 +1,6 @@
 # Epic 8 — Chatbot bệnh nhân thành agent đa chức năng
 
-**Ưu tiên:** P1 · **Độ lớn:** L · **Phụ thuộc:** 1 (tool bữa ăn), 5 (đo latency) · **Trạng thái:** v1 xong (8.1–8.4), bật mặc định; eval đầy đủ lịch 2026-10-29; 8.6 chưa làm
+**Ưu tiên:** P1 · **Độ lớn:** L · **Phụ thuộc:** 1 (tool bữa ăn), 5 (đo latency) · **Trạng thái:** xong code 8.1–8.6 (phạm vi mới: hỏi đáp + ghi số liệu, không lời khuyên), bật mặc định; golden scenarios lịch 2026-10-29
 
 ## Mục tiêu
 
@@ -74,13 +74,64 @@ năng mới chỉ là **thêm một tool vào registry** — trong khi giữ ngu
       *Bật mặc định (8/8 đúng tool, không chậm hơn). Tắt bằng `PATIENT_AGENT_ENABLED=false` nếu eval 29/10 xấu
       đi. Pytest ghim cờ tắt cho các test hợp đồng của planner (`tests/conftest.py`).*
 
-### 8.6 Tool tiếp theo (sau v1)
-- [ ] Gửi ảnh bữa ăn ngay trong chat (`recognize_from_photo` đã là hàm độc lập).
-- [ ] Tuân thủ thuốc: đánh dấu đã uống / nhắc (Epic 3).
-- [ ] Soạn yêu cầu đặt lịch gửi bác sĩ (hiện chỉ có câu soạn sẵn).
-- [ ] Insight dài hạn (đã có đồng ý) trong hỏi đáp, không chỉ trong tóm tắt.
-- [x] Báo cáo tuần (Epic 2) như một tool.
-      *`get_weekly_report` — báo cáo gần nhất (số liệu + việc nên làm).*
+### 8.6 Phạm vi mới: chỉ hỏi đáp + ghi số liệu, không lời khuyên (quyết định 2026-10-27)
+
+Trợ lý bệnh nhân chỉ làm hai việc: **trả lời câu hỏi** (về số liệu của chính bệnh nhân, kiến thức chung có
+nguồn) và **ghi số liệu** bệnh nhân kể. **Nghiêm cấm lời khuyên**; được đưa nhận định về số liệu nhưng phải tách
+riêng và ghi rõ do AI tạo. Bỏ "soạn yêu cầu đặt lịch gửi bác sĩ" khỏi phạm vi.
+
+- [x] **Ghi số liệu bằng LLM thay cho parser regex.** Tool `draft_records`: LLM đọc câu chữ (không dấu, viết tắt,
+      "7 phẩy 2", "130 trên 85", nhiều chỉ số một câu, phân biệt câu hỏi/giả định/kế hoạch/số của người khác);
+      code kiểm từng giá trị với đoạn trích nguyên văn (`record_actions.draft_from_agent_proposal`), rồi bệnh nhân
+      xác nhận trong thẻ như cũ. Những gì đọc được tất định thì code tự đọc, không phụ thuộc LLM: hoàn cảnh đo,
+      loại bữa, giờ ("vừa", "30 phút trước", "7h sáng hôm qua"; "lúc 9h" không rõ sáng/tối → hỏi), đơn vị theo độ
+      hợp lý (dưới 20 → mmol/L, từ 40 → mg/dL, 20–40 → hỏi). Chặn tất định: kế hoạch/giả định ("định", "nếu", "sẽ"),
+      số của người khác ("chồng tôi", "mẹ tôi"). Trên đường agent, parser regex không còn được dùng; nó chỉ chạy khi
+      agent lỗi (fallback).
+      *Eval `make eval-record-extraction` (63 câu tiếng Việt, LLM thật, 2026-10-27) — xem bảng dưới.*
+- [x] **Không lời khuyên + nhãn AI.** Khối quy tắc trong prompt (chỉ cho bệnh nhân), trường `assessment` riêng →
+      `AgentChatResponse.ai_assessment`, giao diện hiển thị trong khung *"Nhận định do AI tạo — không phải lời khuyên
+      y khoa"* (lưu cả trong lịch sử chat). Guardrail `has_personal_advice` chặn câu khuyên ("bạn nên/hãy/cần…",
+      mệnh lệnh, gạch đầu dòng), vẫn cho phép chuyển bác sĩ/115, hướng dẫn dùng app và kiến thức chung có nguồn;
+      quét cả khung nhận định. Agent không còn nhận mục "việc nên làm" của báo cáo tuần.
+- [x] **Chỉ số nguy hiểm** (đường huyết < 54 hoặc > 250 mg/dL — đã quy đổi mmol/L; huyết áp ≥ 180/120): câu chuyển
+      tuyến cố định (115 / báo bác sĩ), không có văn bản do LLM viết, vẫn có thẻ để lưu chỉ số. Lịch sử chat lưu
+      đúng câu chuyển tuyến này.
+- [x] **Thống kê do code tính** — `get_health_stats`: số lần đo, trung bình/thấp/cao, theo hoàn cảnh đo, số lần
+      trên/dưới một mức, so với khoảng liền trước, tới 90 ngày.
+- [x] **Sửa/xóa bản ghi nhập nhầm** — `propose_record_deletion` (+ `draft_records` cho giá trị đúng): chỉ bản ghi
+      bệnh nhân tự nhập trong 7 ngày, không phải bản ghi bác sĩ nhập hay đã được bác sĩ đánh giá; kiểm lại khi xác
+      nhận; xóa kèm phân tích bữa ăn; vào audit log.
+- [x] **Đã uống thuốc** — `mark_medication_taken`: hoàn thành lời nhắc thuốc đang mở hôm nay sau khi bệnh nhân xác
+      nhận. Ở mức lời nhắc, không theo từng thuốc (lời nhắc Epic 3 gộp mọi thuốc). Quên thuốc vẫn qua `draft_records`.
+      Đặt nhắc thuốc qua chat: hoãn.
+- [x] **Gửi ảnh bữa ăn trong chat** — nút máy ảnh → `POST /agent/meal-photo` (dùng chung nhận diện và đồng ý với trang
+      Bữa ăn, ảnh không lưu) → thẻ "lưu bữa ăn" như ghi bằng chữ. Không qua LLM agent.
+- [x] **Insight dài hạn** — `get_my_insights`: `weekly_batch` + `chat` (chỉ khi còn đồng ý `ai_memory_consent`), bỏ
+      insight bác sĩ đã bác; chỉ được nêu trong khung nhận định AI.
+- [x] Báo cáo tuần (Epic 2) như một tool. *`get_weekly_report` — chỉ số liệu (không còn "việc nên làm").*
+- [~] ~~Soạn yêu cầu đặt lịch gửi bác sĩ~~ — bỏ khỏi phạm vi.
+
+**Eval ghi số liệu** (`make eval-record-extraction`; 63 câu: có dấu/không dấu, viết tắt, đơn vị, giờ, huyết áp, bữa
+ăn, vận động, thuốc, câu ghép, 12 câu *không được ghi*; LLM thật qua proxy hiện tại, 2026-10-27; chấm trên bản nháp
+**sau** lớp kiểm chứng của code, tức đúng những gì sẽ hiện thành thẻ):
+
+| | Agent (LLM + kiểm chứng) | Parser regex cũ |
+|---|---|---|
+| Câu đúng hoàn toàn | **93,7%** (59/63) | 54,0% |
+| Ghi nhầm ở câu không được ghi | **0%** (0/12) | 16,7% |
+| Recall bản ghi | 92,7% | 52,7% |
+| Độ đúng từng trường | 100% | 96,6% |
+| Không dấu / viết tắt | 8/8 | 0/8 |
+
+4 câu còn hỏng đều do mô hình: 2 lượt mô hình không gọi tool nào (proxy chậm 22–28 s — trên hệ thống thật luồng
+đó rơi về parser cũ), 1 câu vừa kể vừa hỏi bị coi là câu hỏi, 1 câu "quên uống metformin" mô hình gọi nhầm
+`mark_medication_taken` — đã chặn tất định trong tool (quên/chưa/không uống không bao giờ thành "đã uống"). Thời gian
+bước agent trung vị 6,9 s (cùng proxy). Báo cáo: `eval/results/record_extraction-epic8.json`. Các lần chạy trước
+lộ ra lỗi của lớp kiểm chứng (tên hoạt động bị LLM dịch sang tiếng Anh, giờ không kèm đoạn trích, dấu câu cuối đoạn,
+"8 phay 1", kế hoạch "định ăn", "chồng tôi…") — đã sửa và có test hồi quy.
+
+Test: `test_agent_recording.py`, `test_no_advice.py`, `test_agent_tools_v2.py`, `test_meal_photo.py` (ảnh trong chat).
 
 ## Definition of Done
 - 8.1–8.4 xong, pytest xanh; 8.5 có số đo latency/đúng tool; README/ARCHITECTURE mô tả agent.
