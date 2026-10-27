@@ -11,7 +11,6 @@ Mỗi epic một file. Mỗi task có checklist, file dự kiến sửa và acce
 | 4 | Brief tái khám cho bác sĩ | [04-doctor-previsit-brief.md](04-doctor-previsit-brief.md) | P1 | M | 1, 3 (cho các mục tương ứng) | Chưa bắt đầu |
 | 5 | Hiệu năng & chất lượng AI | [05-ai-performance-quality.md](05-ai-performance-quality.md) | P1 (song song) | M | — | Gần xong — mọi task đã làm; p95 10.3–11.8s chưa đạt ≤ 10s |
 | 6 | Nền tảng bảo mật & tuân thủ | [06-security-compliance.md](06-security-compliance.md) | P0 trước dữ liệu thật | M | — | Đang làm — 6.2 xong |
-| 7 | Người thân hỗ trợ (caregiver) | [07-caregiver-access.md](07-caregiver-access.md) | P3 | L | 6 (audit log) | Chưa bắt đầu |
 | 8 | Chatbot bệnh nhân thành agent đa chức năng | [08-patient-agent.md](08-patient-agent.md) | P1 | L | 1, 5 | v1 xong, bật mặc định; eval lịch 29/10; 8.6 chưa làm |
 
 ## Thứ tự đề xuất
@@ -20,7 +19,8 @@ Mỗi epic một file. Mỗi task có checklist, file dự kiến sửa và acce
 Phase 1:  Epic 1 (1.1 → 1.2 → 1.3 → 1.4)          ║  Epic 5, Epic 6 xen kẽ
 Phase 2:  Epic 2 + Epic 4 (dùng dữ liệu Epic 1)    ║  (nợ kỹ thuật, không chặn feature)
 Phase 3:  Epic 3, rồi Epic 1 phần ảnh/giọng nói
-Phase 4:  Epic 7 — chỉ khi có evidence từ pilot (PRD §5 Could/Future)
+Sau pilot: người thân hỗ trợ (caregiver) — đã gỡ khỏi roadmap 2026-10-27, phát triển sau;
+          bản kế hoạch cũ còn trong git history (docs/tasks/07-caregiver-access.md)
 ```
 
 ## Quy ước chung cho mọi epic
