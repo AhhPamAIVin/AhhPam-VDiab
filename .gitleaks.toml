@@ -1,0 +1,15 @@
+# Secret scan config (task 6.6) — run by the `security` job in .github/workflows/ci.yml.
+# Gitleaks' default rules, plus one for the "sk-..." keys this project's LLM
+# provider uses (AI_API_KEY / OPENAI_API_KEY in .env): the default OpenAI rule
+# only matches the legacy "...T3BlbkFJ..." key shape, not project/service keys
+# or OpenAI-compatible proxies that reuse the prefix.
+title = "VDiab gitleaks config"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "sk-prefixed-api-key"
+description = "sk- prefixed LLM API key (OpenAI-compatible providers)"
+regex = '''\bsk-(?:proj-|svcacct-|admin-|ant-api03-)?[A-Za-z0-9_\-]{20,}'''
+keywords = ["sk-"]
