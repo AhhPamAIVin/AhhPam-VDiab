@@ -9,6 +9,7 @@ export interface ApiUser {
   must_change_password: boolean;
   ai_memory_consent: boolean;
   meal_photo_ai_consent: boolean;
+  weekly_report_enabled: boolean;
   created_at: string;
 }
 
@@ -164,6 +165,48 @@ export interface MealGlucoseResponse {
 
 export type MealItemEdit = { name: string; quantity: number | null; unit: string | null };
 
+type StatSummary = { count: number; avg: number | null; min: number | null; max: number | null };
+
+// Deterministic figures computed by the backend (reports/stats.py).
+export interface WeeklyReportStats {
+  glucose: StatSummary & {
+    low_count: number;
+    evaluated_count: number;
+    in_target_pct: number | null;
+    by_context: Record<string, StatSummary>;
+  };
+  previous_week: { count: number; avg: number | null; in_target_pct: number | null };
+  change: { avg_delta: number | null; in_target_pct_delta: number | null };
+  blood_pressure: { count: number; systolic_avg: number | null; diastolic_avg: number | null };
+  meal_count: number;
+  activity_count: number;
+  activity_minutes: number;
+  days_logged: number;
+  meals: {
+    lookback_days: number;
+    meals_paired: number;
+    min_n: number;
+    top_foods: { name: string; n: number; avg_post_mg_dl: number; pct_over_target: number }[];
+  };
+}
+
+export interface WeeklyReportListItem {
+  id: string;
+  week_start: string; // YYYY-MM-DD, local Sunday
+  week_end: string; // inclusive Saturday
+  status: "generated" | "delivered" | "failed";
+  tip: string | null;
+  read_at: string | null;
+  created_at: string;
+}
+
+export interface WeeklyReport extends WeeklyReportListItem {
+  summary: string;
+  stats: WeeklyReportStats | Record<string, never>;
+  sections_enabled: string[];
+  delivered_at: string | null;
+}
+
 export type MealInputSource = "text" | "photo" | "voice";
 
 // POST /health/meals/photo-analysis — a draft for the meal form. Nothing is
@@ -180,7 +223,8 @@ export type NotificationType =
   | "glucose_alert"
   | "blood_pressure_reminder"
   | "medication_reminder"
-  | "custom";
+  | "custom"
+  | "weekly_report";
 export type NotificationStatus =
   | "pending"
   | "completed"
@@ -735,6 +779,13 @@ export const api = {
       body: form,
     });
   },
+  weeklyReports: () => apiRequest<WeeklyReportListItem[]>("/reports/weekly"),
+  weeklyReport: (reportId: string) =>
+    apiRequest<WeeklyReport>(`/reports/weekly/${encodeURIComponent(reportId)}`),
+  markWeeklyReportRead: (reportId: string) =>
+    apiRequest<WeeklyReport>(`/reports/weekly/${encodeURIComponent(reportId)}/read`, { method: "POST" }),
+  generateWeeklyReport: () =>
+    apiRequest<WeeklyReport>("/reports/weekly/generate", { method: "POST" }),
   notifications: (status?: NotificationStatus, onDate?: string) => {
     const params = new URLSearchParams();
     if (status) params.set("status", status);
@@ -971,7 +1022,7 @@ export const api = {
     apiRequest<ChatSessionMessagesResponse>(
       `/agent/sessions/${encodeURIComponent(sessionId)}/messages`,
     ),
-  updateMe: (data: { ai_memory_consent?: boolean; meal_photo_ai_consent?: boolean }) =>
+  updateMe: (data: { ai_memory_consent?: boolean; meal_photo_ai_consent?: boolean; weekly_report_enabled?: boolean }) =>
     apiRequest<ApiUser>("/auth/me", {
       method: "PATCH",
       body: JSON.stringify(data),

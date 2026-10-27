@@ -5,7 +5,7 @@ import { TimePicker } from 'antd'
 import dayjs from 'dayjs'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { AlertTriangle, Bell, Check, CheckCheck, CheckCircle2, Clock3, Copy, Droplets, ExternalLink, Heart, Loader2, MessageCircleMore, Pencil, Pill, Plus, RotateCcw, Settings2, SkipForward, Trash2, X } from 'lucide-react'
+import { AlertTriangle, Bell, Check, CheckCheck, CheckCircle2, Clock3, Copy, Droplets, ExternalLink, Heart, Loader2, MessageCircleMore, Pencil, Pill, Plus, RotateCcw, Settings2, SkipForward, Trash2, X, FileBarChart } from 'lucide-react'
 import { api, type DoctorAlert, type NotificationPreference, type NotificationRecord, type NotificationStatus, type NotificationType, type ZaloLinkCode } from '@/lib/api'
 import { useToast } from '@/components/ui/toast'
 import { cn, parseUtcTimestamp } from '@/lib/utils'
@@ -33,6 +33,7 @@ const configs: Record<NotificationType, { icon: typeof Bell; color: string; bg: 
   medication_reminder: { icon: Pill, color: 'text-purple-500', bg: 'bg-purple-50', href: '/medication' },
   custom: { icon: Bell, color: 'text-blue-500', bg: 'bg-blue-50', href: '/dashboard' },
   glucose_alert: { icon: AlertTriangle, color: 'text-orange-600', bg: 'bg-orange-100', href: '/health?record=glucose' },
+  weekly_report: { icon: FileBarChart, color: 'text-[#2D9D97]', bg: 'bg-[#DFF7F3]', href: '/reports' },
 }
 
 export function NotificationsPage() {
