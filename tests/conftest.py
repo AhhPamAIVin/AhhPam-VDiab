@@ -97,3 +97,17 @@ def _no_background_meal_analysis(monkeypatch):
         return None
 
     monkeypatch.setattr("codebase.backend.health.meal_analysis.analyze_meal_in_background", _noop)
+
+
+@pytest.fixture(autouse=True)
+def _no_background_appointment_reflection(monkeypatch):
+    """Same again for the clinical-note reflect BackgroundTask: tests call
+    insights.appointment_reflection.reflect_on_clinical_note on the test
+    session instead."""
+
+    async def _noop(note_id) -> None:
+        return None
+
+    monkeypatch.setattr(
+        "codebase.backend.insights.appointment_reflection.reflect_on_clinical_note_in_background", _noop
+    )
