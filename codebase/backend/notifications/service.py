@@ -354,6 +354,23 @@ def get_effective_preferences(session: Session, patient_id: UUID) -> list[Notifi
     return list_preferences(session, patient_id)
 
 
+def medication_reminder_at(
+    session: Session, patient_id: UUID, at: time, *, has_medications: bool
+) -> NotificationPreference | None:
+    """The enabled reminder that already brings a medication reminder at `at`:
+    a medication reminder of its own, or a glucose reminder (medication
+    reminders ride along with those when the patient has active medications —
+    see scheduler.py)."""
+    for preference in get_effective_preferences(session, patient_id):
+        if not preference.is_enabled or preference.time_of_day.replace(second=0, microsecond=0) != at:
+            continue
+        if preference.notification_type == NotificationType.MEDICATION_REMINDER:
+            return preference
+        if has_medications and preference.notification_type == NotificationType.GLUCOSE_REMINDER:
+            return preference
+    return None
+
+
 def get_preference_or_404(session: Session, preference_id: UUID) -> NotificationPreference:
     preference = session.get(NotificationPreference, preference_id)
     if preference is None:

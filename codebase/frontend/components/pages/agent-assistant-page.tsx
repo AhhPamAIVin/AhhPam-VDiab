@@ -845,6 +845,7 @@ const recordTypeLabels: Record<string, string> = {
   medication_note: "Ghi chú dùng thuốc",
   delete_record: "Xóa bản ghi nhập nhầm",
   medication_taken: "Uống thuốc",
+  medication_reminder: "Nhắc uống thuốc hằng ngày",
 };
 
 const recordFieldLabels: Record<string, string> = {
@@ -937,6 +938,7 @@ function RecordInteractionCard({
 }) {
   const recordType = String(interaction.draft.record_type || "");
   const isDeletion = recordType === "delete_record";
+  const isReminder = recordType === "medication_reminder";
   const missingField = interaction.field || "";
   const missingFieldLabel = recordFieldLabels[missingField] || "Thông tin bổ sung";
   const missingFieldPrompt =
@@ -982,6 +984,10 @@ function RecordInteractionCard({
               ? interaction.type === "record_saved"
                 ? "Đã xóa khỏi hồ sơ"
                 : "Xác nhận xóa bản ghi"
+              : isReminder
+                ? interaction.type === "record_saved"
+                  ? "Đã đặt lời nhắc"
+                  : "Đặt lời nhắc · Xác nhận"
               : interaction.type === "record_saved"
                 ? "Đã lưu vào hồ sơ"
                 : interaction.type === "confirm_record"
@@ -1141,7 +1147,9 @@ function RecordInteractionCard({
           <p className="mb-2.5 text-xs text-muted-foreground">
             {isDeletion
               ? "Bản ghi này sẽ bị xóa khỏi hồ sơ. Vui lòng kiểm tra lại."
-              : "Thông tin đã đủ. Vui lòng kiểm tra lại trước khi lưu vào hồ sơ."}
+              : isReminder
+                ? "Lời nhắc sẽ đến mỗi ngày vào giờ này. Bạn có thể đổi giờ hoặc tắt trong mục Thông báo."
+                : "Thông tin đã đủ. Vui lòng kiểm tra lại trước khi lưu vào hồ sơ."}
           </p>
           <div className="flex gap-2">
             <button
@@ -1154,7 +1162,7 @@ function RecordInteractionCard({
               )}
             >
               {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
-              {busy ? "Đang xử lý..." : isDeletion ? "Xác nhận xóa" : "Xác nhận và lưu"}
+              {busy ? "Đang xử lý..." : isDeletion ? "Xác nhận xóa" : isReminder ? "Đặt lời nhắc" : "Xác nhận và lưu"}
             </button>
             <button
               type="button"
@@ -1162,7 +1170,7 @@ function RecordInteractionCard({
               onClick={() => onAction({ action: "cancel" })}
               className="rounded-xl border border-border bg-background px-4 py-2.5 text-xs font-medium text-muted-foreground disabled:opacity-50"
             >
-              {isDeletion ? "Giữ lại" : "Không lưu"}
+              {isDeletion ? "Giữ lại" : isReminder ? "Không đặt" : "Không lưu"}
             </button>
           </div>
         </div>

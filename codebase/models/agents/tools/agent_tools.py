@@ -427,6 +427,47 @@ def _mark_medication_taken(state: dict, session: Session, args: MedicationTakenA
     return ToolOutcome(update, f"Đã soạn xác nhận đã uống thuốc ({len(reminders)} lời nhắc đang mở).")
 
 
+class MedicationReminderArgs(BaseModel):
+    evidence: str = Field(
+        min_length=1, max_length=400, description="Đoạn nguyên văn bệnh nhân nhờ nhắc uống thuốc, kèm giờ nếu có."
+    )
+
+
+def _set_medication_reminder(state: dict, session: Session, args: MedicationReminderArgs) -> ToolOutcome:
+    """A daily medication reminder card. The time is read by code from the
+    patient's own words, never taken from the model; unclear morning/evening
+    ("lúc 8h") or no time at all → the answer asks instead of drafting."""
+    from codebase.backend.agent.record_actions import normalized_span, stated_time_of_day
+    from codebase.backend.medications.service import list_active_medications
+    from codebase.backend.notifications.service import medication_reminder_at
+
+    message = state.get("message") or ""
+    if normalized_span(args.evidence) not in normalized_span(message):
+        return ToolOutcome({}, "Đoạn trích không khớp nguyên văn tin nhắn; không soạn lời nhắc.")
+    at = stated_time_of_day(args.evidence)
+    if not at:
+        note = (
+            "Chưa rõ giờ nhắc là sáng hay tối — cần hỏi lại bệnh nhân (ví dụ '8 giờ sáng' hay '8 giờ tối')."
+            if at is False
+            else "Bệnh nhân chưa nói giờ — cần hỏi lại muốn được nhắc uống thuốc lúc mấy giờ."
+        )
+        return ToolOutcome(_merge_tool_results(state, medication_reminder=note), note)
+    clock = at.strftime("%H:%M")
+    medications = list_active_medications(session, state["patient_id"])
+    existing = medication_reminder_at(session, state["patient_id"], at, has_medications=bool(medications))
+    if existing is not None:
+        note = f"Đã có lời nhắc uống thuốc lúc {clock} hằng ngày ({existing.label}); không cần đặt thêm."
+        return ToolOutcome(_merge_tool_results(state, medication_reminder=note), note)
+    folded_message = _without_accents(message)
+    named = [m.drug_name for m in medications if _without_accents(m.drug_name) in folded_message]
+    label = f"Nhắc uống thuốc {', '.join(named)}" if named else "Nhắc uống thuốc"
+    summary = f"{label} lúc {clock} hằng ngày"
+    draft = {"record_type": "medication_reminder", "time_of_day": clock, "label": label, "summary": summary}
+    update = _merge_tool_results(state, medication_reminder=f"Đã soạn lời nhắc chờ bệnh nhân xác nhận: {summary}")
+    update["record_drafts"] = [*(state.get("record_drafts") or []), draft]
+    return ToolOutcome(update, f"Đã soạn lời nhắc chờ xác nhận: {summary}.")
+
+
 class HealthStatsArgs(BaseModel):
     days: int = Field(default=7, ge=1, le=90, description="Số ngày gần nhất (1-90).")
     start_date: date | None = Field(default=None, description="Ngày bắt đầu (YYYY-MM-DD) nếu hỏi khoảng cụ thể.")
@@ -596,6 +637,14 @@ TOOLS: tuple[AgentTool, ...] = (
         _mark_medication_taken,
     ),
     AgentTool(
+        "set_medication_reminder",
+        "Soạn lời nhắc uống thuốc HẰNG NGÀY khi bệnh nhân nhờ nhắc ('nhắc tôi uống thuốc lúc 8h tối'). Giờ do hệ "
+        "thống đọc từ đoạn trích; bệnh nhân xác nhận trước khi đặt. Đổi/tắt lời nhắc có sẵn thì hướng dẫn vào mục "
+        "Thông báo.",
+        MedicationReminderArgs,
+        _set_medication_reminder,
+    ),
+    AgentTool(
         "get_health_stats",
         "Thống kê do hệ thống tính trên tối đa 90 ngày: số lần đo, trung bình/thấp nhất/cao nhất, theo hoàn cảnh đo, "
         "số lần trên/dưới một mức, và so với khoảng liền trước. Dùng cho mọi câu hỏi 'trung bình', 'bao nhiêu lần', "
@@ -654,6 +703,7 @@ PROGRESS_BY_TOOL = {
     "draft_records": "Đang chuẩn bị bản ghi để bạn xác nhận…",
     "propose_record_deletion": "Đang tìm bản ghi bạn muốn xóa…",
     "mark_medication_taken": "Đang xem lời nhắc uống thuốc hôm nay…",
+    "set_medication_reminder": "Đang chuẩn bị lời nhắc uống thuốc…",
     "get_health_stats": "Đang tính thống kê từ dữ liệu của bạn…",
     "get_my_insights": "Đang xem các nhận xét tự động về xu hướng của bạn…",
 }

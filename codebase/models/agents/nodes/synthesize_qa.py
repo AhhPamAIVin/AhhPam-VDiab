@@ -246,6 +246,10 @@ _PATIENT_DATA_SECTIONS: tuple[tuple[str, str], ...] = (
         "này, không tự tính lại)",
     ),
     ("medication_taken", "Xác nhận uống thuốc hôm nay"),
+    (
+        "medication_reminder",
+        "Lời nhắc uống thuốc hằng ngày: đã soạn chờ bệnh nhân xác nhận ở thẻ bên dưới, đã có sẵn, hoặc cần hỏi lại giờ",
+    ),
     ("record_deletion", "Yêu cầu xóa bản ghi nhập nhầm"),
     (
         "ai_insights",
