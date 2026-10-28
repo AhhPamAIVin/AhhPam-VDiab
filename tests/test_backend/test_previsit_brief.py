@@ -14,9 +14,10 @@ from codebase.backend.appointments.models import Appointment, AppointmentStatus,
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.auth.security import hash_password
 from codebase.backend.health.models import GlucoseRecord
-from codebase.backend.patients.models import ClinicalNote, PatientAssignment
+from codebase.backend.patients.models import CarePlanTarget, ClinicalNote, PatientAssignment, RiskGroup
 from codebase.backend.summaries.models import AgentSummarySnapshot, SummaryRole
 from codebase.models.agents.nodes.synthesize_summary import _build_sections, synthesize_summary
+from codebase.models.agents.tools.clinical_tools import get_clinical_context
 
 PASSWORD = "AdminPass123"
 NOW = datetime.utcnow().replace(microsecond=0)
@@ -281,8 +282,64 @@ def test_every_section_says_when_data_is_missing():
     assert sections["changes"][0].startswith("Chưa đủ dữ liệu để so sánh")
     assert sections["meals"][0].startswith("Chưa đủ dữ liệu: 2 bữa có đo đường huyết sau ăn")
     assert sections["medication_adherence"][0].startswith("Chưa đủ dữ liệu: chưa có ngày nào")
+    assert sections["clinical"] == ["Chưa đủ dữ liệu: chưa tải được ghi chú khám và care plan."]
     assert _build_sections(_metrics(10, 150.0), {}, "doctor")["medication_adherence"] == [
         "Chưa có thuốc nào được ghi nhận trong 30 ngày qua."
+    ]
+
+
+def _clinical_note(session, patient, doctor, created_at, **fields) -> ClinicalNote:
+    note = ClinicalNote(
+        patient_id=patient.id, doctor_id=doctor.id, reason_for_visit="Tái khám", history_of_present_illness="Ổn",
+        diagnosis="ĐTĐ típ 2", treatment_plan="Tiếp tục Metformin, giảm tinh bột buổi tối", created_at=created_at,
+        **fields,
+    )
+    session.add(note)
+    session.commit()
+    return note
+
+
+def _glucose(session, patient, at, value, status):
+    session.add(GlucoseRecord(
+        patient_id=patient.id, value=value, unit="mg/dL", measured_at=at, threshold_status=status, created_by=patient.id,
+    ))
+
+
+def test_clinical_context_cites_hba1c_target_and_last_plan(session: Session, patient: User, doctor: User):
+    _clinical_note(session, patient, doctor, datetime(2026, 7, 10), hba1c_pct=8.2)
+    _clinical_note(session, patient, doctor, datetime(2026, 8, 10))  # no lab this visit
+    _clinical_note(session, patient, doctor, datetime(2026, 9, 12), hba1c_pct=7.6, follow_up_date=datetime(2026, 10, 12).date())
+    _clinical_note(session, patient, doctor, datetime(2026, 11, 1), hba1c_pct=6.9)  # after the window: not used
+    session.add(CarePlanTarget(
+        patient_id=patient.id, approved_by_doctor_id=doctor.id, risk_group=RiskGroup.STANDARD_TYPE_2, target_low_mg_dl=80,
+        target_high_mg_dl=180, danger_low_mg_dl=54, danger_high_mg_dl=300, version=2,
+        effective_from=datetime(2026, 9, 12),
+    ))
+    for day, status in ((1, "NORMAL"), (2, "NORMAL"), (3, "WATCH"), (4, "UNAVAILABLE")):
+        _glucose(session, patient, datetime(2026, 10, day, 1), 150, status)
+    session.commit()
+
+    context = get_clinical_context(session, patient.id, datetime(2026, 9, 12), datetime(2026, 10, 12))
+    assert [h["value_pct"] for h in context["hba1c"]] == [7.6, 8.2]
+    assert context["target_attainment"] == {"readings": 4, "evaluated": 3, "in_target": 2, "in_target_pct": 66.7}
+
+    lines = _build_sections(_metrics(4, 150.0), {"clinical_context": context}, "doctor")["clinical"]
+    assert lines[0] == "HbA1c gần nhất: 7.6% (12/09/2026) ← 8.2% (10/07/2026). Nguồn: ghi chú khám."
+    assert lines[1] == (
+        "Mục tiêu đường huyết 80–180 mg/dL (care plan phiên bản 2, hiệu lực từ 12/09/2026): 2/3 lần đo trong mục "
+        "tiêu (66.7%); 1 lần đo trước khi có care plan không tính."
+    )
+    assert lines[2].startswith("Hướng điều trị lần khám 12/09/2026: “Tiếp tục Metformin, giảm tinh bột buổi tối”")
+    assert "hẹn tái khám 12/10/2026" in lines[2]
+
+
+def test_clinical_section_without_labs_or_care_plan(session: Session, patient: User):
+    context = get_clinical_context(session, patient.id, datetime(2026, 9, 1), datetime(2026, 10, 1))
+    lines = _build_sections(_metrics(0, 0.0), {"clinical_context": context}, "doctor")["clinical"]
+    assert lines == [
+        "Chưa có HbA1c: chưa ghi chú khám nào nhập kết quả HbA1c.",
+        "Chưa có care plan (mục tiêu đường huyết do bác sĩ duyệt) — chưa đánh giá được mức đạt mục tiêu.",
+        "Chưa có ghi chú khám trước đó.",
     ]
 
 
@@ -296,7 +353,7 @@ async def test_sections_are_returned_even_without_enough_glucose():
         "intent": "SUMMARY", "user_role": "doctor", "tool_results": {"records": {}},
         "data_completeness": {"sufficient_for_trends": False},
     })
-    assert set(result["summary_sections"]) == {"changes", "meals", "medication_adherence"}
+    assert set(result["summary_sections"]) == {"changes", "clinical", "meals", "medication_adherence"}
     assert all(lines for lines in result["summary_sections"].values())
 
 

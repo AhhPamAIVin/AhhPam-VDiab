@@ -1,12 +1,13 @@
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
 from sqlmodel import Session
 
 from codebase.backend.auth.dependencies import get_current_user, require_roles
 from codebase.backend.auth.models import User, UserRole
 from codebase.backend.auth.schemas import UserPublic
 from codebase.backend.db import get_session
+from codebase.backend.insights import appointment_reflection
 from codebase.backend.patients import service
 from codebase.backend.patients.access import ensure_patient_access
 from codebase.backend.patients.models import CarePlanTarget, ClinicalNote
@@ -36,12 +37,14 @@ def list_my_patients(
 def create_clinical_note(
     patient_id: UUID,
     request: ClinicalNoteCreate,
+    background_tasks: BackgroundTasks,
     current_user: User = Depends(_doctor_only),
     session: Session = Depends(get_session),
 ) -> ClinicalNote:
-    """Add a clinical file (bệnh án) entry for a patient assigned to the current doctor."""
+    """Add a clinical file (bệnh án) entry for a patient assigned to the current
+    doctor, then extract doctor-facing insights from that visit in the background."""
     ensure_patient_access(session, current_user, patient_id)
-    return service.create_clinical_note(
+    note = service.create_clinical_note(
         session,
         patient_id=patient_id,
         doctor_id=current_user.id,
@@ -61,6 +64,8 @@ def create_clinical_note(
         treatment_plan=request.treatment_plan,
         follow_up_date=request.follow_up_date,
     )
+    background_tasks.add_task(appointment_reflection.reflect_on_clinical_note_in_background, note.id)
+    return note
 
 
 @router.get("/patients/{patient_id}/notes", response_model=list[ClinicalNotePublic])

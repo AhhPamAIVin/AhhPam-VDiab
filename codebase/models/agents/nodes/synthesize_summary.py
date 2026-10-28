@@ -399,12 +399,66 @@ def _build_change_lines(metrics: dict, previous: dict | None, role: str) -> list
     return lines
 
 
+def _day(iso_date: str) -> str:
+    year, month, day = iso_date.split("-")
+    return f"{day}/{month}/{year}"
+
+
+def _build_clinical_section(clinical: dict | None, role: str) -> list[str]:
+    """Doctor-brief section: HbA1c, the care-plan glucose target and how many
+    readings met it, the previous visit's plan. Values the doctor entered or
+    code counted, each cited to its source; display only — not sent to the
+    LLM, whose prose stays about the readings."""
+    if role != "doctor":
+        return []
+    if not clinical:
+        return ["Chưa đủ dữ liệu: chưa tải được ghi chú khám và care plan."]
+    lines: list[str] = []
+    hba1c = clinical.get("hba1c") or []
+    if hba1c:
+        history = " ← ".join(f"{h['value_pct']:g}% ({_day(h['date'])})" for h in hba1c)
+        lines.append(f"HbA1c gần nhất: {history}. Nguồn: ghi chú khám.")
+    else:
+        lines.append("Chưa có HbA1c: chưa ghi chú khám nào nhập kết quả HbA1c.")
+
+    plan = clinical.get("care_plan")
+    attainment = clinical.get("target_attainment") or {}
+    if plan is None:
+        lines.append("Chưa có care plan (mục tiêu đường huyết do bác sĩ duyệt) — chưa đánh giá được mức đạt mục tiêu.")
+    else:
+        target = (
+            f"Mục tiêu đường huyết {plan['target_low_mg_dl']:g}–{plan['target_high_mg_dl']:g} mg/dL "
+            f"(care plan phiên bản {plan['version']}, hiệu lực từ {_day(plan['effective_from'])})"
+        )
+        if attainment.get("in_target_pct") is None:
+            lines.append(f"{target}: chưa có lần đo nào trong giai đoạn được đánh giá theo care plan.")
+        else:
+            skipped = attainment["readings"] - attainment["evaluated"]
+            note = f"; {skipped} lần đo trước khi có care plan không tính" if skipped else ""
+            lines.append(
+                f"{target}: {attainment['in_target']}/{attainment['evaluated']} lần đo trong mục tiêu "
+                f"({attainment['in_target_pct']:g}%){note}."
+            )
+
+    last_visit = clinical.get("last_visit")
+    if last_visit is None:
+        lines.append("Chưa có ghi chú khám trước đó.")
+    else:
+        follow_up = f"; hẹn tái khám {_day(last_visit['follow_up_date'])}" if last_visit.get("follow_up_date") else ""
+        lines.append(
+            f"Hướng điều trị lần khám {_day(last_visit['date'])}: “{last_visit['treatment_plan']}”{follow_up}. "
+            "Nguồn: ghi chú khám."
+        )
+    return lines
+
+
 def _build_sections(metrics: dict, tool_results: dict, role: str) -> dict[str, list[str]]:
     """The pre-visit brief's own sections (Epic 4.2), doctor only."""
     if role != "doctor":
         return {}
     return {
         "changes": _build_change_lines(metrics, tool_results.get("previous_period"), role),
+        "clinical": _build_clinical_section(tool_results.get("clinical_context"), role),
         "meals": _build_meal_section(tool_results.get("meal_glucose_response"), role),
         "medication_adherence": _build_adherence_section(tool_results.get("medication_adherence"), role),
     }

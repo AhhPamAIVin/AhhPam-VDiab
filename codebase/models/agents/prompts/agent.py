@@ -25,6 +25,7 @@ Cách làm:
 - "Lúc nãy ghi nhầm 180", "xóa bữa trưa vừa nhập" → propose_record_deletion; nếu có giá trị đúng ("đúng ra là
   108") gọi thêm draft_records cho giá trị đúng.
 - "Tôi uống thuốc rồi" → mark_medication_taken. "Tôi quên uống thuốc" → draft_records (medication_note).
+- "Nhắc tôi uống thuốc lúc 8h tối", "đặt nhắc thuốc 7 giờ sáng" → set_medication_reminder (đoạn trích có giờ).
 - "AI thấy tôi có xu hướng gì", "tôi hay bị gì" → get_my_insights (kèm get_health_stats nếu cần số liệu).
 - "Tôi có hay quên thuốc không", "uống thuốc đều chưa" → get_medication_adherence.
 - "Món nào làm đường huyết tôi tăng", "ăn gì thì đường huyết cao" → get_meal_glucose_response (và

@@ -104,7 +104,16 @@ riêng và ghi rõ do AI tạo. Bỏ "soạn yêu cầu đặt lịch gửi bác
       nhận; xóa kèm phân tích bữa ăn; vào audit log.
 - [x] **Đã uống thuốc** — `mark_medication_taken`: hoàn thành lời nhắc thuốc đang mở hôm nay sau khi bệnh nhân xác
       nhận. Ở mức lời nhắc, không theo từng thuốc (lời nhắc Epic 3 gộp mọi thuốc). Quên thuốc vẫn qua `draft_records`.
-      Đặt nhắc thuốc qua chat: hoãn.
+- [x] **Đặt nhắc thuốc qua chat** (2026-10-28) — `set_medication_reminder`: "nhắc tôi uống thuốc lúc 8h tối" → thẻ
+      "Nhắc uống thuốc lúc 20:00 hằng ngày" → bệnh nhân xác nhận → lời nhắc riêng loại `MEDICATION_REMINDER`
+      (`NotificationPreference` tùy chỉnh, đổi/tắt ở trang Thông báo; tin nhắc liệt kê thuốc đang dùng). Giờ do code đọc
+      từ đoạn trích (`record_actions.stated_time_of_day`), không lấy từ model; "lúc 8h" không rõ sáng/tối hoặc không có
+      giờ → hỏi lại, không soạn thẻ. Đã có nhắc uống thuốc đúng giờ đó (kể cả nhắc đi kèm nhắc đo đường huyết) → báo
+      đã có, không tạo trùng; xác nhận lặp lại cũng không tạo trùng. Tên thuốc có trong câu thì vào nhãn. Đổi/tắt lời
+      nhắc có sẵn qua chat: không làm (hướng dẫn vào trang Thông báo).
+      *Khi làm phát hiện lỗi bộ đọc giờ khi ghi số liệu: bỏ dấu thì "tôi" = "tối", nên "tôi đo lúc 9h được 120" bị ghi
+      21:00 thay vì hỏi lại. Đã sửa: câu có dấu chỉ tính "tối/chiều" có dấu; câu không dấu chỉ tính "toi" ngay sau giờ
+      ("9h toi") hoặc "toi qua/toi nay". Test: `test_medication_reminder_chat.py`.*
 - [x] **Gửi ảnh bữa ăn trong chat** — nút máy ảnh → `POST /agent/meal-photo` (dùng chung nhận diện và đồng ý với trang
       Bữa ăn, ảnh không lưu) → thẻ "lưu bữa ăn" như ghi bằng chữ. Không qua LLM agent.
 - [x] **Insight dài hạn** — `get_my_insights`: `weekly_batch` + `chat` (chỉ khi còn đồng ý `ai_memory_consent`), bỏ

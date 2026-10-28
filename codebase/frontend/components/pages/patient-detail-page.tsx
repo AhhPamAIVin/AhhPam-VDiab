@@ -234,6 +234,23 @@ export function PatientDetailPage({
       cancelled = true;
     };
   }, [patientId]);
+  // Missed-medication days for the glucose chart (Epic 3.4) — 30 days covers
+  // the chart's widest range.
+  const [missedMedicationDays, setMissedMedicationDays] = useState<string[] | undefined>(undefined);
+  useEffect(() => {
+    let cancelled = false;
+    api
+      .medicationAdherence(patientId, 30)
+      .then((result) => {
+        if (!cancelled) setMissedMedicationDays(result.daily.filter((day) => day.status === "missed").map((day) => day.date));
+      })
+      .catch(() => {
+        if (!cancelled) setMissedMedicationDays(undefined);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [patientId]);
   const [medicationSaving, setMedicationSaving] = useState(false);
   const [medicationError, setMedicationError] = useState<string | null>(null);
   const [isMedicationManagerOpen, setIsMedicationManagerOpen] = useState(false);
@@ -1061,6 +1078,7 @@ export function PatientDetailPage({
               records={glucoseRecords}
               range={glucoseRange}
               onRangeChange={handleGlucoseRangeChange}
+              missedMedicationDays={missedMedicationDays}
             />
           </div>
 
@@ -1126,6 +1144,7 @@ export function PatientDetailPage({
               records={glucoseRecords}
               range={glucoseRange}
               onRangeChange={handleGlucoseRangeChange}
+              missedMedicationDays={missedMedicationDays}
             />
           </div>
 

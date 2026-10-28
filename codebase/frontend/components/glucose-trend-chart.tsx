@@ -7,6 +7,7 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceArea,
   ResponsiveContainer,
   Tooltip,
   XAxis,
@@ -185,6 +186,14 @@ function makeThresholdDot(baseFill: string) {
   };
 }
 
+// Adherence days (backend medications/adherence.py) are Vietnam-local dates;
+// Vietnam has no DST, so a fixed +07:00 offset gives the day's real bounds
+// whatever the viewer's own timezone.
+function localDayBounds(isoDate: string): [number, number] {
+  const start = Date.parse(`${isoDate}T00:00:00+07:00`);
+  return [start, start + DAY_MS];
+}
+
 function axisDate(timestamp: number, longRange: boolean) {
   return new Intl.DateTimeFormat("vi-VN", {
     day: "2-digit",
@@ -207,12 +216,16 @@ export function GlucoseTrendChart({
   range,
   onRangeChange,
   availableRanges,
+  missedMedicationDays,
   className,
 }: {
   records: GlucoseRecord[];
   range: GlucoseRange;
   onRangeChange: (range: GlucoseRange) => void;
   availableRanges?: GlucoseRange[];
+  // ISO local dates with a skipped medication reminder or a noted missed
+  // dose (Epic 3.4, doctor view) — shaded as full-day bands behind the line.
+  missedMedicationDays?: string[];
   className?: string;
 }) {
   const visibleRanges = availableRanges ?? (Object.keys(RANGE_LABELS) as GlucoseRange[]);
@@ -405,6 +418,12 @@ export function GlucoseTrendChart({
   const xDomainPad = Math.max((windowEnd - windowStart) * 0.02, 5 * 60 * 1000);
   const xDomain: [number, number] = [windowStart - xDomainPad, windowEnd + xDomainPad];
 
+  const missedDayBands = useMemo(
+    () => (missedMedicationDays ?? []).map(localDayBounds).filter(([start, end]) => Number.isFinite(start) && end > presetWindow[0] && start < presetWindow[1]),
+    [missedMedicationDays, presetWindow],
+  );
+  const visibleMissedDays = missedDayBands.filter(([start, end]) => end > windowStart && start < windowEnd).length;
+
   return (
     <div className={cn("space-y-4", className)}>
       <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
@@ -459,6 +478,20 @@ export function GlucoseTrendChart({
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={data} margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
               <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="var(--border)" />
+              {/* Declared first so the bands paint behind every series;
+                 ifOverflow="hidden" clips a day that runs past the
+                 zoomed window instead of dropping it. */}
+              {missedDayBands.map(([start, end]) => (
+                <ReferenceArea
+                  key={start}
+                  x1={start}
+                  x2={end}
+                  ifOverflow="hidden"
+                  fill="#F97316"
+                  fillOpacity={0.12}
+                  stroke="none"
+                />
+              ))}
               <XAxis
                 dataKey="timestamp"
                 type="number"
@@ -574,6 +607,9 @@ export function GlucoseTrendChart({
             <span><span className="mr-1.5 inline-block h-2.5 w-4 rounded-sm border border-dashed border-[#43B5AE] bg-[#43B5AE]/20" />Dải cá nhân (AI dự đoán)</span>
             <span><span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full border-2 border-amber-600 align-middle" />Cần theo dõi (AI)</span>
             <span><span className="mr-1.5 inline-block h-2.5 w-2.5 rounded-full border-2 border-red-600 align-middle" />Nguy hiểm</span>
+            {missedMedicationDays && (
+              <span><span className="mr-1.5 inline-block h-2.5 w-4 rounded-sm bg-orange-500/20 align-middle" />Ngày có quên / bỏ qua thuốc ({visibleMissedDays})</span>
+            )}
             <span>
               {filtered.length} lần đo
               {isZoomed ? ` · ${formatWindowLabel(windowStart, windowEnd)}` : ` trong ${RANGE_LABELS[range].toLowerCase()}`}

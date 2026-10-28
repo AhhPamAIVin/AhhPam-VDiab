@@ -1,6 +1,6 @@
 # Epic 3 — Tuân thủ thuốc & nhắc nhở thông minh
 
-**Ưu tiên:** P2 · **Độ lớn:** M · **Phụ thuộc:** — · **Trạng thái:** Xong phần code (3.1–3.5); định nghĩa chờ bác sĩ chốt; chưa đánh dấu ngày quên trên biểu đồ glucose
+**Ưu tiên:** P2 · **Độ lớn:** M · **Phụ thuộc:** — · **Trạng thái:** Xong phần code (3.1–3.5, kể cả ngày quên trên biểu đồ glucose); định nghĩa chờ bác sĩ chốt
 
 ## Mục tiêu
 
@@ -76,9 +76,11 @@
 - [x] `medication-page.tsx`: widget tuân thủ 7/30 ngày theo từng thuốc.
       *`components/medication-adherence-panel.tsx`: % ngày đủ thuốc, dải từng ngày (mỗi trạng thái có icon + chữ),
       thuốc tự ghi nhận quên, đường huyết ngày đủ vs ngày quên.*
-- [ ] `patient-detail-page.tsx` (bác sĩ): bảng tuân thủ + ngày quên thuốc trên biểu đồ glucose.
-      *Đã có panel tuân thủ (kèm danh sách ngày quên, tỷ lệ theo nhắc) ở tab Thuốc. **Chưa** đánh dấu ngày quên trên
-      `GlucoseTrendChart`.*
+- [x] `patient-detail-page.tsx` (bác sĩ): bảng tuân thủ + ngày quên thuốc trên biểu đồ glucose.
+      *Panel tuân thủ (kèm danh sách ngày quên, tỷ lệ theo nhắc) ở tab Thuốc. `GlucoseTrendChart` nhận
+      `missedMedicationDays` (ngày `missed` của `GET /medications/adherence?days=30`): mỗi ngày tô một dải nền cam
+      trọn ngày theo giờ VN, chú thích "Ngày có quên / bỏ qua thuốc (N)" đếm theo khung đang xem; chỉ trang bác sĩ
+      truyền prop này (tab Tổng quan và tab Đường huyết).*
 - [x] Card đề xuất giờ nhắc ở trang thông báo.
       *`components/reminder-suggestions-card.tsx`.*
 

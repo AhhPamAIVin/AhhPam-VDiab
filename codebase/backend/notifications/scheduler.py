@@ -143,6 +143,11 @@ def _materialize_due_reminder(
     if not already_satisfied:
         title = preference.label
         message = f"Đã đến giờ: {preference.label}. Hãy ghi nhận vào nhật ký."
+        if preference.notification_type == NotificationType.MEDICATION_REMINDER:
+            # A medication reminder of its own (e.g. set from chat): name the drugs.
+            medications = list_active_medications(session, patient_id)
+            if medications:
+                message = f"Đã đến giờ dùng thuốc: {', '.join(m.drug_name for m in medications)}."
         is_new = not service.notification_exists_for_slot(session, patient_id=patient_id, slot_key=slot_key)
         service.get_or_create_notification(
             session,

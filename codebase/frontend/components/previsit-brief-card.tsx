@@ -2,15 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { AlertTriangle, CalendarClock, Loader2, Printer, RefreshCw } from "lucide-react";
-import { api, type PrevisitBrief, type UpcomingAppointment } from "@/lib/api";
+import { api, type PrevisitBrief, type SummarySections, type UpcomingAppointment } from "@/lib/api";
 import { cn, parseUtcTimestamp } from "@/lib/utils";
 
 // Epic 4: the brief the hourly job prepared for this patient's next
 // appointment (codebase/backend/appointments/briefs.py). Shown only when the
 // patient has a scheduled appointment in the next 30 days.
 
-const SECTIONS: { key: "changes" | "meals" | "medication_adherence"; title: string }[] = [
+const SECTIONS: { key: keyof SummarySections; title: string }[] = [
   { key: "changes", title: "Thay đổi kể từ lần khám trước" },
+  { key: "clinical", title: "HbA1c, mục tiêu và hướng điều trị" },
   { key: "meals", title: "Bữa ăn liên quan tăng đường huyết" },
   { key: "medication_adherence", title: "Tuân thủ thuốc" },
 ];

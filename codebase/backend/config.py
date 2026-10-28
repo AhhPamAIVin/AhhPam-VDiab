@@ -87,6 +87,10 @@ class Settings(BaseSettings):
     previsit_brief_lead_hours: int = Field(default=48, ge=1, le=168)
     previsit_brief_refresh_hours: int = Field(default=6, ge=1, le=48)
     previsit_brief_default_days: int = Field(default=30, ge=7, le=90)
+    # A new clinical note runs reflect(source_kind="appointment") in the
+    # background (insights/appointment_reflection.py) — doctor-facing insights
+    # grounded in that visit.
+    appointment_reflection_enabled: bool = True
 
     # Database
     db_host: str = "localhost"

@@ -10,7 +10,7 @@ from __future__ import annotations
 import json
 import re
 import unicodedata
-from datetime import UTC, datetime, timedelta
+from datetime import UTC, datetime, time, timedelta
 from typing import Any
 from uuid import UUID
 
@@ -726,8 +726,51 @@ def _verified_agent_time(
     return None
 
 
-_PM_CUES = ("chieu", "toi")
 _YESTERDAY_CUES = ("hom qua", "toi qua", "dem qua", "sang qua", "chieu qua", "trua qua")
+# Folded, "tối" (evening) and "tôi" (I) are the same word, so an accented
+# message counts only the accented "tối"/"chiều"; an unaccented one counts
+# "chieu" anywhere, but "toi" only right after the clock ("9h toi") or in
+# "toi qua/toi nay". Before this, "tôi đo lúc 9h được 120" read as 21:00.
+_EVENING_ACCENTED_RE = re.compile(r"\b(?:tối|chiều)\b")
+_EVENING_AFTER_CLOCK_RE = re.compile(r"\s*(?:toi|chieu)\b")
+_EVENING_FOLDED_PHRASES = ("chieu", "toi qua", "toi nay")
+
+
+def _is_evening(text: str, folded: str, clock_end: int) -> bool:
+    lowered = text.lower()
+    if _without_accents(lowered) != lowered:
+        return bool(_EVENING_ACCENTED_RE.search(lowered))
+    return bool(_EVENING_AFTER_CLOCK_RE.match(folded, clock_end)) or any(
+        phrase in folded for phrase in _EVENING_FOLDED_PHRASES
+    )
+
+
+def _clock_hour_minute(text: str) -> tuple[int, int] | None | bool:
+    """(hour 0-23, minute) of the first clock time in `text`; False when there
+    is one but morning/evening is unclear ("lúc 9h"); None when there is none."""
+    folded = " ".join(_without_accents(text).split())
+    clock = _CLOCK_RE.search(folded)
+    if not clock:
+        return None
+    hour = int(clock.group(1))
+    minute = 30 if clock.group(2) == "ruoi" else int(clock.group(2) or 0)
+    if hour < 12 and _is_evening(text, folded, clock.end()):
+        hour += 12
+    elif hour <= 12 and "sang" not in folded and "trua" not in folded and hour != 12:
+        return False  # morning or evening? ask
+    elif hour < 3 and "trua" in folded:
+        hour += 12  # "1 giờ trưa"
+    return hour, minute
+
+
+def stated_time_of_day(text: str) -> time | None | bool:
+    """The clock time a patient asks a daily reminder for ("8h tối", "20h",
+    "7 giờ rưỡi sáng"); False when morning/evening is unclear, None when the
+    text names no time."""
+    clock = _clock_hour_minute(text)
+    if not clock:
+        return clock
+    return time(*clock)
 
 
 def _stated_clock(text: str, now: datetime) -> datetime | None:
@@ -737,17 +780,11 @@ def _stated_clock(text: str, now: datetime) -> datetime | None:
 
     from codebase.backend.config import get_settings
 
-    folded = " ".join(_without_accents(text).split())
-    clock = _CLOCK_RE.search(folded)
+    clock = _clock_hour_minute(text)
     if not clock:
         return None
-    hour = int(clock.group(1))
-    minute = 30 if clock.group(2) == "ruoi" else int(clock.group(2) or 0)
-    after = folded[clock.end() : clock.end() + 12]
-    if hour < 12 and any(cue in after or f"{cue} " in folded for cue in _PM_CUES):
-        hour += 12
-    elif hour <= 12 and "sang" not in folded and "trua" not in folded and hour != 12:
-        return None  # morning or evening? ask
+    hour, minute = clock
+    folded = " ".join(_without_accents(text).split())
     tz = ZoneInfo(get_settings().reminder_timezone)
     today = now.astimezone(tz).date()
     day = today - timedelta(days=2 if "hom kia" in folded else 1 if any(c in folded for c in _YESTERDAY_CUES) else 0)
@@ -967,11 +1004,18 @@ def prompt_for(interaction: AgentInteraction) -> str:
     if interaction.type == "confirm_record":
         if record_type == "delete_record":
             return "Vui lòng xác nhận xóa bản ghi này khỏi hồ sơ."
+        if record_type == "medication_reminder":
+            return "Vui lòng xác nhận để đặt lời nhắc."
         return "Thông tin đã đủ. Vui lòng xác nhận trước khi lưu vào hồ sơ."
     if record_type == "delete_record":
         return "Đã xóa bản ghi khỏi hồ sơ của bạn."
     if record_type == "medication_taken":
         return "Đã ghi nhận bạn uống thuốc theo lời nhắc hôm nay."
+    if record_type == "medication_reminder":
+        return (
+            f"Đã đặt lời nhắc uống thuốc lúc {interaction.draft.get('time_of_day')} hằng ngày. Bạn có thể đổi giờ "
+            "hoặc tắt trong mục Thông báo."
+        )
     return "Đã lưu thông tin vào hồ sơ của bạn."
 
 
@@ -1016,6 +1060,28 @@ def _complete_medication_reminders(session: Session, patient_id: UUID, draft: di
     return completed[0]
 
 
+def _create_medication_reminder(session: Session, patient_id: UUID, draft: dict[str, Any]) -> UUID:
+    """A daily medication reminder at the card's time. A retried confirmation,
+    or one that now duplicates a reminder added meanwhile, keeps the existing
+    one instead of adding a second."""
+    from codebase.backend.medications.service import list_active_medications
+    from codebase.backend.notifications.models import NotificationType
+    from codebase.backend.notifications.service import create_custom_preference, medication_reminder_at
+
+    at = time.fromisoformat(str(draft["time_of_day"]))
+    has_medications = bool(list_active_medications(session, patient_id))
+    existing = medication_reminder_at(session, patient_id, at, has_medications=has_medications)
+    if existing is not None:
+        return existing.id
+    return create_custom_preference(
+        session,
+        patient_id=patient_id,
+        label=str(draft.get("label") or "Nhắc uống thuốc"),
+        time_of_day=at,
+        notification_type=NotificationType.MEDICATION_REMINDER,
+    ).id
+
+
 def _persist(session: Session, action: PendingRecordAction) -> UUID:
     from codebase.backend.health import service as health_service
     from codebase.backend.medications import service as medication_service
@@ -1030,6 +1096,8 @@ def _persist(session: Session, action: PendingRecordAction) -> UUID:
         return target_id
     if record_type == "medication_taken":
         return _complete_medication_reminders(session, action.patient_id, draft)
+    if record_type == "medication_reminder":
+        return _create_medication_reminder(session, action.patient_id, draft)
     model_by_type = {
         "glucose": GlucoseRecord,
         "blood_pressure": BloodPressureRecord,
