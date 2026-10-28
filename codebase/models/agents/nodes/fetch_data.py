@@ -30,6 +30,7 @@ from datetime import datetime, timedelta
 from langchain_core.runnables import RunnableConfig
 
 from codebase.models.agents.state import AgentState
+from codebase.models.agents.tools.clinical_tools import get_clinical_context
 from codebase.models.agents.tools.meal_tools import (
     get_meal_glucose_response,
     get_medication_adherence,
@@ -141,4 +142,7 @@ async def fetch_data(state: AgentState, config: RunnableConfig) -> dict:
             "end": start,
             "metrics": calculate_health_metrics(previous_records),
         }
+        # HbA1c, care-plan target attainment, last visit's plan — the brief's
+        # "Xét nghiệm & mục tiêu" section.
+        tool_results["clinical_context"] = get_clinical_context(session, patient_id, start, end)
     return {"tool_results": tool_results, "date_range": (start, end)}

@@ -9,8 +9,9 @@ doctor is still assigned to the patient gets one PrevisitBrief —
    settings.previsit_brief_default_days when there is no earlier visit;
 2. the doctor AI Summary for exactly that window
    (summaries.service.generate_and_store_snapshot, already guardrailed) is
-   copied into the brief, with its "changes"/"meals"/"medication_adherence"
-   sections (Epic 4.2);
+   copied into the brief, with its "changes"/"clinical"/"meals"/
+   "medication_adherence" sections (Epic 4.2; "clinical" = HbA1c, care-plan
+   target attainment, last visit's plan — models/agents/tools/clinical_tools.py);
 3. seen_at is cleared, which is what the doctor's dashboard shows as a new
    brief — doctors have no notification inbox of their own.
 

@@ -394,9 +394,9 @@ export interface AppointmentInput {
 // appointment was rescheduled; "failed": last attempt failed (retried hourly).
 export type BriefState = "ready" | "stale" | "failed" | "pending";
 
-// "changes" / "meals" / "medication_adherence" — each never empty for a
+// "changes" / "clinical" / "meals" / "medication_adherence" — each never empty for a
 // doctor summary (a "Chưa đủ dữ liệu" line instead).
-export type SummarySections = Partial<Record<"changes" | "meals" | "medication_adherence", string[]>>;
+export type SummarySections = Partial<Record<"changes" | "clinical" | "meals" | "medication_adherence", string[]>>;
 
 export interface PrevisitBrief {
   id: string;
