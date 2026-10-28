@@ -94,5 +94,15 @@ và chờ** — kèm bữa ăn, tuân thủ thuốc và insight; bác sĩ phản
   mặc định 30 khi chưa có lần khám — **cần bác sĩ xác nhận**.
 - ~~Insight `APPOINTMENT` hiện được kích hoạt từ đâu khi tạo ClinicalNote?~~ Đã kiểm tra: **không từ đâu cả** trong
   backend — tạo ClinicalNote không gọi `reflect(source_kind="appointment")`; chỉ job tuần (`weekly_batch`, `chat`)
-  gọi reflect. Insight `appointment` hiện chỉ có từ dữ liệu mock/backfill. Nối trigger này là việc riêng, chưa làm.
-- Brief chưa có HbA1c, mục tiêu/mức hoàn thành và trích dẫn như `ai_reports` trong ARCHITECTURE mô tả.
+  gọi reflect. ~~Nối trigger này là việc riêng, chưa làm.~~ **Đã nối (2026-10-28):** `POST /doctor/patients/{id}/notes`
+  thêm BackgroundTask `insights/appointment_reflection.py` → `reflect(source_kind="appointment", source_note_id=…)` với
+  nội dung ghi chú (các mục đã điền) làm ngữ cảnh. Giai đoạn: `data_period_start/end` của ghi chú (ngày giờ VN) nếu
+  bác sĩ điền đủ, không thì từ lần khám trước tới lúc ghi (cùng quy tắc cửa sổ brief, 7–90 ngày). Chỉ khi tạo ghi
+  chú, sửa ghi chú không chạy lại. Tắt bằng `APPOINTMENT_REFLECTION_ENABLED`. Test: `test_appointment_reflection.py`.
+- ~~Brief chưa có HbA1c, mục tiêu/mức hoàn thành và trích dẫn như `ai_reports` trong ARCHITECTURE mô tả.~~ **Đã thêm
+  (2026-10-28)** mục thứ tư "HbA1c, mục tiêu và hướng điều trị" (`sections["clinical"]`, tất định, không gửi LLM):
+  tối đa 3 giá trị HbA1c gần nhất từ ghi chú khám (kèm ngày); mục tiêu đường huyết của care plan đang hiệu lực và số
+  lần đo trong mục tiêu trong cửa sổ brief (theo `threshold_status` từng lần đo như báo cáo tuần; lần đo trước khi có
+  care plan không tính và được nêu số lượng); hướng điều trị + hẹn tái khám của ghi chú gần nhất, trích nguyên văn.
+  Mỗi dòng ghi nguồn (ngày ghi chú, phiên bản care plan) — đây là "trích dẫn" của brief. Trích dẫn tài liệu y khoa
+  không áp dụng: tóm tắt bác sĩ không dùng RAG. Tool `tools/clinical_tools.py::get_clinical_context`.

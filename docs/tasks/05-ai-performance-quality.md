@@ -38,6 +38,10 @@
       `verify_citations` 2.7s, `plan_response` 2.5s — đều là lời gọi LLM; proxy tốn ~1.1–1.4s/lời gọi kể cả
       request rỗng. Sau Epic 5: p95 **14.1/17.2s → 10.3/11.8s**, p50 8.1/8.4s → 5.9/6.7s. Chưa đạt ≤ 10s:
       còn 2 lời gọi LLM nối tiếp; model nhỏ hơn qua proxy này không nhanh hơn (đo trong PERFORMANCE_REPORT).*
+      *2026-10-28: số trên đo trên luồng `plan_response` → `synthesize` (trước Epic 8). Chat bệnh nhân giờ chạy
+      `agent_plan` — mặc định vẫn một lời gọi LLM ở bước lập kế hoạch (dừng sau vòng tool thành công đầu tiên) — nên
+      p95 phải đo lại trên luồng agent trước khi tối ưu tiếp; gộp vào lần chạy E2E/golden với agent bật lịch 2026-10-29
+      (8.5). Không tối ưu thêm khi chưa có số đo mới: phần còn lại chủ yếu là độ trễ nền của provider (~1.1–1.4 s/lời gọi).*
 - **AC:** biết rõ 3 node tốn thời gian nhất trước khi làm 5.2–5.4.
 
 ### 5.2 Chạy song song
