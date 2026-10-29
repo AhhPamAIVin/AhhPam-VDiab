@@ -1,6 +1,6 @@
 # Epic 5 — Hiệu năng & chất lượng AI
 
-**Ưu tiên:** P1 (làm song song, không chặn feature) · **Độ lớn:** M · **Phụ thuộc:** — · **Trạng thái:** Gần xong — mọi task đã làm; còn p95 10.3–11.8s (mục tiêu ≤ 10s, xem 5.1) và một số FAIL thật của eval AI Summary (xem 5.6)
+**Ưu tiên:** P1 (làm song song, không chặn feature) · **Độ lớn:** M · **Phụ thuộc:** — · **Trạng thái:** Gần xong — mọi task đã làm; còn p95 10.3–11.8s (mục tiêu ≤ 10s, xem 5.1) — đo lại trên luồng agent chưa làm được 29/10 (thiếu tài khoản đăng nhập trên DB local) và một số FAIL thật của eval AI Summary (xem 5.6)
 
 ## Mục tiêu
 
