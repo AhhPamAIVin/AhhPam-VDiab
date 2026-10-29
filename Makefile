@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin backup restore backup-drill logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-record-extraction eval-all
+.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin backup restore backup-drill logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-record-extraction eval-meal-analysis eval-meal-photo eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -285,5 +285,16 @@ eval-personal-data-faithfulness:
 # messages) through the real agent_plan, vs the old regex parser. Real LLM calls.
 eval-record-extraction:
 	python -m eval.respond_agent.record_extraction $(EVAL_ARGS)
+
+# Meal text analysis (Epic 1.9): eval/data/meal_analysis_cases.json (62 meal-form entries)
+# through parse_meal_items -> nutrition lookup -> aggregate, as in production and rule-only.
+# The LLM is only called for entries the nutrition table can't resolve.
+eval-meal-analysis:
+	python -m eval.meal_analysis.text_analysis $(EVAL_ARGS)
+
+# Meal photo recognition (Epic 1.6/1.9): needs eval/data/meal_photos/labels.json + own or
+# licensed photos (never patient photos). Real vision calls.
+eval-meal-photo:
+	python -m eval.meal_analysis.photo $(EVAL_ARGS)
 
 eval-all: eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden eval-watch-classifier eval-personal-data-faithfulness

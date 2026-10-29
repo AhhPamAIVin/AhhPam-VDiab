@@ -31,7 +31,8 @@ eval/
 │   ├── ai_scenarios_30.json      # 38 kịch bản AI Consultation & Bảo mật
 │   ├── rule_engine_cases.json    # 15 kịch bản phân loại ngưỡng Rule Engine
 │   ├── data_validation_cases.json# 15 kịch bản xác thực dữ liệu đầu vào
-│   └── ai_summary_cases.json     # 8 kịch bản Tóm tắt, Phân luồng & Bộ nhớ Insight
+│   ├── ai_summary_cases.json     # 8 kịch bản Tóm tắt, Phân luồng & Bộ nhớ Insight
+│   └── meal_analysis_cases.json  # 62 mô tả bữa ăn có nhãn món + khẩu phần (Epic 1.9)
 ├── respond_agent/                # chất lượng RAG/agent (gọi LLM thật); --local = chấm cục bộ, không cần LangSmith
 │   ├── retrieval_recall.py       # Retrieval recall của RAG (exact-hit@k + Ragas context-recall)
 │   ├── guardrail_judge.py        # So sánh guardrail.py với một LLM judge an toàn độc lập
@@ -39,6 +40,9 @@ eval/
 │   ├── golden_scenarios.py       # 30 kịch bản trong data/ai_scenarios_30.json, chạy qua graph thật
 │   ├── ai_summary_golden.py      # 8 case data/ai_summary_cases.json qua summary graph, reflect(), cổng phân quyền
 │   └── personal_data_faithfulness.py  # LLM có báo cáo đúng dữ liệu thật của bệnh nhân seed hay không
+├── meal_analysis/                 # Epic 1.9 — phân tích bữa ăn
+│   ├── text_analysis.py          # 62 case data/meal_analysis_cases.json: tách món, khớp bảng tra, MAE carb (make eval-meal-analysis)
+│   └── photo.py                  # nhận diện món từ ảnh; cần bộ ảnh data/meal_photos/ (make eval-meal-photo)
 ├── watch_classifier/              # CI gate cho classifier WATCH cá nhân hóa (pytest/sklearn thuần)
 │   └── gate.py
 └── results/

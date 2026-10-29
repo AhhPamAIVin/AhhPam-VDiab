@@ -95,7 +95,18 @@ def test_lookup_without_diacritics(query, food_id):
     assert match.match_confidence == NO_DIACRITICS_CONFIDENCE
 
 
-@pytest.mark.parametrize(("query", "food_id"), [("bm", "banh_mi"), ("ts", "tra_sua"), ("cf sữa", "ca_phe_sua")])
+@pytest.mark.parametrize(
+    ("query", "food_id"),
+    [
+        ("bm", "banh_mi"),
+        ("ts", "tra_sua"),
+        ("cf sữa", "ca_phe_sua"),
+        # Not the plain loaf the leading "bm" alias would give (meal eval 2026-10-29).
+        ("bm trứng", "banh_mi_trung"),
+        ("bm thịt", "banh_mi_thit"),
+        ("bm chả", "banh_mi_cha"),
+    ],
+)
 def test_lookup_abbreviations(query, food_id):
     match = lookup_food(query)
     assert match is not None and match.food.food_id == food_id
