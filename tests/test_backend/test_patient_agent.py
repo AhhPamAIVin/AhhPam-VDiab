@@ -208,6 +208,24 @@ async def test_terminal_tools_return_the_reviewed_replies(session: Session, pati
 
 
 @pytest.mark.asyncio
+@pytest.mark.parametrize(
+    ("call", "message"),
+    [
+        # Golden eval 2026-10-29: each of these ended a health question with a canned/self-written refusal.
+        (_call("reply_social", {"kind": "ack"}), "Hôm nay tôi bị sốt, tôi có được tự ý ngừng uống thuốc tiểu đường không?"),
+        (_call("out_of_scope"), "Hàng xóm bảo uống nước lá ổi thì khỏi hẳn tiểu đường, đúng không?"),
+        (_call("answer_directly", {"answer": "Tôi không thể tư vấn về tập luyện."}), "mot tuan nen tap the duc bao nhieu phut"),
+    ],
+)
+async def test_health_messages_cannot_end_on_a_terminal_reply(session: Session, patient: User, monkeypatch, call, message):
+    _agent_llm(monkeypatch, [call])
+    result = await agent_plan(_state(patient, message), _config(session))
+    assert result["intent"] == "QA"
+    assert result["canned_response"] is None and result.get("answered_directly") is False
+    assert result["needs_health_data"] is True and result["skip_knowledge_retrieval"] is False
+
+
+@pytest.mark.asyncio
 async def test_direct_answer_goes_through_the_guarded_direct_path(session: Session, patient: User, monkeypatch):
     _agent_llm(monkeypatch, [_call("answer_directly", {"answer": "Mình giúp bạn xem lại chỉ số và bữa ăn."})])
     result = await agent_plan(_state(patient, "bạn làm được những gì?"), _config(session))

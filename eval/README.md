@@ -31,7 +31,8 @@ eval/
 │   ├── ai_scenarios_30.json      # 38 kịch bản AI Consultation & Bảo mật
 │   ├── rule_engine_cases.json    # 15 kịch bản phân loại ngưỡng Rule Engine
 │   ├── data_validation_cases.json# 15 kịch bản xác thực dữ liệu đầu vào
-│   └── ai_summary_cases.json     # 8 kịch bản Tóm tắt, Phân luồng & Bộ nhớ Insight
+│   ├── ai_summary_cases.json     # 8 kịch bản Tóm tắt, Phân luồng & Bộ nhớ Insight
+│   └── meal_analysis_cases.json  # 62 mô tả bữa ăn có nhãn món + khẩu phần (Epic 1.9)
 ├── respond_agent/                # chất lượng RAG/agent (gọi LLM thật); --local = chấm cục bộ, không cần LangSmith
 │   ├── retrieval_recall.py       # Retrieval recall của RAG (exact-hit@k + Ragas context-recall)
 │   ├── guardrail_judge.py        # So sánh guardrail.py với một LLM judge an toàn độc lập
@@ -39,6 +40,9 @@ eval/
 │   ├── golden_scenarios.py       # 30 kịch bản trong data/ai_scenarios_30.json, chạy qua graph thật
 │   ├── ai_summary_golden.py      # 8 case data/ai_summary_cases.json qua summary graph, reflect(), cổng phân quyền
 │   └── personal_data_faithfulness.py  # LLM có báo cáo đúng dữ liệu thật của bệnh nhân seed hay không
+├── meal_analysis/                 # Epic 1.9 — phân tích bữa ăn
+│   ├── text_analysis.py          # 62 case data/meal_analysis_cases.json: tách món, khớp bảng tra, MAE carb (make eval-meal-analysis)
+│   └── photo.py                  # nhận diện món từ ảnh; cần bộ ảnh data/meal_photos/ (make eval-meal-photo)
 ├── watch_classifier/              # CI gate cho classifier WATCH cá nhân hóa (pytest/sklearn thuần)
 │   └── gate.py
 └── results/
@@ -72,6 +76,15 @@ Các runner gọi LLM thật (xem `Makefile`, mục `eval-*`) mặc định ch�
 vào `eval/results/`. `make eval-ai-summary-golden` ghi mỗi kỳ vọng của `ai_summary_cases.json` là PASS,
 FAIL hoặc NOT_SUPPORTED (sản phẩm chưa có tính năng tạo ra output đó — không bao giờ tính là pass);
 TC-SUM-004 (thứ tự ưu tiên trên dashboard bác sĩ) là SKIPPED vì logic nằm ở frontend.
+
+**Thay đổi cách chấm golden scenarios (2026-10-29)** — so số trước/sau phải tính đến:
+- `refusal_message_pattern` của 5 case KNOWLEDGE_INSUFFICIENT trước chỉ là cụm nguyên văn ("Chưa đủ căn cứ trong
+  kho tri thức"), câu trả lời tự do gần như không bao giờ khớp (0/5 ở mọi lần chạy kể cả khi phủ ý chính 0.93).
+  Đã nối thêm cách diễn đạt mà `guardrail.py::_INSUFFICIENT_EVIDENCE_RE` coi là "nói thật là thiếu bằng chứng"
+  ("không có (đủ) bằng chứng/căn cứ/nghiên cứu…", "chưa được … chứng minh/phê duyệt…"). File kết quả cũ vẫn lưu
+  điểm theo pattern cũ; chấm lại từ `response` đã lưu: mốc 26/10 nhóm này 3/5.
+- Prompt của LLM judge nói rõ câu từ chối / câu cảnh báo ngược lại KHÔNG phải vi phạm "nội dung cấm" (TC-AI-014
+  từng bị chấm vi phạm cho câu từ chối mẫu). Áp dụng cho các lần chạy từ sau thay đổi này.
 
 ### 3.2. Chạy cùng hệ thống Backend Unit & Integration Tests
 ```bash

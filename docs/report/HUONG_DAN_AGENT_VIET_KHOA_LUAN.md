@@ -5,7 +5,7 @@
 
 Thứ tự đọc khi mới vào việc:
 1. File này (toàn bộ).
-2. [PHAN_TICH_BAO_CAO_MAU_NEUOJ.md](PHAN_TICH_BAO_CAO_MAU_NEUOJ.md) §3 (định dạng), §4 (khuôn văn), §7 (lỗi cần tránh).
+2. [PHAN_TICH_BAO_CAO_MAU_NEUOJ.md](PHAN_TICH_BAO_CAO_MAU_NEUOJ.md) §3 (định dạng), §4 (khuôn văn), §7 (lỗi cần tránh). Nếu việc có đụng tới hình vẽ: §10 của file này.
 3. Nguồn sự thật của dự án: [docs/PRD.md](../PRD.md), [ARCHITECTURE.md](../../ARCHITECTURE.md), [README.md](../../README.md), rồi file evidence của mục mình đang viết (bảng ở §4).
 
 ---
@@ -77,7 +77,7 @@ docs/report/
 
 Quy ước:
 - Tên ảnh: `hinh-<chương>-<stt>_<slug-khong-dau>.png`. Đổi số hình → đổi tên file và cập nhật `danh-muc-hinh-bang.md`.
-- Mọi sơ đồ vẽ mới phải có file nguồn trong `figures/src/`. Có thể tái dùng/vẽ lại từ [docs/diagrams/](../diagrams/) và các block Mermaid trong [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/architecture_diagram.md](../architecture_diagram.md).
+- Mọi sơ đồ vẽ mới phải có file nguồn trong `figures/src/`. Có thể tham khảo bố cục từ [docs/diagrams/](../diagrams/) và các block Mermaid trong [ARCHITECTURE.md](../../ARCHITECTURE.md), [docs/architecture_diagram.md](../architecture_diagram.md), nhưng phải vẽ lại theo chuẩn ở [§10](#10-sơ-đồ-và-hình-vẽ).
 - Ảnh chụp giao diện lấy từ app chạy thật với tài khoản demo ([docs/demo_accounts.csv](../demo_accounts.csv)); không để lộ dữ liệu bệnh nhân thật.
 - `so-lieu.md` mỗi dòng: `| Con số | Ý nghĩa | Mục dùng | Nguồn (đường dẫn file / lệnh chạy) | Commit hoặc ngày |`.
 
@@ -219,13 +219,14 @@ Ghi nhận ngày 2026-10-26. Khi đã xác minh, sửa dòng tương ứng ở �
 
 | Chủ đề | Tài liệu nói | Code/cấu hình cho thấy | Việc cần làm |
 |---|---|---|---|
-| Vector store | README, ARCHITECTURE: ChromaDB | `codebase/models/rag/vector_store.py` hỗ trợ cả hai: Chroma embedded (mặc định) hoặc Qdrant qua `VECTOR_STORE=qdrant`; `docker-compose.yml` có service `qdrant` | Xem `.env` của môi trường triển khai thật; viết đúng backend đang chạy, có thể nêu thiết kế cho phép chuyển đổi |
+| Vector store | README, ARCHITECTURE: ChromaDB | `codebase/models/rag/vector_store.py` (kiểm 2026-10-29): chỉ còn Qdrant — server qua `QDRANT_URL` (service `qdrant` trong `docker-compose.yml`), hoặc in-process `QDRANT_LOCATION=:memory:` cho test; Chroma đã bỏ | Viết là Qdrant; ChromaDB chỉ nhắc như phương án ban đầu nếu cần |
 | Tracing AI | ARCHITECTURE: LangSmith | `codebase/models/tracing.py`: Langfuse (thay LangSmith), chỉ bật khi có key | Viết là Langfuse |
 | Frontend | ARCHITECTURE: "React SPA" | Next.js 16 App Router (README, `codebase/frontend/`) | Viết là Next.js |
 | Đánh số mục tiêu PRD | PRD §2 liệt kê mục tiêu F1–F6 | PRD §5–6 chỉ có tính năng F1–F4 | Trong khóa luận, đánh số mục tiêu theo 1.2.2 riêng, không chép mã F của PRD |
 | Hiệu năng | — | PERFORMANCE_REPORT: mọi workload *Unverified* | Đo theo protocol trong file đó trước khi viết 4.6 |
 | Dữ liệu pilot | ARCHITECTURE: "dữ liệu thật với consent" | Chưa thấy evidence pilot đã chạy | Hỏi người dùng; nếu chưa có, không viết mục 4.7 như đã triển khai |
-| Dịch vụ phụ (STT, TTS, Zalo) | Có thư mục/compose riêng | Chưa rõ đã tích hợp vào luồng chính | Chỉ đưa vào phạm vi nếu chạy được end-to-end |
+| Nhập liệu giọng nói (STT) | Có `codebase/stt-service`, nút nói trong chat | Cần máy GPU NVIDIA riêng (`docker-compose.stt.yml`); production không cấu hình STT nên nút nói ẩn. Task 1.7 hoãn sau pilot (quyết định 2026-10-29) | Đưa vào 1.4.4 *Ngoài phạm vi* và *Định hướng*; nếu nhắc thì chỉ như thử nghiệm so sánh model STT, không mô tả là tính năng đã triển khai |
+| Dịch vụ phụ (TTS, Zalo) | Có thư mục/compose riêng | Chưa rõ đã tích hợp vào luồng chính | Chỉ đưa vào phạm vi nếu chạy được end-to-end |
 
 ---
 
@@ -241,3 +242,108 @@ Ghi nhận ngày 2026-10-26. Khi đã xác minh, sửa dòng tương ứng ở �
 - [ ] Rà chính tả tiếng Việt và tên riêng (các lỗi điển hình của bản mẫu ở [PHAN_TICH_BAO_CAO_MAU_NEUOJ.md §7](PHAN_TICH_BAO_CAO_MAU_NEUOJ.md#7-lỗi-trong-mẫu--không-lặp-lại)).
 - [ ] Nội dung AI vẫn tuân thủ ràng buộc an toàn y khoa (nguyên tắc 4).
 - [ ] Không có thông tin định danh bệnh nhân thật trong văn bản hoặc ảnh chụp.
+- [ ] Sơ đồ mới/sửa đạt checklist sơ đồ ở [§10.5](#105-checklist-riêng-cho-mỗi-sơ-đồ).
+
+---
+
+## 10. Sơ đồ và hình vẽ
+
+Phần này ghi lại bản mẫu vẽ sơ đồ thế nào (đọc trực tiếp từ ảnh trong PDF, trang in 18–74 và 75–94), chuẩn vẽ cho VDiab và danh mục sơ đồ cần có. Ghi nhận ngày 2026-10-29.
+
+### 10.1. Bản mẫu vẽ sơ đồ thế nào
+
+Đặc điểm chung: nền trắng, nét đen, không màu (trừ icon ở Hình 3.49); chữ trong hình là font không chân (Arial) cỡ nhỏ hơn thân bài; mỗi sơ đồ chiếm gần trọn 1 trang; caption dưới hình, nghiêng. Phần lớn vẽ bằng draw.io; biểu đồ lớp có dáng sinh tự động (kiểu Mermaid).
+
+| Loại (hình trong mẫu) | Cách mẫu vẽ | Lỗi/điểm yếu nhìn thấy trên hình |
+|---|---|---|
+| Use case tổng quát (3.1) | Tác nhân hình người: Người dùng vãng lai, Người dùng (kế thừa từ vãng lai bằng mũi tên tổng quát hóa), Giảng viên/Quản trị viên; 13 ca sử dụng hình elip trong khung hệ thống | Khung hệ thống không ghi tên; không dùng `<<include>>`/`<<extend>>` (Đăng nhập nối thẳng với mọi tác nhân); nhiều đường nối cắt nhau; ca "Duyệt bài nộp kèm nhận xét của AI" và "Sử dụng AI chatbot" nằm trong hình như đã có dù AI ở *ngoài phạm vi* — không đánh dấu |
+| Hoạt động (3.2–3.23) | Khung có hàng tiêu đề = tên chức năng; 2–3 làn (swimlane): Người dùng · Hệ thống NEUOJ · Dịch vụ ngoài (SSO); nút bắt đầu chấm đen, kết thúc hồng tâm; hành động là hộp chữ nhật với cụm động từ ngắn; nút quyết định hình thoi có câu hỏi ("Hợp lệ?", "Tồn tại?") và nhãn True/False; có thanh fork (3.19) và mũi tên vòng lặp | 22 hình, 1 hình/1 thao tác CRUD, nhiều hình gần như giống nhau; không một câu dẫn; fork ở 3.19 không có join; nhãn nhánh dùng tiếng Anh True/False giữa văn bản tiếng Việt |
+| Lớp (3.24) | 9 lớp, chỉ có thuộc tính dạng `+name: String`, ngăn phương thức để trống; quan hệ là association có nhãn động từ (contains, submits, tracks, receives, references…) và bội số `1`/`*` | Bội số quá nhỏ, in ra không đọc được; không phân biệt aggregation/composition; không có văn bản giải thích; không có bảng CSDL đi kèm |
+| Tuần tự (3.25–3.46) | Tiêu đề in ngay trong ảnh; lifeline: tác nhân → "NEU OJ" (frontend) → "NEU OJ Backend" → dịch vụ ngoài; thông điệp đánh số `1.`…`n.`, gọi = nét liền mũi đặc, trả về = nét đứt mũi rỗng; thanh kích hoạt chỉ vẽ ở thông điệp tự gọi; thỉnh thoảng dùng khung `alt` (3.41) và `par` (3.42) | Tiêu đề trong ảnh lặp caption; tác nhân không có tên; CSDL và LLM **không có lifeline riêng** — bị giấu thành thông điệp tự gọi ("Truy vấn thông tin người dùng trong CSDL", "Thực thi prompt"); trùng số `8.` (3.25), số lẻ `8.5` (3.41); khung `alt` chỉ có 1 nhánh; hình dài bị **cắt sang trang sau mất hàng tiêu đề lifeline** (3.41, 3.42); "Office 365" và "Microsoft 365" lẫn lộn trong cùng hình |
+| Gói (3.47) | 5 tầng gắn stereotype `<<layer>>`: Presentation → Application → Business → Data Accessing → Data Storing, mỗi tầng chứa các gói con; phụ thuộc là mũi tên nét đứt; 2 gói ngoài NextJS, NestJS | Gói LLM nằm trong Business Layer như đã có; AuthenticationService đặt ở Data Accessing Layer (sai tầng); tên gói không khớp thư mục mã nguồn |
+| Triển khai (3.48) | Nút 3D UML: `<<device>> WebBrowser` chứa `<<artifact>> NEU OJ website`; `<<device>> ApplicationServer` chứa các nút thực thi `:NestJS` (có component User, Problem…), `:MongoDB`, `:Redis`, `:Minio`, `:Judge0`, `:LLM`, `:Grafana Stack`; đường nối ghi giao thức `<<HTTPS>>`, `<<TCP/IP>>` | **Đây là hình duy nhất được giải thích tốt**: ngay sau hình có danh sách 2 cấp mô tả từng nút + đoạn về giao thức → nên học. Lỗi: nút `:LLM` không ghi "(dự kiến)"; chính tả "Visuallization"; vẽ 1 máy chủ trong khi Hình 3.49 có cụm 2 máy Judge0 sau Nginx — hai hình không nhất quán |
+| Kiến trúc tổng quan (3.49) | draw.io có icon (người dùng, màn hình, máy chủ, logo Redis/MongoDB/Grafana), luồng trái → phải: User → Web UI (Next.js) → Web API (NestJS) → bộ đệm/hàng đợi/CSDL; khung nhóm "Các máy chủ thực thi mã – Judge0" chứa Nginx + Máy chủ 1/2 + Postgres | Mũi tên không có nhãn (không biết dữ liệu gì, giao thức gì); dẫn bằng một câu chung "như hình dưới" |
+| Hình Chương 4 (4.1–4.29) | Ảnh chụp giao diện, ảnh chụp mã Python Locust, ảnh chụp bảng thống kê của Locust; kết quả số chính đặt ở Bảng 2 | Không có biểu đồ tự vẽ (đường/cột) cho kết quả đo; ảnh chụp bảng Locust cỡ chữ rất nhỏ |
+| Caption | `Hình 3.x. Biểu đồ <loại> chức năng <tên>.` | Không nhất quán dấu chấm cuối (3.1, 3.24, 3.47 thiếu); 3.39 thiếu cụm "Biểu đồ tuần tự chức năng" |
+
+### 10.2. Chuẩn vẽ cho VDiab
+
+**Công cụ và file nguồn**
+- Mermaid (`.mmd`): tuần tự, lớp/ERD, đồ thị agent, luồng RAG. PlantUML (`.puml`): use case, hoạt động có swimlane, gói, triển khai (Mermaid không vẽ đúng chuẩn UML các loại này). draw.io (`.drawio`): sơ đồ kiến trúc có icon. Biểu đồ số liệu: script Python (`.py`, matplotlib) đọc thẳng file kết quả.
+- File nguồn ở `figures/src/` cùng slug với ảnh: `hinh-3-7_tuan-tu-tu-van-ai.puml` → `hinh-3-7_tuan-tu-tu-van-ai.png`.
+- Xuất PNG đủ nét khi in: chiều rộng ≥ 1600 px (hoặc ≥ 200 dpi ở khổ thật).
+
+**Phong cách**
+- Đen trắng hoặc thang xám, nền trắng — khóa luận in đen trắng. Màu không được là kênh duy nhất mang nghĩa; muốn nhấn mạnh (vd. nhánh an toàn/guardrail) dùng viền đậm hoặc một sắc xám.
+- Không đặt tiêu đề trong ảnh — caption đã làm việc đó (sửa lỗi mẫu).
+- Chữ trong hình: font không chân, sau khi co vào khổ giấy vẫn ≥ 9 pt; tiếng Việt có dấu. Nhãn mô tả viết tiếng Việt; tên định danh trong code (node LangGraph, tên bảng, endpoint) giữ nguyên đúng như code.
+- Hình rộng tối đa bằng khối chữ (≈ 15,5 cm với lề trái 3,5 cm). Hình cao quá 1 trang thì **tách thành 2 hình** theo giai đoạn (vd. "…(giai đoạn truy xuất)" / "…(giai đoạn kiểm duyệt)") — không để hình chảy sang trang sau mất tiêu đề như mẫu.
+- Caption theo đúng một mẫu cho mỗi loại, luôn có dấu chấm cuối:
+  - `Hình 3.x. Biểu đồ ca sử dụng <phạm vi>.`
+  - `Hình 3.x. Biểu đồ hoạt động <luồng>.`
+  - `Hình 3.x. Biểu đồ tuần tự <luồng>.`
+  - `Hình 3.x. Biểu đồ lớp <nhóm thực thể>.`
+  - `Hình 3.x. Sơ đồ <kiến trúc/đồ thị/luồng> <tên>.`
+  - Thành phần chưa triển khai: thêm ` (dự kiến)` vào caption **và** ghi chú trên hình (nét đứt + nhãn "dự kiến").
+
+**Quy tắc theo loại**
+- **Use case:** khung ghi tên "Hệ thống VDiab". Tác nhân chính bên trái (Bệnh nhân, Bác sĩ, Quản trị viên); tác nhân phụ bên phải (Nhà cung cấp LLM, Zalo OA, Bộ lập lịch nếu có). "Đăng nhập" nối bằng `<<include>>`, không kéo dây từ mọi tác nhân. Hơn ~15 ca → 1 hình tổng quát theo nhóm chức năng + hình phân rã cho từng tác nhân. Tập ca sử dụng phải khớp 1.4.2; ca không làm thì không vẽ hoặc ghi "(dự kiến)".
+- **Hoạt động:** chỉ vẽ luồng có rẽ nhánh đáng kể (xem §10.3), gộp CRUD. Làn: Bệnh nhân/Bác sĩ · Giao diện (Next.js) · Backend (FastAPI) · Rule Engine / AI Agent · Dịch vụ ngoài — chỉ giữ làn thực sự có hành động. Nhãn nhánh là điều kiện tiếng Việt trong ngoặc vuông (`[vượt ngưỡng]`, `[trong ngưỡng]`), không dùng True/False. Mỗi fork phải có join.
+- **Lớp/ERD:** sinh từ `codebase/backend/*/models.py`, không vẽ tay theo trí nhớ. Hiện PK/FK, kiểu dữ liệu, bội số đọc được. Nhiều hơn ~12 thực thể thì tách theo nhóm miền (Người dùng & phân quyền · Chỉ số sức khỏe & cảnh báo · Thuốc & lịch hẹn · AI, tri thức & nhật ký). Phải khớp bảng ở 3.2.5.
+- **Tuần tự:** tác nhân có tên. Lifeline theo thành phần thật: Giao diện (Next.js) → API (router FastAPI) → service/module → Rule Engine hoặc AI Agent → PostgreSQL / vector store / **nhà cung cấp LLM**. CSDL và LLM là lifeline riêng, không giấu thành tự gọi — với VDiab, việc agent gọi LLM và tool là nội dung chính cần thấy. Số thông điệp liên tục, không trùng. Dùng `alt` có ≥ 2 nhánh kèm điều kiện, `opt`, `loop` (vòng lặp chọn tool của agent), `par` đúng nghĩa. Có thanh kích hoạt. Quá ~20 thông điệp thì tách hình.
+- **Đồ thị AI Agent** *(mẫu không có — đặc thù VDiab)*: vẽ từ `codebase/models/agents/graph.py`; tên node **đúng như trong code**; cạnh có điều kiện ghi nhãn; node guardrail/an toàn nhấn bằng viền đậm; nhánh từ chối và nhánh chuyển cảnh báo phải thấy rõ.
+- **Gói:** tầng và gói khớp thư mục thật (`codebase/backend/<module>/`, `codebase/models/…`); mũi tên phụ thuộc theo chiều import thật.
+- **Triển khai:** mỗi nút là một service thật trong `docker-compose*.yml`; dùng `<<device>>`, `<<executionEnvironment>>` (Docker), `<<artifact>>`; đường nối ghi giao thức + cổng; dịch vụ ngoài (LLM provider, Zalo) đặt ngoài biên máy chủ. Học cách mẫu giải thích Hình 3.48 (danh sách 2 cấp từng nút + đoạn giao thức). Phải nhất quán với sơ đồ kiến trúc tổng thể (lỗi 3.48 ↔ 3.49 của mẫu).
+- **Kiến trúc tổng thể:** được dùng icon như Hình 3.49 nhưng **mọi mũi tên có nhãn** (dữ liệu gì / giao thức gì) và đánh số bước luồng chính (①②③…) để văn bản giải thích theo số.
+- **Biểu đồ số liệu Chương 4:** tự vẽ từ dữ liệu (cột cho chỉ số eval, đường cho p50/p95 theo mức tải), trục có đơn vị, số liệu gốc nằm ở bảng hoặc `so-lieu.md`. Ảnh chụp công cụ (Locust, Langfuse…) chỉ là minh chứng phụ.
+
+### 10.3. Danh mục sơ đồ dự kiến cho VDiab
+
+Số hình chỉ để định hướng; số thật quản lý ở `danh-muc-hinh-bang.md`. Luồng phụ thuộc epic chỉ vẽ khi epic đã xong theo [docs/tasks/](../tasks/README.md) và có code.
+
+| Mục | Sơ đồ | Nội dung chính | Nguồn để vẽ | Công cụ |
+|---|---|---|---|---|
+| 3.1.1 | Use case tổng quát | 3 tác nhân chính + tác nhân phụ, nhóm chức năng theo 1.4.2 | PRD §3, §5–6; `codebase/backend/*/router.py` | PlantUML |
+| 3.1.1 | Use case phân rã Bệnh nhân / Bác sĩ (+ Admin) | Chỉ khi hình tổng quát > ~15 ca | như trên | PlantUML |
+| 3.1.3 | Hoạt động: ghi chỉ số sức khỏe | Nhập → kiểm tra hợp lệ → Rule Engine so ngưỡng (cá nhân hóa) → [vượt ngưỡng] tạo cảnh báo + thông báo bác sĩ phụ trách / [trong ngưỡng] lưu | `codebase/backend/` (health, rule engine, notifications) | PlantUML |
+| 3.1.3 | Hoạt động: hỏi đáp trợ lý AI | Câu hỏi → sàng lọc an toàn đầu vào → [đổi liều/chẩn đoán] từ chối · [dấu hiệu nguy hiểm] chuyển luồng cảnh báo · [hợp lệ] truy xuất + tổng hợp → kiểm duyệt đầu ra → trả lời có trích dẫn | `codebase/models/agents/` | PlantUML |
+| 3.1.3 | Hoạt động: bác sĩ chuẩn bị tái khám | Mở bệnh nhân → tóm tắt AI / brief trước khám → ghi chú lâm sàng → trích xuất insight | `codebase/backend/appointments/`, insights | PlantUML |
+| 3.1.4 | Lớp/ERD (1–3 hình theo nhóm miền) | Thực thể, PK/FK, bội số | `codebase/backend/*/models.py` | Mermaid `erDiagram` / `classDiagram` |
+| 3.1.5 | Tuần tự: đăng nhập JWT | Login → cấp access/refresh token → gọi API kèm token → RBAC | `codebase/backend/auth/` | Mermaid |
+| 3.1.5 | Tuần tự: ghi chỉ số + cảnh báo | Có lifeline Rule Engine, PostgreSQL, Notification | như hoạt động tương ứng | Mermaid |
+| 3.1.5 | Tuần tự: tư vấn AI | Có lifeline AI Agent, Tool Registry, vector store, nhà cung cấp LLM; `loop` chọn tool; `alt` kiểm duyệt | `codebase/models/agents/graph.py`, `nodes/` | Mermaid |
+| 3.1.5 | Tuần tự: tóm tắt AI / brief cho bác sĩ | Lấy dữ liệu khoảng thời gian → tổng hợp → cờ "Cần bác sĩ xem xét" | [docs/AI_Summary_Respond_System_Design.md](../AI_Summary_Respond_System_Design.md) | Mermaid |
+| 3.1.5 | Tuần tự: nhắc thuốc/lịch hẹn | Bộ lập lịch → Notification → kênh (in-app/Zalo nếu chạy e2e) | `codebase/backend/notifications/` | Mermaid |
+| 3.2.1 | Kiến trúc tổng thể | Modular monolith, luồng đánh số, nhãn giao thức | ARCHITECTURE "System Overview" (đối chiếu §8) | draw.io |
+| 3.2.2 | Đồ thị AI Agent | Node + cạnh điều kiện đúng code | `codebase/models/agents/graph.py` | Mermaid |
+| 3.2.3 | Luồng RAG | Ingest (nguồn "Đã duyệt" → chunk → embed → vector store) và truy xuất | `codebase/models/rag/` | Mermaid |
+| 3.2.4 | Pipeline mô hình ML | Đặc trưng → huấn luyện → hiệu chuẩn → phục vụ ngưỡng | `artifacts/personalized_watch/*/`, `codebase/models/` | Mermaid — chỉ khi đã tích hợp |
+| 3.2.8 | Gói | Tầng theo thư mục thật | `codebase/` | PlantUML |
+| 3.2.8 | Triển khai | Container thật + giao thức/cổng | `docker-compose*.yml` | PlantUML |
+| 4.3 | Biểu đồ kết quả eval | Cột theo chỉ số (độ đúng, trích dẫn hợp lệ, từ chối đúng, vi phạm an toàn) | `eval/results/` | matplotlib |
+| 4.4 | Biểu đồ so sánh mô hình ML | Metrics v0/v1/v2 | `artifacts/personalized_watch/*/metrics.json` | matplotlib |
+| 4.6 | Biểu đồ hiệu năng | p50/p95 theo mức tải, tách API thường và AI | kết quả đo theo [PERFORMANCE_REPORT](../PERFORMANCE_REPORT.md) | matplotlib — chỉ khi đã đo |
+
+**Sơ đồ có sẵn trong repo — không dán thẳng vào khóa luận.** [docs/diagrams/](../diagrams/) (`system_overview.png`, `agent_flow.png`, `deployment.png`) là Mermaid theme mặc định (nền vàng, khối xanh/đỏ đậm), có nhãn đã lỗi thời so với code: "React SPA", "LangSmith", chỉ "ChromaDB", "OpenAI API" (xem §8). Chỉ dùng làm tham khảo bố cục, vẽ lại theo §10.2 sau khi đối chiếu code.
+
+### 10.4. Lời dẫn cho sơ đồ
+
+Mỗi sơ đồ có câu dẫn **trước** hình và 2–4 câu giải thích (nguyên tắc 7). Khuôn theo loại:
+- **Use case:** "Hình 3.1 thể hiện các ca sử dụng của hệ thống VDiab theo ba tác nhân chính. Bệnh nhân …; bác sĩ …; quản trị viên …. Các tác nhân phụ … tham gia vào …."
+- **Hoạt động:** "Luồng … được mô tả ở Hình 3.x. Luồng bắt đầu khi …. Tại bước …, nếu … thì …; ngược lại …. Luồng kết thúc khi …."
+- **Tuần tự:** "Hình 3.x mô tả trình tự tương tác giữa … khi …. Các bước 1–3 …; bước 4–7 …. Khối `alt` thể hiện …."
+- **Đồ thị agent / kiến trúc:** giải thích theo node hoặc theo số bước ①②③ trên hình, mỗi node/bước một gạch đầu dòng `- **Tên**: vai trò.`
+- **Triển khai:** danh sách 2 cấp từng nút như mẫu làm ở Hình 3.48, kết bằng một đoạn về giao thức giữa các nút.
+- **Biểu đồ số liệu:** theo khuôn "Diễn giải số liệu" ở §7 — nêu xu hướng, giải thích điểm bất thường, kết luận.
+
+### 10.5. Checklist riêng cho mỗi sơ đồ
+
+- [ ] Có file nguồn trong `figures/src/`, ảnh xuất lại từ chính file đó.
+- [ ] Đen trắng/xám, nền trắng, không tiêu đề trong ảnh, chữ ≥ 9 pt khi in.
+- [ ] Tên thành phần khớp code (node agent, bảng, service, container), không khớp tài liệu cũ.
+- [ ] Không vượt 1 trang; hình dài đã tách.
+- [ ] Thành phần chưa chạy có "(dự kiến)" trên hình và caption.
+- [ ] Tuần tự: tác nhân có tên, CSDL/LLM có lifeline riêng, số thông điệp liên tục không trùng, `alt` ≥ 2 nhánh.
+- [ ] Hoạt động: nhãn nhánh là điều kiện tiếng Việt, fork có join.
+- [ ] Hình kiến trúc, triển khai và gói nhất quán với nhau.
+- [ ] Caption đúng mẫu theo loại, có dấu chấm; có câu dẫn và giải thích; `danh-muc-hinh-bang.md` đã cập nhật.

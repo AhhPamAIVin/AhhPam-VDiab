@@ -20,13 +20,16 @@ round's observations and ask for more (multi-step, one extra call per turn).
 Fail-safe, same posture as plan_response: the planner's whole-message fast
 path still applies first; an LLM failure before anything was gathered, or a
 model that calls no tool at all, falls back to the "gather everything"
-default rather than answering a health question with no data.
+default rather than answering a health question with no data. The same goes
+for a terminal tool (social reply, out-of-scope, direct answer) chosen for a
+message with health content — see _HEALTH_GUARDED_TERMINALS.
 """
 
 from __future__ import annotations
 
 import inspect
 import logging
+import re
 from datetime import UTC, datetime
 from zoneinfo import ZoneInfo
 
@@ -48,6 +51,7 @@ from codebase.models.agents.nodes.plan_response import (
 from codebase.models.agents.prompts.agent import AGENT_SYSTEM_PROMPT, AGENT_USER_TEMPLATE
 from codebase.models.agents.state import AgentState
 from codebase.models.agents.tools.agent_tools import PROGRESS_BY_TOOL, TOOLS, TOOLS_BY_NAME, AgentTool
+from codebase.models.agents.tools.nutrition_tools import strip_diacritics
 from codebase.models.llm import get_llm
 
 logger = logging.getLogger(__name__)
@@ -70,9 +74,39 @@ def _not_gathered(result: dict) -> dict:
     return {**result, "agent_gathered": False, "agent_tool_calls": [], "agent_record_drafts": [], "assessment": None}
 
 
-def _terminal_result(tool: AgentTool, args: dict) -> dict | None:
+# Terminal tools that end the turn without looking anything up. The model
+# reached for them on real health questions (golden eval 2026-10-29: "đang sốt
+# có được tự ý ngừng thuốc không?" -> reply_social "Được rồi nhé"; exercise and
+# folk-remedy questions -> answer_directly / out_of_scope refusals), so they
+# are only accepted for a message with no health content. Rejecting one falls
+# back to gather-everything: the guard only ever turns a refusal into an
+# answer, never the other way round.
+_HEALTH_GUARDED_TERMINALS = {"reply_social", "out_of_scope", "answer_directly"}
+_HEALTH_WORD_RE = re.compile(
+    r"\b(?:đường huyết|đường máu|tiểu đường|đái tháo đường|hạ đường|insulin|hba1c|huyết áp|thuốc|uống|ăn|"
+    r"nhịn|bữa|tinh bột|đường|carb|tập|thể dục|vận động|bệnh|sốt|ốm|cảm cúm|đau|mệt|chóng mặt|run|vã mồ hôi|"
+    r"cân nặng|béo|gầy|biến chứng|tim|thận|mắt|chân|vết thương|khám|xét nghiệm|chữa|khỏi|điều trị|"
+    r"tụy|thanh lọc|giải độc|thực phẩm|lá|dân gian|đông y|thuốc nam|chế độ)\b"
+)
+# Typed without diacritics; multi-syllable only, so "an"/"duong" can't hit "bạn"/"đường đi".
+_HEALTH_WORD_PLAIN_RE = re.compile(
+    r"\b(?:duong huyet|duong mau|tieu duong|dai thao duong|ha duong|insulin|hba1c|huyet ap|the duc|"
+    r"van dong|uong thuoc|chong mat|bien chung|xet nghiem|dieu tri|tinh bot|thuc pham)\b"
+)
+
+
+def _mentions_health(message: str) -> bool:
+    lowered = message.lower()
+    return bool(_HEALTH_WORD_RE.search(lowered) or _HEALTH_WORD_PLAIN_RE.search(strip_diacritics(lowered)))
+
+
+def _terminal_result(tool: AgentTool, args: dict, message: str) -> dict | None:
     """plan_response's reviewed reply for a terminal tool, or None if its
-    args don't validate (the caller then falls back)."""
+    args don't validate or it may not end this message (the caller then
+    falls back)."""
+    if tool.name in _HEALTH_GUARDED_TERMINALS and _mentions_health(message):
+        logger.info("agent_plan rejected terminal tool %s on a health message", tool.name)
+        return None
     try:
         parsed = tool.args_model.model_validate(args)
     except ValidationError:
@@ -170,7 +204,7 @@ async def agent_plan(state: AgentState, config: RunnableConfig) -> dict:
             break
         terminal = next((c for c in calls if (t := TOOLS_BY_NAME.get(c.get("name") or "")) and t.terminal), None)
         if terminal is not None:
-            result = _terminal_result(TOOLS_BY_NAME[terminal["name"]], terminal.get("args") or {})
+            result = _terminal_result(TOOLS_BY_NAME[terminal["name"]], terminal.get("args") or {}, message)
             if result is None:
                 break
             return {

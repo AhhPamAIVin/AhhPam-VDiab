@@ -1,6 +1,6 @@
 # Epic 1 — Meal Intelligence: agent phân tích bữa ăn
 
-**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Gần xong — 1.1–1.6, 1.8 xong; 1.7 và 1.9 hoãn sang 2026-10-29
+**Ưu tiên:** P0 · **Độ lớn:** L · **Phụ thuộc:** — · **Trạng thái:** Gần xong — 1.1–1.6, 1.8 xong; 1.9 lịch 2026-10-29; 1.7 hoãn sau pilot (2026-10-29)
 
 ## Mục tiêu
 
@@ -24,10 +24,10 @@ trả lời được câu hỏi lâm sàng: **món nào làm đường huyết s
 ## Phạm vi
 
 **In:** phân tích text bữa ăn, bảng tra dinh dưỡng món Việt, tương quan bữa ăn ↔ glucose sau ăn,
-hiển thị cho bệnh nhân và bác sĩ, nhận diện từ ảnh (draft), ghi bằng giọng nói.
+hiển thị cho bệnh nhân và bác sĩ, nhận diện từ ảnh (draft).
 
 **Out:** gợi ý liều insulin theo carb (PRD Won't), thực đơn kê cho bệnh nhân, đếm calo chính xác
-dạng app giảm cân, tích hợp CGM.
+dạng app giảm cân, tích hợp CGM, ghi bữa ăn bằng giọng nói trên production (1.7 — hoãn sau pilot).
 
 ## Task
 
@@ -150,7 +150,13 @@ dạng app giảm cân, tích hợp CGM.
 - **AC:** ảnh không phải đồ ăn → trả "không nhận diện được", không tạo item.
   *Test: `tests/test_backend/test_meal_photo.py`, `tests/test_models/test_meal_photo_recognition.py`.*
 
-### 1.7 Ghi bữa ăn bằng giọng nói — **hoãn, lịch 2026-10-29**
+### 1.7 Ghi bữa ăn bằng giọng nói — **hoãn sau pilot (quyết định 2026-10-29)**
+*Lý do: `codebase/stt-service` cần máy GPU NVIDIA riêng (~16 GB VRAM, `docker-compose.stt.yml`), không chạy cùng
+máy backend — chi phí hạ tầng không tương xứng cho pilot. Production không cấu hình `NEXT_PUBLIC_STT_WS_URL` nên
+nút nói tự ẩn (`voice-input-button.tsx`); nhập liệu giọng nói nói chung không có trên production. Nơi có STT,
+câu nói đã đi vào chat như văn bản gõ và agent ghi bữa ăn qua `draft_records` (Epic 8), nên phần còn lại của
+task chỉ là kiểm parser với văn nói + gắn `MealInputSource.VOICE`. Hướng sau pilot không cần GPU: API chuyển
+giọng nói của nhà cung cấp LLM — gửi giọng bệnh nhân ra ngoài nên cần consent như ảnh (1.6).*
 - [ ] Nối STT (`codebase/stt-service`) → text → parser bữa ăn trong `record_actions.py` → confirm →
       trigger 1.3. Chủ yếu là việc frontend + kiểm tra parser với văn nói.
       *Đã sẵn: bữa ăn xác nhận từ chat đã kích hoạt phân tích (1.3); `MealInputSource.VOICE` đã có.*
@@ -171,21 +177,40 @@ dạng app giảm cân, tích hợp CGM.
   *`eval/data/guardrail_meal_cases.json`: 10 case phải chặn + 6 case an toàn đối chứng, dùng chung cho
   `tests/test_backend/test_meal_guardrails.py` (16/16) và `eval/respond_agent/guardrail_judge.py`.*
 
-### 1.9 Eval — **hoãn, lịch 2026-10-29**
-- [ ] `eval/meal_analysis/`: golden ≥50 mô tả bữa ăn tiếng Việt (có viết tắt, không dấu, nhiều món) với
+### 1.9 Eval — **phần văn bản xong 2026-10-29; đối chiếu bảng TPTP và bộ ảnh còn mở**
+- [x] `eval/meal_analysis/`: golden ≥50 mô tả bữa ăn tiếng Việt (có viết tắt, không dấu, nhiều món) với
       carb kỳ vọng. Metric: độ chính xác tách món, **MAE carb** (mục tiêu đề xuất ≤15 g/bữa — chốt lại
       với bác sĩ), tỷ lệ "không match" đúng.
-- [ ] Target `make eval-meal-analysis` trong `Makefile`.
+      *`eval/data/meal_analysis_cases.json` (62 case: 53 có dấu, 6 không dấu, 4 viết tắt, 24 nhiều món, 5 văn
+      nói, 3 đơn vị khối lượng, 2 khẩu phần ở ô riêng, 7 món không có trong bảng) + `eval/meal_analysis/text_analysis.py`.
+      Nhãn = món + lượng bệnh nhân nói; carb kỳ vọng tính từ nhãn **qua chính bảng tra** → đo lỗi tách món/khớp
+      tên/khẩu phần, **không** đo độ đúng số liệu của bảng (việc đó là mục đối chiếu TPTP bên dưới).
+      Lần chạy 2026-10-29 (`eval/results/meal_analysis_text-20261029-1013.json`, `gpt-4o-mini` qua proxy):
+      luồng production đúng 61/62 case; recall/precision món 0.988/0.988; khẩu phần đúng 100%; 7/7 món lạ
+      để trống carb, 0 khớp nhầm; **MAE carb 0.05 g/bữa** (55 case đủ món trong bảng, sai lớn nhất 2.7 g); carb_load
+      khớp 100%; LLM chỉ được gọi ở 12.9% case, p95 2.1 s. Chỉ dùng luật (LLM tắt): 60/62, MAE 1.6 g, sai lớn
+      nhất 85.8 g ("tối qua ăn 2 chén cơm với…" — câu văn nói, luật không tách được) → bước LLM có ích đúng chỗ.
+      Lỗi tìm thấy: "bm trứng" khớp thành "bánh mì không" (alias `bm` + luật "từ đầu câu"), không gọi LLM vì
+      tên đã khớp → đã thêm alias `bm trứng/bm ốp la/bm thịt/bm pate/bm chả` (+ test). Chạy lại sau khi sửa
+      (`eval/results/meal_analysis_text-20261029-1044.json`): luồng production **62/62**, recall/precision 1.00. **Giới hạn:** bộ case do agent viết khi đã thấy bảng tra, nên lệch về các tên
+      có trong bảng; câu thật của bệnh nhân sẽ khó hơn — nên bổ sung câu thật (ẩn danh) khi có pilot.*
+- [x] Target `make eval-meal-analysis` trong `Makefile`.
 - [ ] Đối chiếu carb/kcal trong `vn_foods.csv` với *Bảng thành phần thực phẩm Việt Nam* (Viện Dinh dưỡng),
       điền `source`/`source_page`, bỏ hậu tố `-unverified` khỏi `NUTRITION_DB_VERSION`.
+      *Chưa làm (2026-10-29): cần bản Bảng TPTP VN (sách/PDF của Viện Dinh dưỡng) để tra từng dòng và ghi số
+      trang — không điền số từ trí nhớ/nguồn thứ cấp. Đến khi xong, UI giữ nhãn "ước tính" và khóa luận ghi số
+      carb là ước tính chưa đối chiếu.*
 - [ ] Eval nhận diện món từ ảnh (`recognize_from_photo`, 1.6): bộ ảnh món Việt
       tự chụp/có giấy phép (không dùng ảnh bệnh nhân — hệ thống không lưu ảnh), nhãn
       `[{name, quantity, unit}]` kỳ vọng + vài ảnh không phải đồ ăn. Metric: precision/recall tên món,
       tỷ lệ khẩu phần đúng đơn vị, tỷ lệ ảnh không phải đồ ăn bị trả `is_food=false`, latency p50/p95 qua proxy.
       Target `make eval-meal-photo`.
+      *Script + target đã có (`eval/meal_analysis/photo.py`, `make eval-meal-photo`); **chưa có bộ ảnh** — cần
+      ảnh tự chụp/có giấy phép đặt ở `eval/data/meal_photos/` + `labels.json` (định dạng trong docstring).
+      Chưa chạy, chưa có số.*
 
 ## Definition of Done
-- Toàn bộ task 1.1–1.5, 1.8, 1.9 xong; 1.7 có thể tách release sau (1.6 đã làm cùng 1.1).
+- Toàn bộ task 1.1–1.5, 1.8, 1.9 xong; 1.7 hoãn sau pilot (1.6 đã làm cùng 1.1).
 - Pytest xanh, eval meal đạt ngưỡng đã chốt, guardrail case mới 100%.
 - README/ARCHITECTURE cập nhật luồng phân tích bữa ăn.
 

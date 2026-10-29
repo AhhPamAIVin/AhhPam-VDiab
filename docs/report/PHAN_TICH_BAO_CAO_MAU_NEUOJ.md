@@ -145,7 +145,7 @@ Mạch logic toàn bài: **Vấn đề (Ch1) → Nền tảng lý thuyết & kho
 | Trích dẫn | IEEE: số trong ngoặc vuông `[1]`, `[14], [15]`, đặt cuối câu trước dấu chấm |
 | Tài liệu tham khảo | IEEE đầy đủ: tác giả, "tên bài", tạp chí *viết tắt*, vol., no., pp., tháng năm, doi; web có `Accessed:` + `[Online]. Available:` — dễ sinh bằng Zotero/Mendeley |
 | Danh mục viết tắt | bảng 2 cột "Từ viết tắt – Ý nghĩa"; ý nghĩa ghi tiếng Việt, kèm tên tiếng Anh trong ngoặc đơn ở dòng dưới |
-| Sơ đồ UML | mỗi sơ đồ chiếm gần trọn 1 trang, nền trắng, nét đen; activity diagram dạng swimlane (Người dùng / Hệ thống / Dịch vụ ngoài) |
+| Sơ đồ UML | mỗi sơ đồ chiếm gần trọn 1 trang, nền trắng, nét đen; activity diagram dạng swimlane (Người dùng / Hệ thống / Dịch vụ ngoài). Phân tích chi tiết từng loại sơ đồ (đọc từ ảnh) và lỗi trên hình: [HUONG_DAN_AGENT_VIET_KHOA_LUAN.md §10.1](HUONG_DAN_AGENT_VIET_KHOA_LUAN.md#101-bản-mẫu-vẽ-sơ-đồ-thế-nào) |
 
 ---
 
