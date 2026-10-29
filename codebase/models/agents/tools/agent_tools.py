@@ -682,7 +682,8 @@ TOOLS: tuple[AgentTool, ...] = (
     ),
     AgentTool(
         "answer_directly",
-        "Kết thúc lượt bằng câu trả lời ngắn KHÔNG cần dữ liệu hay tài liệu (trợ lý làm được gì, cách dùng ứng dụng).",
+        "Kết thúc lượt bằng câu trả lời ngắn KHÔNG cần dữ liệu hay tài liệu (trợ lý làm được gì, cách dùng ứng dụng). "
+        "Không dùng cho câu hỏi sức khỏe, kể cả để từ chối.",
         DirectAnswerArgs,
         _terminal_placeholder,
         terminal=True,

@@ -139,6 +139,9 @@ class AgentState(TypedDict, total=False):
     risk_level: Literal["low", "medium", "high"]
     retry_count: int
     error: str | None
+    # guardrail.py's failure codes for the draft it just rejected; read by
+    # synthesize_qa.py on the retry (only while error == "guardrail_failed").
+    guardrail_failures: list[str]
 
     # output
     response: str

@@ -38,7 +38,7 @@ from zoneinfo import ZoneInfo
 from langchain_core.messages import AIMessage, AnyMessage, HumanMessage, SystemMessage
 
 from codebase.backend.config import get_settings
-from codebase.models.agents.prompts.qa import PATIENT_ADVICE_POLICY, QA_TEMPLATE
+from codebase.models.agents.prompts.qa import PATIENT_ADVICE_POLICY, PATIENT_ADVICE_RETRY, QA_TEMPLATE
 from codebase.models.agents.prompts.system import SYSTEM_PROMPT
 from codebase.models.agents.state import AgentState, RetrievedChunk, SourceCitation
 from codebase.models.llm import get_llm
@@ -581,6 +581,15 @@ def _dedupe_citations(citations: list[SourceCitation]) -> list[SourceCitation]:
     return deduped
 
 
+def _advice_policy_block(state: AgentState) -> str:
+    if state.get("user_role") != "patient":
+        return ""
+    retrying_advice = state.get("error") == "guardrail_failed" and "personal_advice" in (
+        state.get("guardrail_failures") or []
+    )
+    return PATIENT_ADVICE_POLICY + (PATIENT_ADVICE_RETRY if retrying_advice else "")
+
+
 async def synthesize_qa(state: AgentState) -> dict:
     """Drafts the QA answer from retrieved_chunks + tool_results, then builds
     `sources`/`data_used` by checking word-overlap grounding against the
@@ -605,7 +614,7 @@ async def synthesize_qa(state: AgentState) -> dict:
         time_context_block=_time_context_block(),
         patient_data_block=_format_patient_data_block(state.get("tool_results")),
         role_context_block=_format_role_context_block(state.get("user_role")),
-        advice_policy_block=PATIENT_ADVICE_POLICY if state.get("user_role") == "patient" else "",
+        advice_policy_block=_advice_policy_block(state),
     )
 
     # state["messages"] includes the current turn as its last element (router.py

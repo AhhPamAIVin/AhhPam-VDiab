@@ -247,3 +247,59 @@ async def test_guardrail_retry_succeeds_ships_corrected_response_without_looping
     assert mock_llm.call_count["n"] == 2  # original attempt + one retry, then stop (no loop)
     assert result.get("response") == "Theo Bộ Y tế, mục tiêu HbA1c là dưới 7%."
     assert result.get("error") is None
+
+
+@pytest.mark.asyncio
+async def test_advice_retry_is_told_why_the_draft_was_rejected(session: Session):
+    """Golden eval 2026-10-29 (TC-AI-030): a knowledge answer phrased as advice
+    ("bạn nên dùng glucose") was rejected, and the blind retry phrased it as
+    advice again — the patient got the generic fallback. The retry prompt must
+    carry the reason, and only on that retry."""
+    patient = _make_user(session, email="advice-retry@diab.example.com", role=UserRole.PATIENT)
+    prompts: list[str] = []
+    drafts = iter(
+        [
+            "Bạn nên dùng glucose khi bị hạ đường huyết.",
+            "Theo Bộ Y tế, người bệnh bị hạ đường huyết cần dùng glucose.",
+        ]
+    )
+
+    async def _ainvoke(messages):
+        prompts.append(messages[-1]["content"])
+        return AsyncMock(content=next(drafts))
+
+    mock_llm = AsyncMock()
+    mock_llm.ainvoke.side_effect = _ainvoke
+    with (
+        patch("codebase.models.agents.nodes.retrieve_knowledge.search_approved_knowledge") as mock_search,
+        patch("codebase.models.agents.nodes.synthesize_qa.get_llm", return_value=mock_llm),
+        patch("codebase.models.agents.nodes.verify_citations.get_llm", return_value=_mock_verify_citations_llm()),
+    ):
+        mock_search.return_value = [
+            {
+                "chunk_id": "t1-x",
+                "text": "Người bệnh bị hạ đường huyết cần dùng glucose.",
+                "title": "X",
+                "section": None,
+                "page_ref": None,
+                "source_url": None,
+                "tier": 1,
+                "trust_tier": "Bộ Y tế",
+                "score": 0.9,
+            }
+        ]
+        result = await agent.ainvoke(
+            {
+                "user_id": patient.id,
+                "user_role": "patient",
+                "patient_id": patient.id,
+                "request_kind": "chat",
+                "message": "Hạ đường huyết thì dùng gì?",
+            },
+            config={"configurable": {"session": session, "thread_id": "test-thread"}},
+        )
+
+    assert len(prompts) == 2
+    assert "BẢN NHÁP TRƯỚC BỊ TỪ CHỐI" not in prompts[0]
+    assert "BẢN NHÁP TRƯỚC BỊ TỪ CHỐI" in prompts[1]
+    assert result.get("response") == "Theo Bộ Y tế, người bệnh bị hạ đường huyết cần dùng glucose."
