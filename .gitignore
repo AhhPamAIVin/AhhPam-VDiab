@@ -74,3 +74,6 @@ data/CGMacros/**/photos/
 
 # Encrypted DB backups (scripts/backup_db.sh) — belong off-site, never in git
 backups/
+
+# Ghi chú cá nhân (không commit)
+note/

@@ -1,0 +1,37 @@
+# Everything local development needs except the backend and frontend, which
+# run from a terminal (`make run`, `npm run dev`): Postgres, Qdrant and Langfuse.
+#
+#   docker compose -f docker-compose.infra.yml up -d
+#   docker compose -f docker-compose.infra.yml stop
+#
+# Service definitions stay in docker-compose.yml and docker-compose.langfuse.yml;
+# this file only selects them. Not for production (see the Langfuse secrets note
+# in docker-compose.langfuse.yml).
+#
+# The project keeps the Langfuse stack's name so its volumes, which Compose
+# prefixes with the project name, still hold the existing traces. diab_db and
+# diab_qdrant have fixed names, so they are the same data as with `make db-up`.
+#
+# db and qdrant are different containers here than under `make db-up`, and both
+# publish the same ports. If `up` reports a port already in use, stop the other
+# set first with `make down` (keeps the data).
+name: vdiab-langfuse
+
+include:
+  - docker-compose.langfuse.yml
+
+services:
+  db:
+    extends:
+      file: docker-compose.yml
+      service: db
+  qdrant:
+    extends:
+      file: docker-compose.yml
+      service: qdrant
+
+volumes:
+  diab_db:
+    name: diab_db
+  diab_qdrant:
+    name: diab_qdrant
