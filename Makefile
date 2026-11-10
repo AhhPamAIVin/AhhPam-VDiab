@@ -1,4 +1,4 @@
-.PHONY: setup bootstrap langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin backup restore backup-drill logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-record-extraction eval-meal-analysis eval-meal-photo eval-all
+.PHONY: setup bootstrap demo-refresh langfuse-up langfuse-down langfuse-logs run test test-fast test-integration test-coverage eval eval-retrieval eval-report lint format typecheck check clean up down restart db-up db-down db-reset seed-admin backup restore backup-drill logs migrate-nhanes-data db-reset-migrate ai-chat backfill-insights ingest reindex-insights backfill-chat-sessions backfill-summaries stt-run stt-benchmark stt-up stt-down stt-fetch-testset stt-wer-benchmark tts-run tts-up tts-down eval-retrieval-recall eval-guardrail-judge eval-trajectory eval-golden-scenarios eval-ai-summary-golden export-weekly-report-review eval-watch-classifier eval-personal-data-faithfulness eval-record-extraction eval-meal-analysis eval-meal-photo eval-all
 
 # One-time local environment: .venv (Python 3.11) + backend deps + frontend
 # deps + .env files copied from their .example templates. See scripts/setup.sh.
@@ -9,6 +9,12 @@ setup:
 # panel) and the vector store (RAG corpus). Idempotent. Needs `make db-up`.
 bootstrap:
 	python -m scripts.bootstrap_db $(BOOTSTRAP_ARGS)
+
+# Move every patient's records up to today and rebuild the demo doctor's
+# 5-patient panel (30 days of data, visits, briefs, insights). Re-run before
+# each demo. Calls the LLM; DEMO_ARGS=--skip-llm to avoid that.
+demo-refresh:
+	python -m scripts.refresh_demo_data $(DEMO_ARGS)
 
 # ---- Langfuse (self-hosted LLM tracing, replaces LangSmith) — UI at
 # http://localhost:3300, login from LANGFUSE_INIT_USER_* in .env ----
