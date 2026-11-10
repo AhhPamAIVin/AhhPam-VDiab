@@ -354,7 +354,7 @@ export function HealthMonitoring() {
               records={records}
               range={glucoseRange}
               onRangeChange={setGlucoseRange}
-              availableRanges={["24h", "7d"]}
+              availableRanges={["24h", "7d", "14d", "1m"]}
             />
           </div>
 

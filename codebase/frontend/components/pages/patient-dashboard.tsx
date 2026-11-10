@@ -488,7 +488,7 @@ export function PatientDashboard({ onNavigate, onOpenAI }: PatientDashboardProps
           records={glucoseRecords}
           range={range}
           onRangeChange={setRange}
-          availableRanges={['24h', '7d']}
+          availableRanges={['24h', '7d', '14d', '1m']}
         />
       </section>
 
