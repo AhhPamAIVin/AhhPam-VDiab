@@ -27,5 +27,6 @@ def get_llm(node: str | None = None, *, trace: bool = True) -> ChatOpenAI:
         api_key=settings.openai_api_key,
         base_url=settings.openai_base_url or None,
         temperature=settings.llm_temperature,
+        max_retries=settings.llm_max_retries,
         callbacks=tracing_callbacks() if trace else [],
     )

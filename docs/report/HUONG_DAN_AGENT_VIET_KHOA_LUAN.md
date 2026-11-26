@@ -1,6 +1,8 @@
 # Hướng dẫn cho agent: viết và sửa khóa luận VDiab
 
 > **Đọc file này trước khi viết hoặc sửa bất kỳ phần nào của khóa luận VDiab.**
+>
+> **Cập nhật 08/11/2026 — khung chương đã đổi, theo quyết định của tác giả.** Khóa luận nay có **5 chương**, tham khảo chủ yếu các khóa luận về AI cùng trường (chatbot RAG, hệ thống điều hướng AI Agent, phân loại ảnh rác thải; PDF ở `docs/report/`), NEU OJ chỉ còn là tham khảo phụ về định dạng: Ch1 Tổng quan (lý do: cấp thiết thực tiễn/khoa học · mục tiêu · nhiệm vụ · yêu cầu nghiệp vụ/kỹ thuật · đối tượng, phạm vi · phương pháp · ý nghĩa) → Ch2 Cơ sở lý thuyết (ĐTĐ · LLM · RAG · AI Agent · an toàn LLM · hồi quy phân vị · đánh giá hệ thống LLM · hệ thống liên quan · công nghệ) → Ch3 Phân tích và thiết kế hệ thống (nghiệp vụ, UML, CSDL, kiến trúc, API, bảo mật) → Ch4 Thiết kế và xây dựng các thành phần AI (tác tử, RAG, kiểm duyệt, bữa ăn, tóm tắt/reflect, ngưỡng + ML, triển khai) → Ch5 Chạy thử, kết quả và đánh giá (đối chiếu mục tiêu ở Bảng 5.10, hướng phát triển ở 5.9). Tệp chương: `10_`…`50_chuong-5.md`. Các nguyên tắc, quy ước định dạng, checklist và chuẩn sơ đồ bên dưới **vẫn áp dụng**; riêng số mục trong khung §4, §6, §10.3 là của khung 4 chương cũ — ánh xạ: mục cũ 3.2.2–3.2.4 → Ch4; 3.2.7 → 2.9; 4.x → 5.x; 4.10 → 5.9. Bản 4 chương cũ đã được xóa ngày 10/11/2026 theo yêu cầu của tác giả.
 > Chuẩn tham chiếu là khóa luận mẫu NEU OJ (cùng trường, cùng ngành) — phân tích đầy đủ ở [PHAN_TICH_BAO_CAO_MAU_NEUOJ.md](PHAN_TICH_BAO_CAO_MAU_NEUOJ.md). File này nói **viết gì, lấy dữ liệu ở đâu, đặt ở mục nào và khi sửa một chỗ thì phải cập nhật những chỗ nào khác**.
 
 Thứ tự đọc khi mới vào việc:
@@ -69,10 +71,13 @@ docs/report/
     ├── 99_phu-luc.md
     ├── viet-tat.md                # bảng "Từ viết tắt | Ý nghĩa"
     ├── so-lieu.md                 # sổ số liệu: mỗi con số dùng trong bài → nguồn + ngày lấy
-    ├── danh-muc-hinh-bang.md      # danh sách Hình/Bảng hiện có, file ảnh, mục chứa
+    ├── danh-muc-hinh-bang.md      # danh sách Hình/Bảng hiện có, file ảnh, mục chứa (sinh bởi cong-cu/xuat_bang.py)
+    ├── cong-cu/                   # kiem_tra.py, xuat_bang.py, sinh_phu_luc.py, gop_ban_thao.py (xem khoaluan/README.md)
+    ├── minh-chung/                # đầu ra lần chạy đo dùng trong Ch4
     └── figures/
         ├── hinh-3-1_usecase-tong-quat.png
-        └── src/                   # nguồn sơ đồ (.mmd / .puml / .drawio) để sửa lại được
+        ├── bang/                  # mỗi bảng 1 tệp .md + .csv, sinh tự động từ chương — không sửa tay
+        └── src/                   # nguồn sơ đồ để sửa lại được (hiện là .py dùng vdiag.py/matplotlib)
 ```
 
 Quy ước:
