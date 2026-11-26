@@ -37,6 +37,11 @@ class Settings(BaseSettings):
     # Per-node model override (Epic 5.4), "node=model,node=model", e.g.
     # "verify_citations=gpt-4.1-nano". Nodes not listed use model_name.
     llm_node_models: str = ""
+    # Retries per LLM call on 429/5xx/timeouts, with the OpenAI client's
+    # exponential backoff (0.5s doubling, capped at 8s). The gateway rate-limits
+    # intermittently, and one chat turn makes several calls, so the client's
+    # default of 2 lets a single unlucky call fail the whole answer.
+    llm_max_retries: int = Field(default=5, ge=0, le=10)
 
     # Meal photo recognition (Epic 1) — POST /health/meals/photo-analysis
     # sends the photo to the vision model (MODEL_NAME, or LLM_NODE_MODELS
